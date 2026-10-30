@@ -1,0 +1,248 @@
+@import "tailwindcss";
+
+@theme {
+  --color-abyss: #0b2236;
+  --color-harbor: #14385a;
+  --color-ocean: #1d5f8a;
+  --color-lagoon: #2e9da6;
+  --color-sail: #fbfcfd;
+  --color-mist: #e8eef2;
+  --color-champagne: #c8a96b;
+  --color-champagne-light: #dcc595;
+  --color-ink: #102435;
+  --color-slate: #4a5d6e;
+  --color-foam: #c9d6e2;
+  --color-alert: #b42318;
+
+  --font-display: var(--font-bodoni), "Bodoni 72", Didot, Georgia, serif;
+  --font-sans: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+
+  --ease-tide: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+  body {
+    background: var(--color-sail);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-champagne);
+    outline-offset: 3px;
+  }
+  ::selection {
+    background: var(--color-champagne-light);
+    color: var(--color-abyss);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Page gutter shared by every section. */
+  .shell {
+    width: 100%;
+    max-width: 88rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+  @media (min-width: 768px) {
+    .shell {
+      padding-inline: 2.5rem;
+    }
+  }
+  @media (min-width: 1280px) {
+    .shell {
+      padding-inline: 4rem;
+    }
+  }
+
+  .display-xl {
+    font-size: clamp(3rem, 7.2vw, 6.75rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .display-lg {
+    font-size: clamp(2.25rem, 4.6vw, 4.25rem);
+  }
+  .display-md {
+    font-size: clamp(1.75rem, 3vw, 2.625rem);
+  }
+  .lede {
+    font-size: clamp(1.125rem, 1.6vw, 1.3125rem);
+    line-height: 1.55;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    min-height: 3.25rem;
+    padding: 0.85rem 1.75rem;
+    border-radius: 2px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    text-align: center;
+    cursor: pointer;
+    transition:
+      background-color 0.25s var(--ease-tide),
+      color 0.25s var(--ease-tide),
+      border-color 0.25s var(--ease-tide);
+  }
+  .btn-primary {
+    background: var(--color-champagne);
+    color: var(--color-abyss);
+  }
+  .btn-primary:hover {
+    background: var(--color-champagne-light);
+  }
+  .btn-light {
+    border: 1px solid rgb(255 255 255 / 0.55);
+    color: #fff;
+  }
+  .btn-light:hover {
+    background: rgb(255 255 255 / 0.12);
+    border-color: #fff;
+  }
+  .btn-dark {
+    border: 1px solid var(--color-abyss);
+    color: var(--color-abyss);
+  }
+  .btn-dark:hover {
+    background: var(--color-abyss);
+    color: var(--color-sail);
+  }
+
+  /* Text link with a champagne underline that fills on hover. */
+  .link-tide {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    border-bottom: 1px solid var(--color-champagne);
+    padding-bottom: 2px;
+    transition: background-size 0.35s var(--ease-tide);
+  }
+  .link-tide:hover {
+    background-size: 100% 1px;
+  }
+
+  /* The horizon rule: the site's recurring divider. */
+  .horizon {
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      var(--color-champagne) 0%,
+      color-mix(in srgb, var(--color-champagne) 40%, transparent) 60%,
+      transparent 100%
+    );
+  }
+
+  .field-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 0.4rem;
+  }
+  .field {
+    width: 100%;
+    min-height: 3.25rem;
+    padding: 0.75rem 0.95rem;
+    border: 1px solid #b9c6d1;
+    border-radius: 2px;
+    background: #fff;
+    color: var(--color-ink);
+    font-size: 1rem;
+    transition: border-color 0.2s;
+    /* Keep focused fields clear of the fixed header. */
+    scroll-margin-top: 8rem;
+  }
+  .field:hover {
+    border-color: var(--color-slate);
+  }
+  .field:focus {
+    outline: none;
+    border-color: var(--color-ocean);
+    box-shadow: 0 0 0 3px rgb(29 95 138 / 0.18);
+  }
+  .field[aria-invalid="true"] {
+    border-color: var(--color-alert);
+  }
+  textarea.field {
+    min-height: 8rem;
+    resize: vertical;
+  }
+  select.field {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath stroke='%23102435' stroke-width='1.5' d='m1 1.5 5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 2.5rem;
+  }
+  .field-error {
+    margin-top: 0.4rem;
+    font-size: 0.875rem;
+    color: var(--color-alert);
+  }
+}
+
+/* Hero load sequence: the one orchestrated motion moment on the site. */
+@keyframes horizon-draw {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.hero-horizon {
+  transform-origin: left center;
+  animation: horizon-draw 1.4s var(--ease-tide) 0.15s both;
+}
+.hero-rise {
+  animation: rise 1s var(--ease-tide) both;
+}
