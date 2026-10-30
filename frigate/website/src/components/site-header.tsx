@@ -50,7 +50,7 @@ export function SiteHeader() {
     <header
       className={`fixed inset-x-0 top-0 z-40 transition-[background-color,box-shadow,color] duration-300 ${
         solid
-          ? "bg-sail/95 text-ink shadow-[0_1px_0_rgb(16_36_53/0.08)] backdrop-blur-md"
+          ? "bg-sail/95 text-ink shadow-[0_1px_0_rgb(30_25_19/0.08)] backdrop-blur-md"
           : "bg-transparent text-white"
       }`}
     >

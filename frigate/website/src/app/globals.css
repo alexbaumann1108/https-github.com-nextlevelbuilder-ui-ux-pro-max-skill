@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
 @theme {
-  --color-abyss: #0b2236;
-  --color-harbor: #14385a;
-  --color-ocean: #1d5f8a;
-  --color-lagoon: #2e9da6;
-  --color-sail: #fbfcfd;
-  --color-mist: #e8eef2;
-  --color-champagne: #c8a96b;
-  --color-champagne-light: #dcc595;
-  --color-ink: #102435;
-  --color-slate: #4a5d6e;
-  --color-foam: #c9d6e2;
+  --color-abyss: #3e2e21; /* driftwood */
+  --color-harbor: #5a4330;
+  --color-ocean: #8b6440;
+  --color-lagoon: #b08a60;
+  --color-sail: #fbf8f3;
+  --color-mist: #f1e8dc; /* sand */
+  --color-champagne: #c9a47a; /* island tan */
+  --color-champagne-light: #dfc6a3;
+  --color-ink: #1e1913;
+  --color-slate: #6a5a4a;
+  --color-foam: #e8dccb;
   --color-alert: #b42318;
 
   --font-display: var(--font-bodoni), "Bodoni 72", Didot, Georgia, serif;
@@ -182,7 +182,7 @@
     width: 100%;
     min-height: 3.25rem;
     padding: 0.75rem 0.95rem;
-    border: 1px solid #b9c6d1;
+    border: 1px solid #cfc2b2;
     border-radius: 2px;
     background: #fff;
     color: var(--color-ink);
@@ -197,7 +197,7 @@
   .field:focus {
     outline: none;
     border-color: var(--color-ocean);
-    box-shadow: 0 0 0 3px rgb(29 95 138 / 0.18);
+    box-shadow: 0 0 0 3px rgb(139 100 64 / 0.2);
   }
   .field[aria-invalid="true"] {
     border-color: var(--color-alert);
@@ -208,7 +208,7 @@
   }
   select.field {
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath stroke='%23102435' stroke-width='1.5' d='m1 1.5 5 5 5-5'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath stroke='%231e1913' stroke-width='1.5' d='m1 1.5 5 5 5-5'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 1rem center;
     padding-right: 2.5rem;

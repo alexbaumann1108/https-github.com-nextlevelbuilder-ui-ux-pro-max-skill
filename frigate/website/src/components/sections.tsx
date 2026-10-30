@@ -20,7 +20,7 @@ export function PageMasthead({
     <section className="relative overflow-hidden bg-abyss pb-16 pt-36 text-white md:pb-20 md:pt-44">
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-[radial-gradient(ellipse_at_85%_120%,rgb(29_95_138/0.55),transparent_60%),radial-gradient(ellipse_at_70%_-20%,rgb(200_169_107/0.12),transparent_55%)]"
+        className="absolute inset-0 bg-[radial-gradient(ellipse_at_85%_120%,rgb(139_100_64/0.5),transparent_60%),radial-gradient(ellipse_at_70%_-20%,rgb(201_164_122/0.14),transparent_55%)]"
       />
       <div className="shell relative">
         <h1 className="display-lg hero-rise max-w-3xl">{title}</h1>

@@ -18,13 +18,13 @@ export default function OpengraphImage() {
           padding: 72,
           color: "white",
           background:
-            "linear-gradient(180deg, #78acd3 0%, #dbe9f2 52%, #154a73 52.2%, #0b2236 100%)",
+            "linear-gradient(180deg, #e9d6bb 0%, #f4ead9 52%, #8b6440 52.2%, #3e2e21 100%)",
         }}
       >
         <div style={{ fontSize: 76, lineHeight: 1.05, maxWidth: 900 }}>
           The open water, privately yours.
         </div>
-        <div style={{ height: 2, width: "100%", background: "#c8a96b", marginTop: 36 }} />
+        <div style={{ height: 2, width: "100%", background: "#c9a47a", marginTop: 36 }} />
         <div style={{ fontSize: 30, marginTop: 28, opacity: 0.9 }}>{site.name}</div>
       </div>
     ),

@@ -51,7 +51,7 @@ export function BookingForm() {
   if (f.status.state === "success") {
     const exp = getExperience(v.experience);
     return (
-      <div className="bg-white p-6 shadow-[0_1px_0_rgb(16_36_53/0.06)] sm:p-10" role="status">
+      <div className="bg-white p-6 shadow-[0_1px_0_rgb(30_25_19/0.06)] sm:p-10" role="status">
         <svg width="44" height="30" viewBox="0 0 30 20" fill="none" aria-hidden="true">
           <path d="M7 14a8 8 0 0 1 16 0" stroke="var(--color-champagne)" strokeWidth="1.5" />
           <path d="M0 14.75h30" stroke="var(--color-abyss)" strokeWidth="1.5" />
@@ -311,7 +311,7 @@ function GuestStepper({
         type="button"
         onClick={() => step(-1)}
         disabled={n <= 1}
-        className="w-14 shrink-0 border border-r-0 border-[#b9c6d1] bg-white text-xl disabled:opacity-40"
+        className="w-14 shrink-0 border border-r-0 border-[#cfc2b2] bg-white text-xl disabled:opacity-40"
         aria-label="Fewer guests"
       >
         −
@@ -330,7 +330,7 @@ function GuestStepper({
         type="button"
         onClick={() => step(1)}
         disabled={n >= max}
-        className="w-14 shrink-0 border border-l-0 border-[#b9c6d1] bg-white text-xl disabled:opacity-40"
+        className="w-14 shrink-0 border border-l-0 border-[#cfc2b2] bg-white text-xl disabled:opacity-40"
         aria-label="More guests"
       >
         +

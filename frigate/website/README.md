@@ -102,7 +102,8 @@ See `.env.example`.
 ## Design
 
 - Type: Bodoni Moda (display) and Instrument Sans (text)
-- Palette: abyss navy `#0b2236`, ocean `#1d5f8a`, sail white `#fbfcfd`, mist
-  `#e8eef2`, champagne `#c8a96b`
-- Motif: the champagne "horizon line", drawn in on page load and reused as
-  the divider throughout
+- Palette: driftwood `#3e2e21`, island tan `#c9a47a`, sand `#f1e8dc`,
+  warm white `#fbf8f3`, ink `#1e1913`
+- Motif: the tan "horizon line", drawn in on page load and reused as the
+  divider throughout
+- Brand assets (logos, fonts, colours) live in `../brand/`
