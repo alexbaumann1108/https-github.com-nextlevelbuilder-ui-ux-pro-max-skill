@@ -8,7 +8,13 @@ frigate/
 │   ├── logos/                  Logo PNGs (transparent and on colour)
 │   ├── fonts/                  Nunito Sans, the closest free match to the card's lettering
 │   ├── frigate-brand-colors.png
+│   ├── frigate-brand-board.png   Brand concept sheet
 │   └── business-card-original.png
+├── media/
+│   ├── photos/                 Trip photos (12)
+│   └── videos/
+│       ├── originals/          iPhone clips as recorded (.mov)
+│       └── web/                Website-ready copies (.mp4, muted) and poster frames
 └── website/                    The Next.js website (see website/README.md)
 ```
 
@@ -42,3 +48,18 @@ original artwork files.
 | Island Tan | `#C9A47A` | Buttons, accents |
 | Sand | `#F1E8DC` | Light sections |
 | Paper Cream | `#DCD3C7` | Card paper |
+
+## Photos and videos
+
+Photos are named by what they show (`snook-wading-turquoise-water.jpg`,
+`boat-on-the-clear-flats.jpg`), so they are easy to pick for each page.
+
+The videos were recorded in Apple's HEVC format, which Chrome and Firefox
+can't play. The `web/` copies are H.264 MP4s that play in every browser,
+muted so they can autoplay as background video, with a poster image for
+the first frame.
+
+| Video | Length | Good for |
+| --- | --- | --- |
+| `boat-running-at-sunset` | 6.6 s | Homepage hero background |
+| `beach-sunset-angler` | 3.9 s | Closing "book your trip" section |
