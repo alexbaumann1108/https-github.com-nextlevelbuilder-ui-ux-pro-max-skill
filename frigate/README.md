@@ -10,6 +10,7 @@ frigate/
 │   ├── frigate-brand-colors.png
 │   ├── frigate-brand-board.png   Brand concept sheet
 │   └── business-card-original.png
+├── business-details.md       Confirmed contact details
 ├── media/
 │   ├── photos/                 Trip photos (16)
 │   └── videos/
