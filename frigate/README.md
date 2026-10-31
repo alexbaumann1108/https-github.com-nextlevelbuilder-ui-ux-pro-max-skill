@@ -11,7 +11,7 @@ frigate/
 │   ├── frigate-brand-board.png   Brand concept sheet
 │   └── business-card-original.png
 ├── media/
-│   ├── photos/                 Trip photos (12)
+│   ├── photos/                 Trip photos (16)
 │   └── videos/
 │       ├── originals/          iPhone clips as recorded (.mov)
 │       └── web/                Website-ready copies (.mp4, muted) and poster frames
