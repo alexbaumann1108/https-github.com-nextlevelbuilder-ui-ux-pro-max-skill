@@ -105,7 +105,7 @@ export default function BookPage() {
                 <RatesLedger />
               </div>
             </div>
-            <Illustration name="fly" className="w-48 text-tan-deep" />
+            <Illustration name="fly" className="w-48 text-ink/85" />
           </aside>
         </div>
       </section>

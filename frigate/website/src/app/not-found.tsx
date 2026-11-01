@@ -22,7 +22,7 @@ export default function NotFound() {
           </div>
         </div>
         <div className="md:col-span-5">
-          <FishSketch species="snook" className="w-full text-tan-deep" />
+          <FishSketch species="snook" className="w-full text-ink/85" />
         </div>
       </div>
     </section>

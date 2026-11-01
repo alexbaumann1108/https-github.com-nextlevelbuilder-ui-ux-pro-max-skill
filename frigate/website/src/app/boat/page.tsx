@@ -56,7 +56,7 @@ export default function BoatPage() {
                   </div>
                 ))}
               </dl>
-              <Illustration name="boat-sketch" className="mt-8 w-full text-ink/60" />
+              <Illustration name="boat-sketch" className="mt-8 w-full text-ink/85" />
             </div>
             <div className="mt-12">
               <h2 className="display-md">Rates</h2>

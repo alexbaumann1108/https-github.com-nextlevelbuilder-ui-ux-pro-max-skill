@@ -15,6 +15,8 @@ type Drawing = {
   scale: number;
   /** Tail rays fan from the base to points along the tail edge. */
   tail: { base: [number, number]; edge: [number, number][]; rays: number };
+  /** Indexes into `lines` that are fins, filled with ray hatching. */
+  fins: number[];
   /** Lateral line as a straight approximation, for scale rows: x0,y0,x1,y1. */
   ll: [number, number, number, number];
 };
@@ -50,6 +52,7 @@ const drawings: Record<Species, Drawing> = {
     hatch: [150, 520, 7],
     scale: 9,
     tail: { base: [128, 110], edge: [[64, 50], [76, 106], [64, 172]], rays: 14 },
+    fins: [1, 2, 3, 4, 5],
     ll: [150, 108, 520, 92],
   },
   tarpon: {
@@ -73,6 +76,7 @@ const drawings: Record<Species, Drawing> = {
     hatch: [170, 520, 8],
     scale: 16,
     tail: { base: [142, 114], edge: [[58, 26], [82, 114], [58, 198]], rays: 16 },
+    fins: [1, 2, 3, 4],
     ll: [160, 120, 520, 92],
   },
   redfish: {
@@ -100,6 +104,7 @@ const drawings: Record<Species, Drawing> = {
     hatch: [160, 520, 7],
     scale: 10,
     tail: { base: [142, 110], edge: [[70, 70], [76, 110], [70, 152]], rays: 12 },
+    fins: [1, 2, 3, 4, 5],
     ll: [160, 108, 515, 92],
   },
   baitfish: {
@@ -115,6 +120,7 @@ const drawings: Record<Species, Drawing> = {
     hatch: [90, 240, 6],
     scale: 6,
     tail: { base: [72, 59], edge: [[38, 34], [46, 59], [38, 84]], rays: 7 },
+    fins: [1],
     ll: [80, 58, 250, 53],
   },
 };
@@ -160,36 +166,60 @@ export function FishSketch({
     return seed / 233280;
   };
 
-  // Back shading: dense, slightly irregular strokes under the top of the body.
-  const hatch: string[] = [];
-  for (let x = d.hatch[0]; x <= d.hatch[1]; x += d.hatch[2] * 0.75) {
-    const len = vh * (0.14 + rand() * 0.14);
-    hatch.push(`M${x + rand() * 3} ${vy} l${-14 - rand() * 6} ${len}`);
-  }
-
-  // Scale rows that follow the lateral line, staggered like an engraving.
   const [lx0, ly0, lx1, ly1] = d.ll;
   const slope = (ly1 - ly0) / (lx1 - lx0);
+  const along = (x: number, off: number) => ly0 + (x - lx0) * slope + off;
+  const wobble = (x0: number, x1: number, off: number) => {
+    const xm = (x0 + x1) / 2;
+    return `M${x0.toFixed(1)} ${along(x0, off).toFixed(1)} Q${xm.toFixed(1)} ${(along(xm, off) - 1.5 + rand() * 3).toFixed(1)} ${x1.toFixed(1)} ${along(x1, off).toFixed(1)}`;
+  };
+
+  // Engraved shading: lines that follow the body, tightening toward the
+  // back so it reads dark, like the hatched wings on the logo bird.
+  const back: { d: string; o: number; w: number }[] = [];
+  for (let k = 0, off = -vh * 0.08; k < 30; k++) {
+    off -= 2 - k * 0.035;
+    const start = lx0 - 30 + rand() * 40;
+    back.push({ d: wobble(start, lx1 + 40 - rand() * 30, off), o: Math.min(1, 0.5 + k * 0.035), w: 0.85 + k * 0.035 });
+  }
+  // Cross-hatching across the top of the back.
+  const cross: string[] = [];
+  for (let x = d.hatch[0]; x <= d.hatch[1] + 40; x += d.hatch[2] * 0.55) {
+    const len = vh * (0.12 + rand() * 0.12);
+    cross.push(`M${(x + rand() * 2).toFixed(1)} ${vy} l${(-9 - rand() * 4).toFixed(1)} ${len.toFixed(1)}`);
+  }
+  // Light shading along the belly.
+  const belly: string[] = [];
+  for (let k = 0, off = vh * 0.2; k < 8; k++, off += 3) {
+    belly.push(wobble(lx0 + 10 + rand() * 30, lx1 - 10 - rand() * 30, off));
+  }
+
+  // Scale rows that follow the lateral line.
   const s = d.scale;
   const scales: string[] = [];
-  // Each scale is a small crescent whose free edge faces the tail.
   const h = s * 0.42;
   for (let row = -7; row <= 7; row++) {
     const off = row * h * 1.7;
     for (let x = lx0 + (row % 2 ? s * 0.38 : 0); x < lx1; x += s * 0.76) {
-      const y = ly0 + (x - lx0) * slope + off;
-      scales.push(
-        `M${x.toFixed(1)} ${(y - h).toFixed(1)} Q${(x - s * 0.5).toFixed(1)} ${y.toFixed(1)} ${x.toFixed(1)} ${(y + h).toFixed(1)}`,
-      );
+      const y = along(x, off);
+      scales.push(`M${x.toFixed(1)} ${(y - h).toFixed(1)} Q${(x - s * 0.5).toFixed(1)} ${y.toFixed(1)} ${x.toFixed(1)} ${(y + h).toFixed(1)}`);
     }
   }
+
+  // Fin rays: fine slanted lines clipped to each fin.
+  const [vx, , vw] = d.viewBox.split(" ").map(Number);
+  // Line weight scales with the drawing so small fish aren't heavier.
+  const k = vw / 560;
+  const finRays: string[] = [];
+  for (let x = vx; x < vx + vw; x += 2.6 * (vw / 560)) finRays.push(`M${x} ${vy} l-14 ${vh}`);
 
   // Tail rays fanning from the base to the edge of the tail.
   const rays: string[] = [];
   const pts = d.tail.edge;
   const segs = pts.length - 1;
-  for (let i = 0; i < d.tail.rays; i++) {
-    const t = (i + 0.5) / d.tail.rays;
+  const nRays = d.tail.rays * 2;
+  for (let i = 0; i < nRays; i++) {
+    const t = (i + 0.5) / nRays;
     const seg = Math.min(segs - 1, Math.floor(t * segs));
     const local = t * segs - seg;
     const [ax, ay] = pts[seg];
@@ -213,41 +243,69 @@ export function FishSketch({
       strokeLinejoin="round"
     >
       <defs>
+        {/* Pen texture: slight wobble plus grain that breaks up the ink. */}
         <filter id={`${id}p`} x="-5%" y="-5%" width="110%" height="110%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="7" />
-          <feDisplacementMap in="SourceGraphic" scale="1.6" />
+          <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="7" result="warp" />
+          <feDisplacementMap in="SourceGraphic" in2="warp" scale="1.8" result="ink" />
+          <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="1" seed="3" result="grain" />
+          <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -0.9 1.55" result="mask" />
+          <feComposite in="ink" in2="mask" operator="in" />
         </filter>
         <clipPath id={`${id}c`}>
           <path d={d.body} />
         </clipPath>
+        <clipPath id={`${id}f`}>
+          {d.fins.map((i) => (
+            <path key={i} d={d.lines[i]} />
+          ))}
+        </clipPath>
       </defs>
       <g filter={`url(#${id}p)`}>
         <g clipPath={`url(#${id}c)`}>
-          <g opacity="0.32">
+          <g opacity="0.16">
             {scales.map((sc, i) => (
-              <path key={i} d={sc} strokeWidth="0.7" pathLength={1} />
+              <path key={i} d={sc} strokeWidth="0.6" pathLength={1} />
             ))}
           </g>
-          <g opacity="0.42">
-            {hatch.map((hd, i) => (
-              <path key={i} d={hd} strokeWidth="0.75" pathLength={1} />
+          {back.map((b, i) => (
+            <path key={i} d={b.d} strokeWidth={b.w * k} opacity={b.o} pathLength={1} />
+          ))}
+          <g opacity="0.95">
+            {cross.map((c, i) => (
+              <path key={i} d={c} strokeWidth={0.8 * k} pathLength={1} />
+            ))}
+          </g>
+          <g opacity="0.35">
+            {belly.map((c, i) => (
+              <path key={i} d={c} strokeWidth="0.6" pathLength={1} />
             ))}
           </g>
         </g>
-        <g opacity="0.6">
-          {rays.map((r, i) => (
-            <path key={i} d={r} strokeWidth="0.7" pathLength={1} />
+        <g clipPath={`url(#${id}f)`} opacity="0.9">
+          {finRays.map((r, i) => (
+            <path key={i} d={r} strokeWidth={0.7 * k} pathLength={1} />
           ))}
         </g>
-        <path d={d.body} strokeWidth="2.2" pathLength={1} />
+        <g opacity="0.95">
+          {rays.map((r, i) => (
+            <path key={i} d={r} strokeWidth={0.65 * k} pathLength={1} />
+          ))}
+        </g>
+        {/* Doubled contour, like a re-inked pen line. */}
+        <path d={d.body} strokeWidth={1.9 * k} pathLength={1} />
+        <path d={d.body} strokeWidth={0.9 * k} opacity="0.75" transform={`translate(${1.3 * k} ${1.1 * k})`} pathLength={1} />
+        <path d={d.body} strokeWidth={0.6 * k} opacity="0.45" transform={`translate(${-0.9 * k} ${-0.7 * k})`} pathLength={1} />
         {d.lines.map((l, i) => (
-          <path key={i} d={l} strokeWidth="1.6" pathLength={1} />
+          <g key={i}>
+            <path d={l} strokeWidth={1.5 * k} pathLength={1} />
+            <path d={l} strokeWidth={0.6 * k} opacity="0.5" transform={`translate(${0.9 * k} ${0.8 * k})`} pathLength={1} />
+          </g>
         ))}
         {d.marks?.map((m, i) => (
-          <path key={i} d={m.d} strokeWidth={m.width} fill={m.fill ? stroke : "none"} pathLength={1} />
+          <path key={i} d={m.d} strokeWidth={m.fill ? m.width : m.width * 0.6 * k} fill={m.fill ? stroke : "none"} pathLength={1} />
         ))}
-        <circle cx={d.eye[0]} cy={d.eye[1]} r={d.eye[2]} strokeWidth="1.5" />
-        <circle cx={d.eye[0] + 0.6} cy={d.eye[1]} r={d.eye[2] * 0.45} fill={stroke} stroke="none" />
+        <circle cx={d.eye[0]} cy={d.eye[1]} r={d.eye[2]} strokeWidth={1.3 * k} />
+        <circle cx={d.eye[0] + 0.6} cy={d.eye[1]} r={d.eye[2] * 0.5} fill={stroke} stroke="none" />
       </g>
     </svg>
   );

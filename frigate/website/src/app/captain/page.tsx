@@ -64,7 +64,7 @@ export default function CaptainPage() {
             <ul className="mt-6 divide-y divide-tan/50 border-y border-tan/50">
               {captain.specialties.map((s) => (
                 <li key={s} className="flex items-center gap-4 py-4">
-                  <Illustration name="icon-fly" className="w-7 shrink-0 text-seafoam-deep" />
+                  <Illustration name="icon-fly" className="w-7 shrink-0 text-ink/85" />
                   <span className="font-display text-[1.3rem]">{s}</span>
                 </li>
               ))}

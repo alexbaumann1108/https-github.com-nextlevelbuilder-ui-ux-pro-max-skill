@@ -30,7 +30,7 @@ export function LocationMap() {
           >
             Open in Google Maps<span className="sr-only"> (opens in a new tab)</span>
           </a>
-          <Illustration name="icon-hook" className="mt-10 hidden w-8 text-tan-deep lg:block" />
+          <Illustration name="icon-hook" className="mt-10 hidden w-8 text-ink/85 lg:block" />
         </div>
         <div className="relative aspect-[4/3] overflow-hidden rounded-[3px] border-[8px] border-paper bg-seafoam-pale shadow-[0_18px_40px_-26px_rgb(42_39_33/0.6)] lg:col-span-7">
           <iframe

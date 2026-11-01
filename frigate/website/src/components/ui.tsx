@@ -64,8 +64,8 @@ export function PageHeader({
           {children}
         </div>
         <div className="hidden md:col-span-5 md:block">
-          {sketch && <FishSketch species={sketch} className="ml-auto w-full max-w-md text-ink/80" />}
-          {art && <Illustration name={art} className="ml-auto w-full max-w-sm text-ink/80" />}
+          {sketch && <FishSketch species={sketch} className="ml-auto w-full max-w-md text-ink/85" />}
+          {art && <Illustration name={art} className="ml-auto w-full max-w-sm text-ink/85" />}
         </div>
       </div>
     </header>

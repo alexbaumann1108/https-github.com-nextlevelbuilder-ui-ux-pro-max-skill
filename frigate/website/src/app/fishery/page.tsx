@@ -44,14 +44,14 @@ export default function FisheryPage() {
                   <Photo photo={e.photo} sizes="(min-width: 1024px) 50vw, 100vw" />
                 ) : (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 border-[1.5px] border-dashed border-tan p-8">
-                    <FishSketch species={e.sketch} className="w-full max-w-lg text-seafoam-deep" decorative={false} />
+                    <FishSketch species={e.sketch} className="w-full max-w-lg text-ink/85" decorative={false} />
                     <p className="label text-center text-ink-soft">{scientificName[e.sketch]}</p>
                   </div>
                 )}
               </div>
             </div>
             <div className="lg:col-span-6">
-              <FishSketch species={e.sketch} className="w-40 text-tan-deep" />
+              <FishSketch species={e.sketch} className="w-40 text-ink/85" />
               <h2 id={`${e.slug}-title`} className="display-lg mt-4 uppercase">
                 {e.name}
               </h2>
@@ -83,7 +83,7 @@ export default function FisheryPage() {
             <h2 id="rates-title" className="display-md mt-3">
               Any fishery, three lengths of day
             </h2>
-            <Illustration name="fly-small" className="mt-8 w-28 text-tan-deep" />
+            <Illustration name="fly-small" className="mt-8 w-28 text-ink/85" />
           </div>
           <div className="md:col-span-7">
             <RatesLedger />

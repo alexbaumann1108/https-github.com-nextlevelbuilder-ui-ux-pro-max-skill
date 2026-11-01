@@ -88,7 +88,7 @@ export default function Home() {
       <section aria-labelledby="intro-title" className="py-20 md:py-28">
         <div className="shell grid gap-12 md:grid-cols-12">
           <aside className="md:col-span-3 md:border-r md:border-tan/60 md:pr-8">
-            <Illustration name="icon-florida" className="w-16 text-seafoam-deep" />
+            <Illustration name="icon-florida" className="w-16 text-ink/85" />
             <p className="label mt-5 text-ink-soft">Waters we fish</p>
             <ul className="mt-2 space-y-1 font-display text-[1.2rem]">
               {site.serviceArea.map((a) => (
@@ -108,7 +108,7 @@ export default function Home() {
               the backcountry, every trip is built around the conditions, the
               fish, and making the most of your time on the water.
             </p>
-            <Illustration name="fly" className="mt-10 w-48 text-tan-deep md:w-60" />
+            <Illustration name="fly" className="mt-10 w-48 text-ink/85 md:w-60" />
           </div>
         </div>
       </section>
@@ -135,13 +135,13 @@ export default function Home() {
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center p-8">
-                        <FishSketch species={e.sketch} className="w-full text-seafoam-deep" />
+                        <FishSketch species={e.sketch} className="w-full text-ink/85" />
                       </div>
                     )}
                   </div>
                   {e.photo && (
                     <div className="absolute -bottom-6 right-3 w-40 rounded-[3px] bg-parchment px-3 py-2 shadow-[0_1px_0_rgb(185_154_114/0.6)]">
-                      <FishSketch species={e.sketch} className="w-full text-ink/80" />
+                      <FishSketch species={e.sketch} className="w-full text-ink/85" />
                     </div>
                   )}
                 </Link>
@@ -174,7 +174,7 @@ export default function Home() {
             <ul className="mt-8 grid gap-3 sm:grid-cols-2">
               {captain.specialties.map((s) => (
                 <li key={s} className="flex items-start gap-3">
-                  <Illustration name="icon-fly" className="mt-0.5 w-6 shrink-0 text-seafoam-deep" />
+                  <Illustration name="icon-fly" className="mt-0.5 w-6 shrink-0 text-ink/85" />
                   <span className="font-semibold">{s}</span>
                 </li>
               ))}
@@ -207,7 +207,7 @@ export default function Home() {
                 </div>
               ))}
             </dl>
-            <Illustration name="boat-sketch" className="mt-10 w-full max-w-sm self-end text-ink/70" />
+            <Illustration name="boat-sketch" className="mt-10 w-full max-w-sm self-end text-ink/85" />
             <Link href="/boat" className="link mt-6 self-start font-bold">
               More about the boat
             </Link>
@@ -227,7 +227,7 @@ export default function Home() {
               One boat, one captain, your group. Pick the length of day and we&apos;ll
               plan it around the tides and the fish.
             </p>
-            <Illustration name="fly-caster" className="mt-8 hidden w-56 text-ink/70 md:block" />
+            <Illustration name="fly-caster" className="mt-8 hidden w-56 text-ink/85 md:block" />
           </div>
           <div className="md:col-span-7">
             <RatesLedger />
