@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { experiences } from "@/content/experiences";
 import { fleet } from "@/content/fleet";
+import { rates } from "@/content/rates";
 
 /** Shared by the booking form, the contact form and the API route. */
 
@@ -51,6 +52,9 @@ export const bookingSchema = z
     kind: z.literal("booking"),
     experience: z.enum(experienceValues, { error: "Choose a charter, or pick “Not sure yet”." }),
     vessel: z.enum(vesselValues, { error: "Choose a boat, or pick “No preference”." }),
+    tripLength: z.enum(rates.map((r) => String(r.hours)) as [string, ...string[]], {
+      error: "Choose how long you'd like to fish.",
+    }),
     date: z
       .string()
       .regex(/^\d{4}-\d{2}-\d{2}$/, "Choose your preferred date.")

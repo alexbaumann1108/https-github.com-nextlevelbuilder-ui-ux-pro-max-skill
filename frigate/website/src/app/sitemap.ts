@@ -3,7 +3,7 @@ import { fleet } from "@/content/fleet";
 import { siteUrl } from "@/content/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const pages = ["", "/charters", "/book", "/gallery", "/about", "/contact", "/privacy"];
+  const pages = ["", "/charters", "/book", "/gallery", "/conditions", "/about", "/contact", "/privacy"];
   // /fleet redirects to the boat's own page when there is only one boat.
   if (fleet.length > 1) pages.splice(2, 0, "/fleet");
   return [

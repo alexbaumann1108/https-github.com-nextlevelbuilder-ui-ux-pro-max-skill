@@ -1,5 +1,6 @@
 import { site, siteUrl } from "@/content/site";
 import { experiences } from "@/content/experiences";
+import { rates } from "@/content/rates";
 
 function JsonLd({ data }: { data: Record<string, unknown> }) {
   return (
@@ -30,9 +31,16 @@ export function LocalBusinessJsonLd() {
     url: siteUrl,
     image: `${siteUrl}/photos/wading-the-mangroves-golden-light.jpg`,
     logo: `${siteUrl}/brand/frigate-logo-black.png`,
-    makesOffer: experiences.map((e) => ({
+    makesOffer: rates.map((r) => ({
       "@type": "Offer",
-      itemOffered: { "@type": "Service", name: e.name, description: e.summary },
+      name: `${r.name} fishing charter (${r.hours} hours)`,
+      price: r.price,
+      priceCurrency: "USD",
+      itemOffered: {
+        "@type": "Service",
+        name: `${r.hours}-hour inshore fishing charter`,
+        description: experiences.map((e) => e.name).join(", "),
+      },
     })),
   };
   if (site.phone) data.telephone = site.phone;

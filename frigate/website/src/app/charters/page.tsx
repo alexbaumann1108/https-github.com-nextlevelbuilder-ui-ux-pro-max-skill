@@ -3,8 +3,8 @@ import Link from "next/link";
 import { experiences } from "@/content/experiences";
 import { inArea } from "@/content/site";
 import { Photo } from "@/components/photo";
-import { BookingCta, PageMasthead, Specs } from "@/components/sections";
-import { PlaceholderNote } from "@/components/placeholder-note";
+import { BookingCta, PageMasthead, RatesTable, Specs } from "@/components/sections";
+import { rates, formatPrice, lowestRate } from "@/content/rates";
 
 export const metadata: Metadata = {
   title: "Fishing trips",
@@ -22,11 +22,10 @@ export default function ChartersPage() {
 
       <section aria-label="All charters" className="py-20 md:py-28">
         <div className="shell">
-          <PlaceholderNote className="mb-14 max-w-2xl">
-            Trip lengths, prices and how many anglers each trip takes show as
-            &ldquo;To be confirmed&rdquo; until you add them in
-            src/content/experiences.ts.
-          </PlaceholderNote>
+          <div className="mb-20">
+            <h2 className="display-md mb-6">Rates</h2>
+            <RatesTable />
+          </div>
           <div className="space-y-20 md:space-y-28">
             {experiences.map((e, i) => (
               <article
@@ -51,9 +50,9 @@ export default function ChartersPage() {
                   <div className="horizon my-7" />
                   <Specs
                     items={[
-                      { label: "Duration", value: e.duration },
+                      { label: "Trip length", value: rates.map((r) => r.hours).join(", ") + " hours" },
+                      { label: "From", value: formatPrice(lowestRate) },
                       { label: "Anglers", value: e.guests },
-                      { label: "Starting from", value: e.startingPrice },
                     ]}
                   />
                   <Link href={`/book?experience=${e.slug}`} className="btn btn-primary mt-8">

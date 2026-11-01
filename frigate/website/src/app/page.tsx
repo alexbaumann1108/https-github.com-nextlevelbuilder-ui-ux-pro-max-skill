@@ -9,6 +9,8 @@ import {
   BookingCta,
   ExperienceCard,
   FaqList,
+  RatesTable,
+  RegulationsSection,
   ReviewsSection,
   SectionIntro,
   Specs,
@@ -121,6 +123,10 @@ export default function Home() {
               <ExperienceCard key={e.slug} experience={e} />
             ))}
           </div>
+          <div className="mt-16">
+            <h3 className="mb-2 text-[1.75rem]">Rates</h3>
+            <RatesTable />
+          </div>
         </div>
       </section>
 
@@ -153,6 +159,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <RegulationsSection />
 
       {/* The boat */}
       {boat && (

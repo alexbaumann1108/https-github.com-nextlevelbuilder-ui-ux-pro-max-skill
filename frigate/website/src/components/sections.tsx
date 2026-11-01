@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { Experience } from "@/content/types";
 import { ctaPhoto, faqs, reviews } from "@/content/home";
+import { rates, formatPrice, lowestRate } from "@/content/rates";
+import { fwc } from "@/content/links";
 import { site, showPlaceholders } from "@/content/site";
 import { Photo } from "./photo";
 import { PlaceholderNote } from "./placeholder-note";
@@ -102,9 +104,8 @@ export function ExperienceCard({
 }) {
   const H = headingLevel;
   const meta = [
-    { label: "Duration", value: e.duration },
-    ...(e.guests ? [{ label: "Guests", value: e.guests }] : []),
-    ...(e.startingPrice ? [{ label: "From", value: e.startingPrice }] : []),
+    { label: "Trip length", value: rates.map((r) => r.hours).join(", ") + " hours" },
+    { label: "From", value: formatPrice(lowestRate) },
   ];
   return (
     <article id={e.slug} className="group flex scroll-mt-28 flex-col">
@@ -247,6 +248,92 @@ export function BookingCta({
           <Link href="/contact" className="btn btn-light">
             Ask a question
           </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** Trip lengths and prices, per trip. */
+export function RatesTable({ tone = "light" }: { tone?: "light" | "dark" }) {
+  const muted = tone === "dark" ? "text-foam" : "text-slate";
+  return (
+    <div>
+      <ul className={`grid divide-y sm:grid-cols-3 sm:divide-x sm:divide-y-0 ${tone === "dark" ? "divide-white/15 border-white/15" : "divide-ink/10 border-ink/10"} border-y`}>
+        {rates.map((r) => (
+          <li key={r.hours} className="flex items-baseline justify-between gap-4 py-5 sm:block sm:px-6 sm:py-7 sm:first:pl-0">
+            <span>
+              <span className="block font-display text-[1.625rem] leading-tight">{r.name}</span>
+              <span className={`block text-sm ${muted}`}>{r.hours} hours</span>
+            </span>
+            <span className="font-display text-[2rem] leading-none sm:mt-4 sm:block sm:text-[2.5rem]" style={{ fontVariantNumeric: "lining-nums tabular-nums" }}>
+              {formatPrice(r.price)}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p className={`mt-4 text-sm ${muted}`}>Prices are per trip, for any trip type.</p>
+    </div>
+  );
+}
+
+/** Links to the official FWC rules for the species we target. */
+export function RegulationsSection() {
+  return (
+    <section aria-labelledby="regs-title" className="py-20 md:py-28">
+      <div className="shell grid gap-12 lg:grid-cols-12">
+        <div className="lg:col-span-5">
+          <h2 id="regs-title" className="display-md">
+            Fishing regulations
+          </h2>
+          <p className="mt-4 max-w-md text-slate">
+            Size limits, bag limits and closed seasons change by region and
+            time of year. The current rules for each species are set by the{" "}
+            {fwc.name}.
+          </p>
+          <a
+            href={fwc.allRules}
+            target="_blank"
+            rel="noopener"
+            className="btn btn-dark mt-8"
+          >
+            All FWC saltwater rules
+            <span className="sr-only"> (opens in a new tab)</span>
+          </a>
+        </div>
+        <div className="lg:col-span-7">
+          <ul className="divide-y divide-ink/10 border-y border-ink/10">
+            {fwc.species.map((s) => (
+              <li key={s.name}>
+                <a
+                  href={s.url}
+                  target="_blank"
+                  rel="noopener"
+                  className="group flex items-center justify-between gap-6 py-5"
+                >
+                  <span className="font-display text-[1.625rem] leading-tight">{s.name}</span>
+                  <span className="shrink-0 text-sm font-semibold text-ocean group-hover:underline">
+                    FWC rules
+                    <span className="sr-only"> for {s.name} (opens in a new tab)</span>
+                  </span>
+                </a>
+              </li>
+            ))}
+            <li>
+              <a
+                href={fwc.license}
+                target="_blank"
+                rel="noopener"
+                className="group flex items-center justify-between gap-6 py-5"
+              >
+                <span className="font-display text-[1.625rem] leading-tight">Do I need a license?</span>
+                <span className="shrink-0 text-sm font-semibold text-ocean group-hover:underline">
+                  FWC licenses
+                  <span className="sr-only"> (opens in a new tab)</span>
+                </span>
+              </a>
+            </li>
+          </ul>
         </div>
       </div>
     </section>

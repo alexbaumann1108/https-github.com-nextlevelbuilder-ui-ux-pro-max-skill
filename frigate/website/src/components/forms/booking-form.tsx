@@ -7,6 +7,7 @@ import { experiences, getExperience } from "@/content/experiences";
 import { fleet, getVessel } from "@/content/fleet";
 import { site, showPlaceholders } from "@/content/site";
 import { bookingSchema, timeOptions, todayISO } from "@/lib/inquiry";
+import { rates, formatPrice } from "@/content/rates";
 import { ErrorSummary, Field } from "./field";
 import { useInquiry } from "./use-inquiry";
 
@@ -32,6 +33,7 @@ export function BookingForm() {
     {
       experience: getExperience(qExperience) ? qExperience : "",
       vessel: getVessel(qVessel) ? qVessel : "any",
+      tripLength: "",
       date: "",
       time: "",
       guests: "2",
@@ -77,6 +79,15 @@ export function BookingForm() {
           <div>
             <dt className="text-slate">Trip</dt>
             <dd className="mt-0.5">{exp?.name ?? "Not sure yet"}</dd>
+          </div>
+          <div>
+            <dt className="text-slate">Trip length</dt>
+            <dd className="mt-0.5">
+              {(() => {
+                const r = rates.find((x) => String(x.hours) === v.tripLength);
+                return r ? `${r.name}, ${r.hours} hours (${formatPrice(r.price)})` : "";
+              })()}
+            </dd>
           </div>
           <div hidden={fleet.length === 1}>
             <dt className="text-slate">Boat</dt>
@@ -160,6 +171,25 @@ export function BookingForm() {
           </select>
         </Field>
         )}
+
+        <Field label="Trip length" error={f.errors.tripLength}>
+          <select
+            name="tripLength"
+            className="field"
+            value={v.tripLength}
+            onChange={(e) => f.set("tripLength", e.target.value)}
+            onBlur={() => f.blur("tripLength")}
+          >
+            <option value="" disabled>
+              Choose a trip length
+            </option>
+            {rates.map((r) => (
+              <option key={r.hours} value={String(r.hours)}>
+                {r.name}, {r.hours} hours ({formatPrice(r.price)})
+              </option>
+            ))}
+          </select>
+        </Field>
 
         <div className="grid gap-6 sm:grid-cols-2">
           <Field label="Preferred date" error={f.errors.date}>
