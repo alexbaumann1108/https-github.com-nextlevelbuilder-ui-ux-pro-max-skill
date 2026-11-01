@@ -12,6 +12,9 @@ The single source of truth for contact details on the website and in print.
 | Fishing | Fly fishing and light tackle, inshore | From card and brand board |
 | Species | Snook, redfish, tarpon, trout, jacks and more | From brand board |
 | Boat | Action Craft Fly Fisher, Mercury outboard | From photos |
+| Half day (4 hours) | $600 per trip | Confirmed by owner |
+| Three-quarter day (6 hours) | $900 per trip | Confirmed by owner |
+| Full day (8 hours) | $1,200 per trip | Confirmed by owner |
 
 ## Older versions
 
