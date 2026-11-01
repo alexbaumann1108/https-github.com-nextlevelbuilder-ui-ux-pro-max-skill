@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Bodoni_Moda, Instrument_Sans } from "next/font/google";
+import { Cormorant_Garamond, Nunito_Sans } from "next/font/google";
 import { site, siteUrl, inArea } from "@/content/site";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -7,25 +7,27 @@ import { MobileBookBar } from "@/components/mobile-book-bar";
 import { LocalBusinessJsonLd } from "@/components/json-ld";
 import "./globals.css";
 
-const bodoni = Bodoni_Moda({
-  variable: "--font-bodoni",
+// Display serif echoing the "Frigate" lettering on the brand board.
+const cormorant = Cormorant_Garamond({
+  variable: "--font-display-face",
   subsets: ["latin"],
-  axes: ["opsz"],
+  weight: ["500", "600"],
   display: "swap",
 });
 
-const instrument = Instrument_Sans({
-  variable: "--font-instrument",
+// Brand text face (closest free match to the business card lettering).
+const nunito = Nunito_Sans({
+  variable: "--font-text-face",
   subsets: ["latin"],
   display: "swap",
 });
 
-const description = `${inArea("Private boat and yacht charters")}: sunset cruises, sandbar days, island hopping, dolphin watching and fishing. Send a booking request in minutes.`;
+const description = `Inshore fly fishing and light tackle charters on Sanibel Island and Southwest Florida. Snook, redfish, tarpon and more, from the boat or wading. Book your trip online.`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `${site.name} | ${inArea("Private boat & yacht charters")}`,
+    default: `${site.name} | ${inArea("Fly fishing charters")}`,
     template: `%s | ${site.name}`,
   },
   description,
@@ -47,7 +49,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${bodoni.variable} ${instrument.variable}`}>
+    <html lang="en" className={`${cormorant.variable} ${nunito.variable}`}>
       <body className="flex min-h-svh flex-col">
         <SiteHeader />
         <main id="main" className="flex-1">

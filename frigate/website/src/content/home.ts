@@ -1,69 +1,77 @@
 import type { Photo } from "./types";
 
+/** Desktop hero photo. Phones get the boat-at-sunset video instead. */
 export const heroPhoto: Photo = {
-  alt: "A private yacht on turquoise water under a clear sky",
-  scene: "turquoise",
-  shot: "Your best boat on turquoise water, wide landscape, room for text on the left",
+  src: "/photos/wading-the-mangroves-golden-light.jpg",
+  alt: "An angler wading along a mangrove shoreline in golden evening light",
+  scene: "glass",
+  shot: "Wading the mangroves at golden hour",
 };
 
-/** Draft copy. Replace with what genuinely sets your company apart. */
+export const heroVideo = {
+  src: "/media/boat-running-at-sunset.mp4",
+  poster: "/media/boat-running-at-sunset-poster.jpg",
+};
+
+export const introPhoto: Photo = {
+  src: "/photos/wading-under-the-dock-guiding.jpg",
+  alt: "A guide helping an angler while wading under a dock",
+  scene: "glass",
+  shot: "Guiding under the dock",
+};
+
+export const ctaPhoto: Photo = {
+  src: "/photos/beach-wade-fishing-plane-overhead.jpg",
+  alt: "An angler fishing from a white-sand beach into turquoise water",
+  scene: "turquoise",
+  shot: "Beach fishing",
+};
+
+/** From the brand board: what Frigate is built around. */
 export const reasons = [
   {
-    title: "Planned around your party",
-    body: "Tell us the occasion, the pace and who is coming. The day is shaped around that, not a fixed script.",
+    title: "Fly fishing expertise",
+    body: "Help with the cast, the read on the water and the fly that's working, whether it's your first day with a fly rod or your hundredth.",
   },
   {
-    title: "Safety without fuss",
-    body: "A clear briefing before departure and a boat that is ready when you arrive, so you can relax once you are aboard.",
+    title: "Light tackle adventures",
+    body: "Spinning rods and lures for anyone who wants the action without the fly rod.",
   },
   {
-    title: "Local water knowledge",
-    body: "Where the water is clearest today, which sandbar is showing and where to be for the sunset.",
+    title: "Local knowledge",
+    body: "Sanibel's tides, flats and mangrove shorelines, and where the fish are likely to be on the day you're out.",
   },
   {
-    title: "Straightforward booking",
-    body: "Send a request in a couple of minutes. You hear back from a person, not an automated queue.",
+    title: "Tailored experiences",
+    body: "Boat or wading, fly or spin, an early start or the evening tide. Each trip is planned around you.",
   },
 ];
 
-/** Placeholder destinations. Rename to the real places you visit. */
-export const destinations: { name: string; note: string; photo: Photo }[] = [
+/** Species from the brand board. Photos only where there is a real catch photo. */
+export const species: { name: string; note: string; photo?: Photo }[] = [
   {
-    name: "The sandbar",
-    note: "Knee-deep water and soft sand at low tide.",
+    name: "Snook",
+    note: "Along the beaches, docks and mangrove edges.",
     photo: {
-      alt: "A pale sandbar surrounded by clear shallow water",
+      src: "/photos/snook-wading-big-fish-1.jpg",
+      alt: "A wading angler holding a large snook in clear green water",
+      scene: "turquoise",
+      shot: "Snook",
+    },
+  },
+  {
+    name: "Redfish",
+    note: "Tailing on the flats and tucked in the mangroves.",
+    photo: {
+      src: "/photos/redfish-wading-big-fish.jpg",
+      alt: "A wading angler holding a large redfish over shallow water",
       scene: "shallows",
-      shot: "The sandbar you visit most, at low tide",
+      shot: "Redfish",
     },
   },
-  {
-    name: "The outer islands",
-    note: "Quiet beaches you can only reach by boat.",
-    photo: {
-      alt: "Low islands on a calm horizon",
-      scene: "glass",
-      shot: "The islands on your island-hopping route",
-    },
-  },
-  {
-    name: "The sunset point",
-    note: "Open western horizon for the last of the light.",
-    photo: {
-      alt: "Sunset over open water",
-      scene: "sunset",
-      shot: "Your usual sunset anchorage",
-    },
-  },
-  {
-    name: "Open water",
-    note: "Where dolphins are most often seen.",
-    photo: {
-      alt: "Deep blue open water under a light sky",
-      scene: "open",
-      shot: "Open water off the coast, ideally with dolphins",
-    },
-  },
+  { name: "Tarpon", note: "The big one, in season." },
+  { name: "Trout", note: "Spotted seatrout over the grass flats." },
+  { name: "Jacks and more", note: "Whatever's feeding on the tide." },
 ];
 
 /**
@@ -82,31 +90,31 @@ export const reviews: {
  */
 export const faqs: { q: string; a: string; needsDetails?: boolean }[] = [
   {
-    q: "How do I book a charter?",
-    a: "Send a booking request with your preferred experience, date and group size. We check availability and reply to confirm the details. Your charter is booked once we have confirmed it with you directly.",
+    q: "How do I book a trip?",
+    a: "Send a booking request with the kind of trip you want, your preferred date and how many are fishing. We check the tides and availability and reply to confirm. Your trip is booked once we've confirmed it with you directly.",
   },
   {
-    q: "What should we bring?",
-    a: "Sunscreen, sunglasses, a hat, a towel and swimwear cover most trips. Soft-soled shoes are kindest to the deck. If anything else is needed for your experience, we will tell you when we confirm.",
+    q: "What should I bring?",
+    a: "Polarized sunglasses, a hat, sunscreen, light long sleeves and water. If you're wading, bring shoes you don't mind getting wet. Check the tide, pack the sunscreen, let's go fishing.",
   },
   {
-    q: "Can we bring food and drinks?",
-    a: "Add your food and drink policy here, including any rules on glass or alcohol.",
+    q: "Do I need fly fishing experience?",
+    a: "Add your answer here: whether beginners are welcome on fly trips and whether you offer casting help.",
     needsDetails: true,
   },
   {
-    q: "What happens if the weather is bad?",
-    a: "Add your weather policy here: who decides, how much notice you give and whether guests can reschedule or get a refund.",
+    q: "Do I need a fishing license?",
+    a: "Add your answer here: whether guests are covered by your charter license or need their own.",
     needsDetails: true,
   },
   {
-    q: "What is your cancellation policy?",
-    a: "Add your cancellation and deposit terms here.",
+    q: "Is tackle provided?",
+    a: "Add your answer here: which rods, reels, flies and lures are included, and whether guests can bring their own.",
     needsDetails: true,
   },
   {
-    q: "Are children welcome?",
-    a: "Add your policy on children and life jackets in children's sizes here.",
+    q: "What if the weather is bad?",
+    a: "Add your weather and cancellation policy here: who decides, how much notice you give and whether guests can reschedule.",
     needsDetails: true,
   },
 ];

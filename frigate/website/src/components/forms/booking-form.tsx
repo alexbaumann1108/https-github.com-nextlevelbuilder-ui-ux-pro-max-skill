@@ -58,8 +58,8 @@ export function BookingForm() {
         </svg>
         <h2 className="display-md mt-6">Request sent</h2>
         <p className="lede mt-4 text-slate">
-          Thank you, {v.name.split(" ")[0]}. Your charter is not booked yet: we
-          will check availability for your date and reply
+          Thank you, {v.name.split(" ")[0]}. Your trip is not booked yet: we
+          will check the tides and availability for your date and reply
           {site.replyTime ? ` ${site.replyTime}` : ""} to confirm the details.
         </p>
         {!f.status.delivered && showPlaceholders && (
@@ -75,10 +75,10 @@ export function BookingForm() {
             <dd className="mt-0.5 font-semibold tracking-wide">{f.status.ref}</dd>
           </div>
           <div>
-            <dt className="text-slate">Charter</dt>
+            <dt className="text-slate">Trip</dt>
             <dd className="mt-0.5">{exp?.name ?? "Not sure yet"}</dd>
           </div>
-          <div>
+          <div hidden={fleet.length === 1}>
             <dt className="text-slate">Boat</dt>
             <dd className="mt-0.5">{vessel?.name ?? "No preference"}</dd>
           </div>
@@ -89,7 +89,7 @@ export function BookingForm() {
             </dd>
           </div>
           <div>
-            <dt className="text-slate">Guests</dt>
+            <dt className="text-slate">Anglers</dt>
             <dd className="mt-0.5">{v.guests}</dd>
           </div>
           <div>
@@ -99,7 +99,7 @@ export function BookingForm() {
         </dl>
         <div className="mt-10 flex flex-col gap-3 sm:flex-row">
           <Link href="/charters" className="btn btn-dark">
-            Back to charters
+            Back to the trips
           </Link>
           <Link href="/" className="btn btn-dark">
             Return home
@@ -120,8 +120,8 @@ export function BookingForm() {
       />
 
       <fieldset className="space-y-6">
-        <legend className="mb-6 font-display text-[1.75rem]">Your charter</legend>
-        <Field label="Experience" error={f.errors.experience}>
+        <legend className="mb-6 font-display text-[1.75rem]">Your trip</legend>
+        <Field label="Trip" error={f.errors.experience}>
           <select
             name="experience"
             className="field"
@@ -130,7 +130,7 @@ export function BookingForm() {
             onBlur={() => f.blur("experience")}
           >
             <option value="" disabled>
-              Choose a charter
+              Choose a trip
             </option>
             {experiences.map((e) => (
               <option key={e.slug} value={e.slug}>
@@ -141,6 +141,7 @@ export function BookingForm() {
           </select>
         </Field>
 
+        {fleet.length > 1 && (
         <Field label="Boat" error={f.errors.vessel}>
           <select
             name="vessel"
@@ -158,6 +159,7 @@ export function BookingForm() {
             ))}
           </select>
         </Field>
+        )}
 
         <div className="grid gap-6 sm:grid-cols-2">
           <Field label="Preferred date" error={f.errors.date}>
@@ -193,7 +195,7 @@ export function BookingForm() {
         </div>
 
         <Field
-          label="Number of guests"
+          label="Number of anglers"
           hint={vessel?.capacity ? `${vessel.name} takes up to ${vessel.capacity}.` : undefined}
           error={f.errors.guests}
         >
@@ -280,7 +282,7 @@ export function BookingForm() {
         </button>
         <p className="text-sm text-slate">
           Sending a request does not commit you to anything. We use your details
-          only to reply about this charter. See our{" "}
+          only to reply about this trip. See our{" "}
           <Link href="/privacy" className="underline">
             privacy notice
           </Link>

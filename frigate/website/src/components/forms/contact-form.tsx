@@ -35,7 +35,7 @@ export function ContactForm() {
           </p>
         )}
         <Link href="/book" className="btn btn-primary mt-8">
-          Book your charter
+          Book your trip
         </Link>
       </div>
     );

@@ -1,10 +1,9 @@
 import Link from "next/link";
 import type { Experience } from "@/content/types";
-import { faqs, reviews } from "@/content/home";
+import { ctaPhoto, faqs, reviews } from "@/content/home";
 import { site, showPlaceholders } from "@/content/site";
 import { Photo } from "./photo";
 import { PlaceholderNote } from "./placeholder-note";
-import { Seascape } from "./seascape";
 
 /** Navy masthead used at the top of every inner page. */
 export function PageMasthead({
@@ -136,7 +135,7 @@ export function ExperienceCard({
           className="link-tide self-start text-[0.9375rem] font-semibold"
           aria-label={`Book ${e.name.toLowerCase()}`}
         >
-          Book this charter
+          Book this trip
         </Link>
       </div>
     </article>
@@ -146,7 +145,9 @@ export function ExperienceCard({
 export function FaqList() {
   return (
     <div className="divide-y divide-ink/10 border-y border-ink/10">
-      {faqs.map((f) => (
+      {faqs
+        .filter((f) => showPlaceholders || !f.needsDetails)
+        .map((f) => (
         <details key={f.q} className="group">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-5 text-lg font-medium [&::-webkit-details-marker]:hidden">
             {f.q}
@@ -224,27 +225,24 @@ export function ReviewsSection() {
 
 /** Closing call to action used at the foot of most pages. */
 export function BookingCta({
-  title = "Choose your day on the water",
-  body = "Tell us the experience, the date and who is coming. We will check availability and reply to confirm.",
+  title = "Check the tide. Pack the sunscreen. Let's go fishing.",
+  body = "Tell us the trip, the date and who's fishing. We'll check the tides and availability and reply to confirm.",
 }: {
   title?: string;
   body?: string;
 }) {
   return (
     <section className="relative isolate overflow-hidden bg-abyss text-white">
-      <Seascape
-        scene="sunset"
-        seed="closing"
-        horizon={0.62}
-        className="absolute inset-0 -z-10 h-full w-full"
-      />
-      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-abyss/90 via-abyss/30 to-abyss/10" />
+      <div className="absolute inset-0 -z-10">
+        <Photo photo={ctaPhoto} sizes="100vw" />
+      </div>
+      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-abyss/90 via-abyss/40 to-abyss/10" />
       <div className="shell flex min-h-[32rem] flex-col justify-end py-16 md:min-h-[36rem] md:py-20">
         <h2 className="display-lg max-w-3xl">{title}</h2>
         <p className="lede mt-5 max-w-xl text-white/85">{body}</p>
         <div className="mt-9 flex flex-col gap-3 sm:flex-row">
           <Link href="/book" className="btn btn-primary">
-            Book your charter
+            Book your trip
           </Link>
           <Link href="/contact" className="btn btn-light">
             Ask a question

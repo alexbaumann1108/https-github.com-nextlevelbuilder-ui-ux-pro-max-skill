@@ -7,8 +7,8 @@ import { BookingCta, PageMasthead, Specs } from "@/components/sections";
 import { PlaceholderNote } from "@/components/placeholder-note";
 
 export const metadata: Metadata = {
-  title: "Charter experiences",
-  description: `${inArea("Private boat charters, sunset cruises, sandbar trips, island hopping, dolphin watching and fishing charters")}. Choose your experience and send a booking request.`,
+  title: "Fishing trips",
+  description: `${inArea("Inshore fly fishing, light tackle and wade fishing trips")}. Choose your trip and send a booking request.`,
   alternates: { canonical: "/charters" },
 };
 
@@ -16,16 +16,16 @@ export default function ChartersPage() {
   return (
     <>
       <PageMasthead
-        title="Charter experiences"
-        lede="Seven ways to spend a day on the water. Every charter is booked for your group alone, and the details are shaped around you."
+        title="The trips"
+        lede="Fly rod or spinning gear, from the boat or on foot. Every trip is tailored to you, the season and the tide."
       />
 
       <section aria-label="All charters" className="py-20 md:py-28">
         <div className="shell">
           <PlaceholderNote className="mb-14 max-w-2xl">
-            Durations, prices and guest limits show as &ldquo;To be
-            confirmed&rdquo; until you add them in src/content/experiences.ts.
-            Nothing is invented.
+            Trip lengths, prices and how many anglers each trip takes show as
+            &ldquo;To be confirmed&rdquo; until you add them in
+            src/content/experiences.ts.
           </PlaceholderNote>
           <div className="space-y-20 md:space-y-28">
             {experiences.map((e, i) => (
@@ -52,7 +52,7 @@ export default function ChartersPage() {
                   <Specs
                     items={[
                       { label: "Duration", value: e.duration },
-                      { label: "Guests", value: e.guests },
+                      { label: "Anglers", value: e.guests },
                       { label: "Starting from", value: e.startingPrice },
                     ]}
                   />
@@ -67,8 +67,8 @@ export default function ChartersPage() {
       </section>
 
       <BookingCta
-        title="Not sure which to choose?"
-        body="Tell us what you have in mind. We will suggest the charter that fits your group, the season and the day."
+        title="Not sure which trip fits?"
+        body="Tell us what you'd like to catch and how you like to fish. We'll suggest the trip that suits you and the tides."
       />
     </>
   );

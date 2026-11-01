@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { nav, site, showPlaceholders } from "@/content/site";
+import { nav, site, showPlaceholders, instagramHandle } from "@/content/site";
 import { experiences } from "@/content/experiences";
 import { Logo } from "./logo";
 import { PlaceholderNote } from "./placeholder-note";
@@ -21,15 +21,16 @@ export function SiteFooter() {
       <div className="shell">
         <div className="grid gap-12 md:grid-cols-12">
           <div className="md:col-span-5">
-            <Link href="/" aria-label={`${site.name} home`} className="text-white">
-              <Logo />
+            <Link href="/" aria-label={`${site.name} home`} className="inline-block">
+              <Logo tone="light" variant="full" className="w-[220px]" />
             </Link>
             <p className="mt-6 max-w-sm text-[0.9375rem] leading-relaxed">
-              Private boat charters, sunset cruises and days on the water
-              {site.serviceArea ? ` in ${site.serviceArea}` : ""}.
+              Inshore fly fishing and light tackle
+              {site.serviceArea ? ` around ${site.serviceArea}` : ""} and
+              Southwest Florida.
             </p>
             <Link href="/book" className="btn btn-primary mt-8">
-              Book your charter
+              Book your trip
             </Link>
           </div>
 
@@ -52,7 +53,7 @@ export function SiteFooter() {
               </ul>
             </div>
             <div>
-              <h2 className="font-sans text-sm font-semibold text-white">Charters</h2>
+              <h2 className="font-sans text-sm font-semibold text-white">Trips</h2>
               <ul className="mt-4 space-y-2.5 text-[0.9375rem]">
                 {experiences.map((e) => (
                   <li key={e.slug}>
@@ -91,7 +92,7 @@ export function SiteFooter() {
                   {socials.map((s) => (
                     <li key={s.key}>
                       <a href={s.url} className="hover:text-white" rel="noopener" target="_blank">
-                        {s.label}
+                        {s.key === "instagram" ? `Instagram ${instagramHandle}` : s.label}
                       </a>
                     </li>
                   ))}
@@ -103,7 +104,7 @@ export function SiteFooter() {
 
         <div className="horizon mt-16" />
         <div className="mt-6 flex flex-col gap-3 text-sm text-foam/80 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {site.name}</p>
+          <p>{site.name}</p>
           <div className="flex gap-6">
             <Link href="/privacy" className="hover:text-white">
               Privacy

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { site, inArea } from "@/content/site";
+import { site, inArea, instagramHandle } from "@/content/site";
 import { ContactForm } from "@/components/forms/contact-form";
 import { PageMasthead } from "@/components/sections";
 import { PlaceholderNote } from "@/components/placeholder-note";
@@ -8,7 +8,7 @@ import { Seascape } from "@/components/seascape";
 
 export const metadata: Metadata = {
   title: "Contact",
-  description: `Contact ${site.name} about ${inArea("private boat charters")}. Ask a question or plan a custom trip.`,
+  description: `Contact ${site.name} about ${inArea("fly fishing and light tackle charters")}. Call, email or message us on Instagram.`,
   alternates: { canonical: "/contact" },
 };
 
@@ -19,7 +19,7 @@ export default function ContactPage() {
     <>
       <PageMasthead
         title="Contact us"
-        lede="Questions about a charter, a custom idea or a large group? Send a message and a member of the team will reply."
+        lede="Questions about a trip, the tides or what's biting? Call, email or send a message and we'll get back to you."
       />
       <section className="py-16 md:py-24">
         <div className="shell grid gap-14 lg:grid-cols-12">
@@ -53,7 +53,7 @@ export default function ContactPage() {
                 )}
                 {(site.address || site.serviceArea) && (
                   <div>
-                    <dt className="text-sm text-slate">Departing from</dt>
+                    <dt className="text-sm text-slate">Where we fish</dt>
                     <dd className="text-lg">
                       {site.address
                         ? `${site.address.street}, ${site.address.city}, ${site.address.region} ${site.address.postalCode}`
@@ -63,11 +63,11 @@ export default function ContactPage() {
                 )}
                 {socials.length > 0 && (
                   <div>
-                    <dt className="text-sm text-slate">Follow along</dt>
+                    <dt className="text-sm text-slate">Instagram</dt>
                     <dd className="flex flex-wrap gap-x-5 gap-y-1">
                       {socials.map(([k, url]) => (
-                        <a key={k} href={url} target="_blank" rel="noopener" className="link-tide capitalize">
-                          {k}
+                        <a key={k} href={url} target="_blank" rel="noopener" className="link-tide text-lg">
+                          {k === "instagram" ? instagramHandle : k}
                         </a>
                       ))}
                     </dd>
@@ -112,7 +112,7 @@ export default function ContactPage() {
               <h2 className="text-[1.5rem]">Ready to choose a date?</h2>
               <p className="mt-2 text-foam">The booking form takes about two minutes.</p>
               <Link href="/book" className="btn btn-primary mt-6">
-                Book your charter
+                Book your trip
               </Link>
             </div>
           </aside>

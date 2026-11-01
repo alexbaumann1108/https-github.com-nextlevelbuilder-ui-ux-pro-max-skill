@@ -24,13 +24,13 @@ export default function PrivacyPage() {
           <p>
             When you send a booking request or a message, we receive the
             details you enter: your name, email address, phone number, your
-            preferred charter, date, time and group size, and anything you
+            preferred trip, date, time and group size, and anything you
             write in the message box.
           </p>
           <h2>How we use it</h2>
           <p>
             We use these details only to reply to you, check availability and
-            arrange your charter. We do not sell your information or add you
+            arrange your trip. We do not sell your information or add you
             to marketing lists without asking.
           </p>
           <h2>How long we keep it</h2>

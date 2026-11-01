@@ -14,8 +14,8 @@
   --color-foam: #e8dccb;
   --color-alert: #b42318;
 
-  --font-display: var(--font-bodoni), "Bodoni 72", Didot, Georgia, serif;
-  --font-sans: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display-face), "Cormorant Garamond", Garamond, Georgia, serif;
+  --font-sans: var(--font-text-face), "Avenir Next", Avenir, ui-sans-serif, system-ui, sans-serif;
 
   --ease-tide: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
@@ -38,7 +38,7 @@
   h2,
   h3 {
     font-family: var(--font-display);
-    font-weight: 400;
+    font-weight: 500;
     line-height: 1.08;
     letter-spacing: -0.01em;
     text-wrap: balance;

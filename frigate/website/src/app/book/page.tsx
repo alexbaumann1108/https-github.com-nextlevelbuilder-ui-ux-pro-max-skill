@@ -6,22 +6,22 @@ import { PageMasthead } from "@/components/sections";
 import { PlaceholderNote } from "@/components/placeholder-note";
 
 export const metadata: Metadata = {
-  title: "Book your charter",
-  description: `${inArea("Request a private boat charter")}. Choose your experience, date and group size, and we will confirm availability.`,
+  title: "Book your trip",
+  description: `${inArea("Request a fly fishing or light tackle trip")}. Choose your trip, date and number of anglers, and we'll confirm.`,
   alternates: { canonical: "/book" },
 };
 
 const steps = [
   {
     title: "Send your request",
-    body: "Choose the experience, your preferred date and how many are coming. It takes about two minutes.",
+    body: "Choose the trip, your preferred date and how many are fishing. It takes about two minutes.",
   },
   {
-    title: "We confirm availability",
-    body: `A member of the team checks the date and replies${site.replyTime ? ` ${site.replyTime}` : ""} with the details, or suggests the nearest alternative.`,
+    title: "We check the tides and confirm",
+    body: `We check the date and the tides and reply${site.replyTime ? ` ${site.replyTime}` : ""} with the details, or suggest the nearest good day.`,
   },
   {
-    title: "Your charter is booked",
+    title: "Your trip is booked",
     body: "Once you have agreed the details with us, your date is reserved and you will receive everything you need for the day.",
   },
 ];
@@ -30,7 +30,7 @@ export default function BookPage() {
   return (
     <>
       <PageMasthead
-        title="Book your charter"
+        title="Book your trip"
         lede="Send a request and we will confirm availability with you directly. Nothing is charged online."
       />
       <section className="bg-mist py-16 md:py-24">

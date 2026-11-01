@@ -24,11 +24,12 @@ export function LocalBusinessJsonLd() {
   const socials = Object.values(site.social).filter(Boolean);
   const data: Record<string, unknown> = {
     "@context": "https://schema.org",
-    "@type": "TravelAgency",
-    additionalType: "https://schema.org/BoatTrip",
+    "@type": "LocalBusiness",
     name: site.name,
+    description: "Inshore fly fishing and light tackle charters around Sanibel Island and Southwest Florida.",
     url: siteUrl,
-    image: `${siteUrl}/opengraph-image`,
+    image: `${siteUrl}/photos/wading-the-mangroves-golden-light.jpg`,
+    logo: `${siteUrl}/brand/frigate-logo-black.png`,
     makesOffer: experiences.map((e) => ({
       "@type": "Offer",
       itemOffered: { "@type": "Service", name: e.name, description: e.summary },

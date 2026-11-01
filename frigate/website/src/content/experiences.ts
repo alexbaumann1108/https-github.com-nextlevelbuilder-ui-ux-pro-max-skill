@@ -1,93 +1,50 @@
 import type { Experience } from "./types";
 
 /**
- * Charter experiences. Descriptions are draft copy describing the type of
- * trip; durations, prices and guest numbers are left blank until confirmed.
+ * Trips. Descriptions come from the business card and brand board (inshore
+ * fly fishing and light tackle, tailored trips, wading and boat fishing as
+ * seen in the photos). Durations, prices and guest limits are left blank
+ * until confirmed.
  */
 export const experiences: Experience[] = [
   {
-    slug: "private-charter",
-    name: "Private boat charter",
-    summary: "The boat, the route and the pace are yours for the day.",
+    slug: "fly-fishing",
+    name: "Inshore fly fishing",
+    summary: "Sight-fishing the flats around Sanibel with a fly rod.",
     description:
-      "Bring your own party and plan the day together with us: a long swim stop, a lunch anchorage, a quiet run along the coast. Nothing is shared and nothing is rushed.",
+      "Work the shallows for snook, redfish and tarpon, with the cast, the eat and the fight all in plain sight. The day is set up around your casting and what you want to chase.",
     photo: {
-      alt: "A private yacht at anchor in clear turquoise water",
+      src: "/photos/redfish-on-the-boat-fly-rod.jpg",
+      alt: "An angler holding a redfish caught on a fly rod, open water behind",
       scene: "turquoise",
-      shot: "Your flagship boat at anchor, guests swimming off the stern, midday light",
+      shot: "Redfish on the fly",
     },
     featured: true,
   },
   {
-    slug: "sunset-cruise",
-    name: "Sunset cruise",
-    summary: "Golden hour on the water, timed to the light.",
+    slug: "light-tackle",
+    name: "Light tackle",
+    summary: "Spinning gear, artificial lures and local water.",
     description:
-      "Head out as the day cools and be in position as the sun meets the horizon. An easy, unhurried evening with the best light of the day.",
+      "An easy way into inshore fishing, or a fun change of pace. Light spinning tackle around the mangroves, flats and passes, targeting whatever is feeding that tide.",
     photo: {
-      alt: "The sun setting over calm water from the deck of a boat",
-      scene: "sunset",
-      shot: "Sun on the horizon from the bow, guests silhouetted with drinks",
-    },
-  },
-  {
-    slug: "sandbar-adventure",
-    name: "Sandbar adventure",
-    summary: "Shallow, clear water and a beach that only appears at low tide.",
-    description:
-      "Anchor off a sandbar, wade in knee-deep water and spend the afternoon somewhere you can only reach by boat.",
-    photo: {
-      alt: "A boat anchored beside a pale sandbar in shallow turquoise water",
-      scene: "shallows",
-      shot: "Aerial or bow view of the boat beside a sandbar, people wading",
-    },
-  },
-  {
-    slug: "island-hopping",
-    name: "Island hopping",
-    summary: "Several stops, one day, and a different view at each.",
-    description:
-      "Link up nearby islands and beaches in a single trip, stopping wherever the water looks best on the day.",
-    photo: {
-      alt: "Low green islands on the horizon across open water",
-      scene: "glass",
-      shot: "Islands on the horizon from the deck, boat wake in the foreground",
-    },
-  },
-  {
-    slug: "dolphin-watching",
-    name: "Dolphin watching",
-    summary: "Slow passages through the waters dolphins call home.",
-    description:
-      "A quiet, respectful trip through local waters where dolphins are often seen, with time to stop and watch when they appear.",
-    photo: {
-      alt: "Calm open water where dolphins surface near the boat",
+      src: "/photos/snook-against-blue-sky.jpg",
+      alt: "An angler holding a large snook against a clear blue sky",
       scene: "open",
-      shot: "Dolphin surfacing alongside the boat, guests watching from the rail",
+      shot: "Snook on light tackle",
     },
   },
   {
-    slug: "fishing-charter",
-    name: "Fishing charter",
-    summary: "Rods ready, an early start and local water knowledge.",
+    slug: "wade-fishing",
+    name: "Wade fishing",
+    summary: "On foot along the beaches and mangrove edges.",
     description:
-      "Head out for inshore or nearshore fishing. Tell us your experience level and what you hope to catch, and we will plan around it.",
+      "Step off the boat and walk the shallows for snook cruising the beach and redfish tucked along the mangroves. Quiet, close and as hands-on as fishing gets.",
     photo: {
-      alt: "Fishing rods on a boat at first light on calm water",
-      scene: "dusk",
-      shot: "Rods in holders at dawn, line in the water, soft blue light",
-    },
-  },
-  {
-    slug: "custom-experience",
-    name: "Custom private experience",
-    summary: "Proposals, celebrations, corporate days. Tell us the idea.",
-    description:
-      "If the occasion needs something specific, describe it and we will tell you honestly what we can arrange.",
-    photo: {
-      alt: "A table set on deck for a private celebration at dusk",
-      scene: "sunset",
-      shot: "Deck styled for a celebration: flowers, glasses, soft evening light",
+      src: "/photos/wading-the-mangroves-casting.jpg",
+      alt: "An angler wading waist-deep along a mangrove shoreline, casting a fly line",
+      scene: "glass",
+      shot: "Wading the mangroves",
     },
   },
 ];

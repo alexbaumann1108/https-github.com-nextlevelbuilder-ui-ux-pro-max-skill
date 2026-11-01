@@ -19,8 +19,8 @@ export async function generateMetadata({
   const v = getVessel(slug);
   if (!v) return {};
   return {
-    title: `${v.name}${v.model ? `, ${v.model}` : ""}`,
-    description: `${v.tagline} ${inArea("Available for private charter")}.`,
+    title: v.model ?? v.name,
+    description: `${v.tagline} ${inArea("Fly fishing and light tackle charters")}.`,
     alternates: { canonical: `/fleet/${v.slug}` },
   };
 }
@@ -40,13 +40,15 @@ export default async function VesselPage({ params }: PageProps<"/fleet/[slug]">)
         </div>
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-abyss/90 via-abyss/20 to-abyss/50" />
         <div className="shell pb-12 pt-32 md:pb-16">
-          <nav aria-label="Breadcrumb" className="hero-rise text-sm text-white/80">
-            <Link href="/fleet" className="hover:text-white">
-              The fleet
-            </Link>
-            <span aria-hidden="true" className="mx-2">/</span>
-            <span aria-current="page">{v.name}</span>
-          </nav>
+          {fleet.length > 1 && (
+            <nav aria-label="Breadcrumb" className="hero-rise text-sm text-white/80">
+              <Link href="/fleet" className="hover:text-white">
+                The boats
+              </Link>
+              <span aria-hidden="true" className="mx-2">/</span>
+              <span aria-current="page">{v.name}</span>
+            </nav>
+          )}
           <h1 className="display-xl hero-rise mt-4" style={{ animationDelay: "0.15s" }}>
             {v.name}
           </h1>
@@ -81,17 +83,16 @@ export default async function VesselPage({ params }: PageProps<"/fleet/[slug]">)
               </ul>
             ) : (
               <PlaceholderNote className="mt-6 max-w-xl">
-                List this boat&apos;s real features and amenities (shade,
-                seating, restroom, sound system, swim ladder and so on).
+                List this boat&apos;s equipment and features.
               </PlaceholderNote>
             )}
 
-            <h2 className="mt-14 text-[1.75rem]">Charters on this boat</h2>
+            <h2 className="mt-14 text-[1.75rem]">Trips on this boat</h2>
             <ul className="mt-6 divide-y divide-ink/10 border-y border-ink/10">
               {runs.map((e) => (
                 <li key={e.slug}>
                   <Link
-                    href={`/book?experience=${e.slug}&vessel=${v.slug}`}
+                    href={`/book?experience=${e.slug}`}
                     className="group flex items-center justify-between gap-6 py-4"
                   >
                     <span>
@@ -113,14 +114,14 @@ export default async function VesselPage({ params }: PageProps<"/fleet/[slug]">)
               <div className="horizon my-6" />
               <Specs
                 items={[
-                  { label: "Guests", value: v.capacity ? `Up to ${v.capacity}` : undefined },
+                  { label: "Anglers", value: v.capacity ? `Up to ${v.capacity}` : undefined },
                   { label: "Length", value: v.length },
                   { label: "Model", value: v.model },
                   { label: "Rate", value: v.pricing },
                 ]}
               />
-              <Link href={`/book?vessel=${v.slug}`} className="btn btn-primary mt-8 w-full">
-                Book {v.name.toLowerCase()}
+              <Link href="/book" className="btn btn-primary mt-8 w-full">
+                Book your trip
               </Link>
               <Link href="/contact" className="btn btn-dark mt-3 w-full">
                 Ask about this boat
@@ -140,7 +141,7 @@ export default async function VesselPage({ params }: PageProps<"/fleet/[slug]">)
         )}
       </section>
 
-      <BookingCta title={`Spend the day aboard ${v.name.toLowerCase()}`} />
+      <BookingCta />
     </>
   );
 }

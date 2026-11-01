@@ -64,9 +64,9 @@ export function SiteHeader() {
         <Link
           href="/"
           aria-label={`${site.name} home`}
-          className="relative z-50"
+          className="relative z-50 block"
         >
-          <Logo />
+          <Logo tone={solid ? "dark" : "light"} priority className="w-[104px] md:w-[124px]" />
         </Link>
 
         <nav aria-label="Main" className="hidden lg:block">
@@ -95,7 +95,7 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-3">
           <Link href="/book" className="btn btn-primary hidden !min-h-11 !px-5 sm:inline-flex">
-            Book your charter
+            Book your trip
           </Link>
           <button
             ref={toggleRef}
@@ -146,7 +146,7 @@ export function SiteHeader() {
           </nav>
           <div className="horizon my-8" />
           <Link href="/book" className="btn btn-primary w-full">
-            Book your charter
+            Book your trip
           </Link>
           {(site.phone || site.email) && (
             <div className="mt-6 space-y-2 text-foam">
@@ -158,6 +158,11 @@ export function SiteHeader() {
               {site.email && (
                 <a className="block" href={`mailto:${site.email}`}>
                   {site.email}
+                </a>
+              )}
+              {site.social.instagram && (
+                <a className="block" href={site.social.instagram} target="_blank" rel="noopener">
+                  Instagram @frigate_fly
                 </a>
               )}
             </div>

@@ -1,20 +1,33 @@
 import type { Photo } from "./types";
 
 /**
- * Gallery photos. Replace each placeholder with a real photo by adding the
- * file to /public/photos and setting `src`. Keep `alt` descriptive.
- * `wide` makes a photo span two columns on larger screens.
+ * Gallery photos, in display order. Add a photo by putting the file in
+ * /public/photos and adding an entry. `wide` spans two columns on larger
+ * screens; use it for landscape photos.
  */
+const p = (file: string, alt: string, wide = false): Photo & { wide?: boolean } => ({
+  src: `/photos/${file}`,
+  alt,
+  scene: "turquoise",
+  shot: alt,
+  wide,
+});
+
 export const gallery: (Photo & { wide?: boolean })[] = [
-  { alt: "Yacht at anchor in turquoise water", scene: "turquoise", shot: "Boat at anchor from the water", wide: true },
-  { alt: "Sunset from the bow", scene: "sunset", shot: "Sunset from the bow" },
-  { alt: "Guests wading at the sandbar", scene: "shallows", shot: "Guests at the sandbar" },
-  { alt: "Calm water at first light", scene: "dusk", shot: "Early morning departure" },
-  { alt: "Islands on the horizon", scene: "glass", shot: "Island stop", wide: true },
-  { alt: "Deep blue open water", scene: "open", shot: "Dolphins alongside" },
-  { alt: "Evening light on the water", scene: "sunset", shot: "Celebration on deck" },
-  { alt: "Clear shallows from above", scene: "shallows", shot: "Aerial of the boat in shallows" },
-  { alt: "Glassy water near the islands", scene: "glass", shot: "Swim stop" },
-  { alt: "Boat underway on open water", scene: "open", shot: "Boat underway, wake visible", wide: true },
-  { alt: "Turquoise water off the stern", scene: "turquoise", shot: "Stern swim platform" },
+  p("wading-the-mangroves-golden-light.jpg", "Wading the mangroves at golden hour", true),
+  p("snook-wading-big-fish-2.jpg", "A big snook landed while wading"),
+  p("redfish-on-the-boat-fly-rod.jpg", "Redfish on the fly from the boat"),
+  p("boat-action-craft-under-clouds.jpg", "The Action Craft under summer clouds"),
+  p("redfish-release-from-above.jpg", "Releasing a redfish in clear shallow water"),
+  p("wading-the-mangroves-casting.jpg", "Casting along the mangrove shoreline", true),
+  p("snook-wading-turquoise-water.jpg", "A snook from the turquoise surf"),
+  p("redfish-in-the-mangroves.jpg", "A golden redfish from the mangroves"),
+  p("wading-under-the-dock-guiding.jpg", "Guiding under the dock"),
+  p("snook-on-the-beach.jpg", "A snook caught from the beach"),
+  p("boat-on-the-clear-flats.jpg", "The skiff on the clear flats"),
+  p("redfish-wading-big-fish.jpg", "A big redfish on the flats"),
+  p("snook-against-blue-sky.jpg", "A snook held up against the sky"),
+  p("beach-wade-fishing-plane-overhead.jpg", "Fishing the beach as a plane passes overhead"),
+  p("redfish-blue-sky-on-the-boat.jpg", "A redfish on the boat under blue sky"),
+  p("snook-wading-big-fish-1.jpg", "Another big snook from the shallows"),
 ];

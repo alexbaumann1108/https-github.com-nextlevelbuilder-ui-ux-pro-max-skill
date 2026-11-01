@@ -9,15 +9,15 @@ export default function NotFound() {
       <div className="shell pb-16 pt-32">
         <h1 className="display-lg max-w-2xl">This page has drifted off course.</h1>
         <p className="lede mt-5 max-w-xl text-foam">
-          The link may be old or mistyped. Head back to the charters, or start
-          a booking request.
+          The link may be old or mistyped. Head back to the trips, or start a
+          booking request.
         </p>
         <div className="mt-9 flex flex-col gap-3 sm:flex-row">
           <Link href="/" className="btn btn-primary">
             Return home
           </Link>
           <Link href="/charters" className="btn btn-light">
-            Explore our charters
+            See the trips
           </Link>
         </div>
       </div>

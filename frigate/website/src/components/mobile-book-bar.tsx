@@ -30,7 +30,7 @@ export function MobileBookBar() {
         tabIndex={visible ? 0 : -1}
         className="btn btn-primary w-full"
       >
-        Book your charter
+        Book your trip
       </Link>
     </div>
   );
