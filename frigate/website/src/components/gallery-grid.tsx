@@ -117,7 +117,7 @@ export function GalleryGrid({ photos }: { photos: GalleryPhoto[] }) {
       ) : (
         <ul className="mt-10 columns-1 gap-4 sm:columns-2 lg:columns-3 [&>li]:mb-4">
           {shown.map((p, i) => (
-            <li key={p.src} className="break-inside-avoid">
+            <li key={p.src} data-cat={p.category} className="break-inside-avoid">
               <button
                 ref={(el) => {
                   triggers.current[i] = el;
