@@ -319,19 +319,12 @@ export function RegulationsSection() {
                 </a>
               </li>
             ))}
-            <li>
-              <a
-                href={fwc.license}
-                target="_blank"
-                rel="noopener"
-                className="group flex items-center justify-between gap-6 py-5"
-              >
-                <span className="font-display text-[1.625rem] leading-tight">Do I need a license?</span>
-                <span className="shrink-0 text-sm font-semibold text-ocean group-hover:underline">
-                  FWC licenses
-                  <span className="sr-only"> (opens in a new tab)</span>
-                </span>
-              </a>
+            <li className="flex items-center justify-between gap-6 py-5">
+              <span className="font-display text-[1.625rem] leading-tight">Fishing license</span>
+              <span className="shrink-0 text-right text-sm font-semibold">
+                Included with your trip
+                <span className="block font-normal text-slate">Provided through the captain</span>
+              </span>
             </li>
           </ul>
         </div>

@@ -104,8 +104,7 @@ export const faqs: { q: string; a: string; needsDetails?: boolean }[] = [
   },
   {
     q: "Do I need a fishing license?",
-    a: "Add your answer here: whether guests are covered by your charter license or need their own.",
-    needsDetails: true,
+    a: "No. Your fishing license is provided through the captain, so you don't need to buy your own.",
   },
   {
     q: "Is tackle provided?",
