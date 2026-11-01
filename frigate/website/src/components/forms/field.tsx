@@ -38,10 +38,10 @@ export function Field({
     <div className={className}>
       <label htmlFor={id} className="field-label">
         {label}
-        {optional && <span className="ml-1 font-normal text-slate">(optional)</span>}
+        {optional && <span className="ml-1 font-normal text-ink-soft">(optional)</span>}
       </label>
       {hint && (
-        <p id={hintId} className="-mt-0.5 mb-2 text-sm text-slate">
+        <p id={hintId} className="-mt-0.5 mb-2 text-sm text-ink-soft">
           {hint}
         </p>
       )}

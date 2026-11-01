@@ -8,6 +8,7 @@ import { Logo } from "./logo";
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const overPhoto = pathname === "/";
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -44,44 +45,39 @@ export function SiteHeader() {
     };
   }, [open]);
 
-  const solid = scrolled && !open;
+  const clear = overPhoto && !scrolled && !open;
 
   return (
     <header
       className={`fixed inset-x-0 top-0 z-40 transition-[background-color,box-shadow,color] duration-300 ${
-        solid
-          ? "bg-sail/95 text-ink shadow-[0_1px_0_rgb(30_25_19/0.08)] backdrop-blur-md"
-          : "bg-transparent text-white"
+        open
+          ? "bg-seafoam-night text-parchment"
+          : clear
+            ? "bg-transparent text-paper"
+            : "bg-parchment/95 text-ink shadow-[0_1px_0_rgb(185_154_114/0.45)] backdrop-blur-md"
       }`}
     >
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:rounded-sm focus:bg-champagne focus:px-4 focus:py-2 focus:text-abyss"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:rounded-sm focus:bg-orange focus:px-4 focus:py-2 focus:text-ink"
       >
         Skip to content
       </a>
       <div className="shell flex h-[4.5rem] items-center justify-between gap-6 md:h-20">
-        <Link
-          href="/"
-          aria-label={`${site.name} home`}
-          className="relative z-50 block"
-        >
-          <Logo tone={solid ? "dark" : "light"} priority className="w-[104px] md:w-[124px]" />
+        <Link href="/" aria-label={`${site.name}, home`} className="relative z-50 block">
+          <Logo tone={clear || open ? "light" : "dark"} priority className="w-[100px] md:w-[116px]" />
         </Link>
 
-        <nav aria-label="Main" className="hidden lg:block">
-          <ul className="flex items-center gap-9 text-[0.9375rem]">
+        <nav aria-label="Main" className="hidden xl:block">
+          <ul className="flex items-center gap-7 text-[0.9375rem] font-semibold">
             {nav.map((item) => {
-              const active =
-                pathname === item.href || pathname.startsWith(item.href + "/");
+              const active = pathname === item.href || pathname.startsWith(item.href + "/");
               return (
                 <li key={item.href}>
                   <Link
                     href={item.href}
                     aria-current={active ? "page" : undefined}
-                    className={`relative py-2 transition-opacity hover:opacity-100 ${
-                      active ? "opacity-100" : "opacity-80"
-                    } after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:bg-champagne after:transition-transform after:duration-300 ${
+                    className={`relative py-2 after:absolute after:inset-x-0 after:-bottom-0.5 after:h-[2px] after:origin-left after:rounded-full after:bg-orange after:transition-transform after:duration-300 ${
                       active ? "after:scale-x-100" : "after:scale-x-0 hover:after:scale-x-100"
                     }`}
                   >
@@ -94,13 +90,16 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <Link href="/book" className="btn btn-primary hidden !min-h-11 !px-5 sm:inline-flex">
-            Book your trip
+          <Link
+            href="/book"
+            className={`btn hidden !min-h-11 !px-5 sm:inline-flex ${clear ? "btn-sun" : "btn-primary"}`}
+          >
+            Book a trip
           </Link>
           <button
             ref={toggleRef}
             type="button"
-            className="relative z-50 -mr-2 inline-flex h-11 w-11 items-center justify-center lg:hidden"
+            className="relative z-50 -mr-2 inline-flex h-11 w-11 items-center justify-center xl:hidden"
             aria-expanded={open}
             aria-controls="mobile-menu"
             aria-label={open ? "Close menu" : "Open menu"}
@@ -108,13 +107,13 @@ export function SiteHeader() {
           >
             <span className="relative block h-3 w-6" aria-hidden="true">
               <span
-                className={`absolute left-0 top-0 h-px w-6 bg-current transition-transform duration-300 ${
-                  open ? "translate-y-1.5 rotate-45" : ""
+                className={`absolute left-0 top-0 h-[1.5px] w-6 bg-current transition-transform duration-300 ${
+                  open ? "translate-y-[5px] rotate-45" : ""
                 }`}
               />
               <span
-                className={`absolute bottom-0 left-0 h-px w-6 bg-current transition-transform duration-300 ${
-                  open ? "-translate-y-1.5 -rotate-45" : ""
+                className={`absolute bottom-0 left-0 h-[1.5px] w-6 bg-current transition-transform duration-300 ${
+                  open ? "-translate-y-[5px] -rotate-45" : ""
                 }`}
               />
             </span>
@@ -126,7 +125,7 @@ export function SiteHeader() {
         id="mobile-menu"
         ref={menuRef}
         hidden={!open}
-        className="fixed inset-0 z-40 overflow-y-auto bg-abyss text-white lg:hidden"
+        className="fixed inset-0 z-40 overflow-y-auto bg-seafoam-night text-parchment xl:hidden"
       >
         <div className="shell flex min-h-full flex-col pb-10 pt-28">
           <nav aria-label="Mobile">
@@ -136,7 +135,7 @@ export function SiteHeader() {
                   <Link
                     href={item.href}
                     aria-current={pathname === item.href ? "page" : undefined}
-                    className="block py-2 font-display text-[2.25rem] leading-tight aria-[current=page]:text-champagne-light"
+                    className="block py-1.5 font-display text-[2rem] leading-tight aria-[current=page]:text-orange"
                   >
                     {item.label}
                   </Link>
@@ -144,29 +143,21 @@ export function SiteHeader() {
               ))}
             </ul>
           </nav>
-          <div className="horizon my-8" />
-          <Link href="/book" className="btn btn-primary w-full">
-            Book your trip
+          <div className="rule my-8 opacity-60" />
+          <Link href="/book" className="btn btn-sun w-full">
+            Book a trip
           </Link>
-          {(site.phone || site.email) && (
-            <div className="mt-6 space-y-2 text-foam">
-              {site.phone && (
-                <a className="block" href={`tel:${site.phone.replace(/\s/g, "")}`}>
-                  {site.phone}
-                </a>
-              )}
-              {site.email && (
-                <a className="block" href={`mailto:${site.email}`}>
-                  {site.email}
-                </a>
-              )}
-              {site.social.instagram && (
-                <a className="block" href={site.social.instagram} target="_blank" rel="noopener">
-                  Instagram @frigate_fly
-                </a>
-              )}
-            </div>
-          )}
+          <div className="mt-6 space-y-2 text-parchment/85">
+            <a className="block" href={site.phoneHref}>
+              {site.phone}
+            </a>
+            <a className="block break-all" href={`mailto:${site.email}`}>
+              {site.email}
+            </a>
+            <a className="block" href={site.instagram.url} target="_blank" rel="noopener">
+              Instagram {site.instagram.handle}
+            </a>
+          </div>
         </div>
       </div>
     </header>

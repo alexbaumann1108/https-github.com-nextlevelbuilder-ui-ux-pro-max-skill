@@ -1,70 +1,46 @@
 /**
- * Business details. Everything here is shown publicly, so only enter
- * verified information. Fields left as `null` are hidden on the live site
- * and flagged in preview mode.
+ * Business details. Everything here appears on the public site.
  */
 export const site = {
   name: "Frigate Fly & Light Tackle Charters",
   shortName: "Frigate",
+  tagline: "Fly & light tackle charters on Sanibel Island",
+  location: "Sanibel Island, Florida",
+  serviceArea: ["Sanibel", "Captiva", "Pine Island Sound", "Fort Myers"],
+  serviceAreaSummary:
+    "Sanibel, Captiva, Pine Island Sound, Fort Myers and the surrounding Southwest Florida waters",
+  phone: "(704) 999-0571",
+  phoneHref: "tel:+17049990571",
+  email: "frigateflycharters@gmail.com",
+  instagram: { handle: "@frigate_fly", url: "https://www.instagram.com/frigate_fly/" },
 
-  /** Town or region you operate from, e.g. "Clearwater Beach, Florida". */
-  serviceArea: "Sanibel Island, FL" as string | null,
-  /** Street address for the marina / departure point, if public. */
-  address: null as null | {
-    street: string;
-    city: string;
-    region: string;
-    postalCode: string;
-    country: string;
-  },
-  phone: "(704) 999-0571" as string | null,
-  email: "frigateflycharters@gmail.com" as string | null,
-  /** Typical reply time for booking requests, e.g. "within 24 hours". */
-  replyTime: null as string | null,
-
-  social: {
-    instagram: "https://www.instagram.com/frigate_fly/" as string | null,
-    facebook: null as string | null,
-    tiktok: null as string | null,
-    youtube: null as string | null,
-  },
-
-  /** Google Business Profile review link (opens the reviews panel). */
-  googleReviewsUrl: null as string | null,
-  /** Google Maps embed URL (Share → Embed a map → copy the src). */
-  mapEmbedUrl: null as string | null,
+  /** Sanibel Lighthouse, used for the map and structured data. */
+  geo: { lat: 26.4528, lng: -82.0146, label: "26°27′N 82°01′W" },
+  mapEmbedUrl:
+    "https://www.google.com/maps?q=Sanibel+Island,+FL&z=11&output=embed",
+  mapLinkUrl: "https://www.google.com/maps/place/Sanibel,+FL",
 
   /**
-   * Set to true once name, address and phone are real. Structured data
-   * (LocalBusiness) is only published when this is true.
+   * Optional: a link to an online booking platform (FareHarbor, Peek,
+   * Checkfront, a Calendly page...). When set, the booking page shows a
+   * "Book online" button beside the inquiry form.
    */
-  verified: true,
+  bookingPlatformUrl: null as string | null,
 };
 
 /**
  * Preview mode shows dashed notes wherever content still needs real
  * details. Turn it off for launch with NEXT_PUBLIC_SHOW_PLACEHOLDERS=false.
  */
-export const showPlaceholders =
-  process.env.NEXT_PUBLIC_SHOW_PLACEHOLDERS !== "false";
+export const showPlaceholders = process.env.NEXT_PUBLIC_SHOW_PLACEHOLDERS !== "false";
 
-export const siteUrl = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
-).replace(/\/$/, "");
-
-/** Adds the service area to a phrase when it is known. */
-export function inArea(phrase: string) {
-  return site.serviceArea ? `${phrase} in ${site.serviceArea}` : phrase;
-}
-
-/** Instagram handle shown as text, e.g. "@frigate_fly". */
-export const instagramHandle = "@frigate_fly";
+export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
 
 export const nav = [
-  { href: "/charters", label: "Trips" },
-  { href: "/fleet", label: "The boat" },
+  { href: "/fishery", label: "The Fishery" },
+  { href: "/captain", label: "Captain" },
+  { href: "/boat", label: "The Boat" },
   { href: "/gallery", label: "Gallery" },
+  { href: "/reports", label: "Fishing Reports" },
   { href: "/conditions", label: "Conditions" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
 ] as const;

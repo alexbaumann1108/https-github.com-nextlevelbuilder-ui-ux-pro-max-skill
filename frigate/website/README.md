@@ -1,109 +1,161 @@
-# Charter website
+# Frigate Fly & Light Tackle Charters: website
 
-A luxury charter website built with Next.js 16, TypeScript and Tailwind CSS 4.
+Next.js 16, React 19, TypeScript and Tailwind CSS 4.
 
-Pages: home, charters, fleet (with a page per boat), booking, gallery, about,
-contact, privacy, and a custom 404.
+## Pages
+
+| Address | Page |
+| --- | --- |
+| `/` | Home: hero, introduction, the three fisheries, captain, boat, rates, gallery, reports, map |
+| `/fishery` | Beach Snook, Tarpon, Backcountry & Redfish, rates and FWC regulations |
+| `/captain` | Meet your captain |
+| `/boat` | The Action Craft Fly Fisher, specifications and equipment |
+| `/gallery` | Photo gallery with categories (`/gallery#snook` opens one category) |
+| `/reports` | Fishing reports, and a page for each report |
+| `/conditions` | Windfinder wind, tide and live forecasts for Sanibel, plus regulations |
+| `/book` | Booking inquiry form, phone, email, Instagram and map |
+| `/privacy` | Privacy notice |
+
+Old addresses (`/charters`, `/about`, `/contact`, `/fleet`) redirect to the new pages.
 
 ## Run it
 
 ```bash
 npm install
-npm run dev        # http://localhost:3000
-npm run build && npm start   # production build
+npm run dev                 # http://localhost:3000
+npm run build && npm start  # production build
+npm run lint
 ```
 
-## Before launch: replace the placeholders
+## Project structure
 
-Preview mode shows dashed **Placeholder** notes wherever real business details
-are still needed. Nothing about the business has been invented: prices,
-durations, guest limits, boats, reviews and credentials are all left blank.
+```
+content/reports/      Fishing reports (Markdown, one file per report)
+public/photos/        Your photos
+public/illustrations/ Hand-drawn art from the brand board and business card
+public/brand/         Logos
+src/content/          All editable business content (see below)
+src/app/              One folder per page; api/inquiry handles the forms
+src/components/       Header, footer, gallery, forms, fish sketches, shared UI
+src/lib/              Form validation and report loading
+```
 
-| What | Where |
+## Editing content
+
+Everything you'd change day to day lives in `src/content/`. You don't need
+to touch the page code.
+
+| What | File |
 | --- | --- |
-| Company name, phone, email, area, address, socials, Google reviews link, map | `src/content/site.ts` |
-| Charter experiences (duration, price, guests) | `src/content/experiences.ts` |
-| Boats (name, model, capacity, length, amenities, rates) | `src/content/fleet.ts` |
-| Hero photo, reasons, destinations, reviews, FAQ answers | `src/content/home.ts` |
-| Gallery photos | `src/content/gallery.ts` |
-| Our story | `src/app/about/page.tsx` |
-| Privacy notice (have it reviewed) | `src/app/privacy/page.tsx` |
+| Phone, email, Instagram, service area, map | `src/content/site.ts` |
+| Beach Snook, Tarpon, Backcountry text and photos | `src/content/fishery.ts` |
+| Captain name, photo, bio, specialties | `src/content/captain.ts` |
+| Boat description, photos, specifications | `src/content/boat.ts` |
+| Rates | `src/content/rates.ts` |
+| Gallery photos and categories | `src/content/gallery.ts` |
+| FWC and Windfinder links | `src/content/links.ts` |
 
-### Photos
+### Captain
 
-Every photo slot shows an art-directed seascape, labelled with the shot to
-take, until you add a real photo:
+Change `photo.src` in `src/content/captain.ts` to any file in
+`public/photos`. Set `name` to show it as the heading. Write your story in
+`bio`, one string per paragraph.
 
-1. Put the file in `public/photos/` (for example `public/photos/hero.jpg`).
-2. Set `src: "/photos/hero.jpg"` on that photo entry and check its `alt` text.
+### Add a gallery photo
 
-Images are resized and served as AVIF/WebP automatically. Landscape photos at
-least 2400px wide work best for the hero.
+1. Put the photo in `public/photos/`, for example `tarpon-jump.jpg`.
+2. Add a line to `src/content/gallery.ts`:
+   ```ts
+   p("tarpon-jump.jpg", "tarpon", "A tarpon jumping off the beach", 2016, 1512),
+   ```
+   The numbers are the photo's width and height in pixels. Categories:
+   `snook`, `tarpon`, `redfish`, `boat`, `days`.
 
-### Reviews
+The Tarpon category is empty until you add tarpon photos. To give the Tarpon
+fishery its own photo, add `photo: { src, alt }` to it in `src/content/fishery.ts`.
 
-Only add reviews that guests actually wrote, copied word for word, with the
-name as published. The section shows a neutral "reviews will appear here"
-message until then. Add your Google Business Profile link to
-`googleReviewsUrl` to show a "Read our Google reviews" button.
+## Posting a fishing report (no rebuild needed on your side)
 
-## Booking requests
+1. Copy `content/reports/_template.md`, name it like `2026-12-december-report.md`.
+2. Fill in the title, date, category and summary, and write the report below
+   the dashes. Plain text works; `## Heading`, `**bold**`, lists, links and
+   `![caption](/photos/file.jpg)` photos all work too.
+3. Commit the file. GitHub's website and phone app can both do this: open
+   `content/reports`, choose **Add file**, paste, commit.
 
-The booking and contact forms send to `/api/inquiry`, which validates every
-field again on the server, filters spam bots and rate-limits repeat sends.
+When the site is hosted on Vercel or Netlify, every commit rebuilds and
+publishes automatically, usually within a minute or two. Set `draft: true` to
+keep a report hidden until it's ready.
 
-To receive requests, set **`INQUIRY_WEBHOOK_URL`** to any endpoint that
-accepts a JSON POST: Zapier, Make, n8n, Formspree, a CRM or your booking
-system. Each request arrives as:
+## Booking inquiries
+
+The booking form posts to `/api/inquiry`, which checks every field again on
+the server, filters spam bots and limits repeated sends.
+
+**To receive inquiries**, set `INQUIRY_WEBHOOK_URL` to any service that
+accepts a JSON POST. Easy options:
+
+- **Zapier or Make:** "Catch Hook" trigger, then "Send email" to
+  frigateflycharters@gmail.com (or add a row to a Google Sheet).
+- **Formspree:** create a form and use its endpoint URL.
+- **A booking platform or CRM** that accepts webhooks.
+
+Each inquiry arrives as:
 
 ```json
 {
   "ref": "REQ-7KQ2MX",
-  "receivedAt": "2026-10-30T15:13:15.090Z",
+  "receivedAt": "2026-11-01T14:05:37.068Z",
   "kind": "booking",
-  "experience": "sunset-cruise",
-  "vessel": "flagship",
-  "date": "2026-12-12",
-  "time": "sunset",
-  "guests": 4,
-  "name": "…",
-  "email": "…",
-  "phone": "…",
+  "name": "…", "email": "…", "phone": "…",
+  "date": "2026-12-20",
+  "guests": 3,
+  "experience": "beach-snook",
+  "tripLength": "4",
   "message": "…"
 }
 ```
 
-Customers always see that this is a **request, not a confirmed booking**.
+Without `INQUIRY_WEBHOOK_URL`, the live site tells visitors that online
+inquiries aren't switched on and asks them to call or email. It never
+pretends an inquiry was sent.
 
-- In development without the webhook, requests are accepted and a preview
-  note says they were not delivered.
-- In production without the webhook, the form tells the visitor online
-  requests are not switched on and asks them to call or email. It never
-  pretends a request was sent.
+**Online booking later:** set `bookingPlatformUrl` in `src/content/site.ts`
+(FareHarbor, Peek, Checkfront, Calendly...) and a "Book online" link appears
+beside the form.
 
 ## Environment variables
 
-See `.env.example`.
-
 | Variable | Purpose |
 | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | Your live domain, for canonical URLs, sitemap and social cards |
-| `INQUIRY_WEBHOOK_URL` | Where booking requests and messages are delivered |
-| `NEXT_PUBLIC_SHOW_PLACEHOLDERS` | Set to `false` at launch to hide placeholder notes |
+| `NEXT_PUBLIC_SITE_URL` | Your domain, e.g. `https://www.frigatefly.com` (canonical links, sitemap, social cards) |
+| `INQUIRY_WEBHOOK_URL` | Where booking inquiries are delivered |
+| `NEXT_PUBLIC_SHOW_PLACEHOLDERS` | `false` at launch hides the dashed "To fill in" notes |
+
+## Deploy (Vercel, free tier works)
+
+1. Sign in at vercel.com with GitHub and choose **Add New → Project**.
+2. Import this repository and set **Root Directory** to `frigate/website`.
+3. Add the three environment variables above.
+4. Deploy. Add your domain under **Settings → Domains**.
+
+Netlify works the same way (base directory `frigate/website`).
 
 ## SEO
 
-- Unique titles and descriptions on every page, which include your service
-  area once `serviceArea` is set
-- `sitemap.xml`, `robots.txt`, canonical URLs and a generated Open Graph image
-- LocalBusiness structured data, published only after you set
-  `verified: true` in `src/content/site.ts`
+- Page titles and descriptions target Sanibel Island fishing charters,
+  Southwest Florida fly fishing, snook, tarpon and inshore fishing.
+- Open Graph and Twitter cards on every page; reports use their cover photo.
+- `sitemap.xml` (including every report) and `robots.txt`.
+- LocalBusiness structured data with rates, service area and Instagram;
+  BlogPosting data on each report.
 
-## Design
+## Design notes
 
-- Type: Bodoni Moda (display) and Instrument Sans (text)
-- Palette: driftwood `#3e2e21`, island tan `#c9a47a`, sand `#f1e8dc`,
-  warm white `#fbf8f3`, ink `#1e1913`
-- Motif: the tan "horizon line", drawn in on page load and reused as the
-  divider throughout
-- Brand assets (logos, fonts, colours) live in `../brand/`
+- An old Florida field journal: parchment, seafoam, weathered tan and a little
+  faded orange.
+- Libre Caslon Text for headings, Nunito Sans for text, Special Elite for
+  small typewriter labels.
+- Hand-drawn art from the Frigate brand board, plus field-guide fish sketches
+  (`src/components/fish-sketch.tsx`). The hero snook draws itself in once;
+  that's the only automatic animation.

@@ -1,21 +1,26 @@
 import type { MetadataRoute } from "next";
-import { fleet } from "@/content/fleet";
 import { siteUrl } from "@/content/site";
+import { getReports } from "@/lib/reports";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const pages = ["", "/charters", "/book", "/gallery", "/conditions", "/about", "/contact", "/privacy"];
-  // /fleet redirects to the boat's own page when there is only one boat.
-  if (fleet.length > 1) pages.splice(2, 0, "/fleet");
+  const pages: [string, number][] = [
+    ["", 1],
+    ["/fishery", 0.9],
+    ["/book", 0.9],
+    ["/captain", 0.7],
+    ["/boat", 0.7],
+    ["/gallery", 0.7],
+    ["/reports", 0.7],
+    ["/conditions", 0.6],
+    ["/privacy", 0.2],
+  ];
   return [
-    ...pages.map((p) => ({
-      url: `${siteUrl}${p}`,
-      changeFrequency: "monthly" as const,
-      priority: p === "" ? 1 : p === "/book" || p === "/charters" ? 0.9 : 0.6,
-    })),
-    ...fleet.map((v) => ({
-      url: `${siteUrl}/fleet/${v.slug}`,
-      changeFrequency: "monthly" as const,
-      priority: 0.7,
+    ...pages.map(([p, priority]) => ({ url: `${siteUrl}${p}`, changeFrequency: "monthly" as const, priority })),
+    ...getReports().map((r) => ({
+      url: `${siteUrl}/reports/${r.slug}`,
+      lastModified: r.date,
+      changeFrequency: "yearly" as const,
+      priority: 0.5,
     })),
   ];
 }

@@ -20,7 +20,7 @@ export function MobileBookBar() {
 
   return (
     <div
-      className={`fixed inset-x-0 bottom-0 z-30 border-t border-white/10 bg-abyss/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-md transition-transform duration-300 sm:hidden ${
+      className={`fixed inset-x-0 bottom-0 z-30 border-t border-tan/50 bg-parchment/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-md transition-transform duration-300 sm:hidden ${
         visible ? "translate-y-0" : "translate-y-full"
       }`}
       aria-hidden={!visible}
@@ -30,7 +30,7 @@ export function MobileBookBar() {
         tabIndex={visible ? 0 : -1}
         className="btn btn-primary w-full"
       >
-        Book your trip
+        Book a trip
       </Link>
     </div>
   );

@@ -1,291 +1,317 @@
+import Image, { getImageProps } from "next/image";
 import Link from "next/link";
-import { experiences } from "@/content/experiences";
-import { fleet } from "@/content/fleet";
-import { heroPhoto, heroVideo, introPhoto, reasons, species } from "@/content/home";
+import { experiences } from "@/content/fishery";
+import { captain } from "@/content/captain";
+import { boat } from "@/content/boat";
 import { gallery } from "@/content/gallery";
 import { site } from "@/content/site";
-import { Photo } from "@/components/photo";
-import {
-  BookingCta,
-  ExperienceCard,
-  FaqList,
-  RatesTable,
-  RegulationsSection,
-  ReviewsSection,
-  SectionIntro,
-  Specs,
-} from "@/components/sections";
+import { getReports, formatDate } from "@/lib/reports";
+import { FishSketch } from "@/components/fish-sketch";
+import { Illustration } from "@/components/illustration";
+import { BookingBand, Photo, RatesLedger, SectionHeading } from "@/components/ui";
+import { LocationMap } from "@/components/location-map";
+
+/**
+ * Art-directed hero: the wide clouds shot on larger screens, and the
+ * clear-flats shot (boat centered) on phones so the skiff stays in frame.
+ */
+function HeroPhoto() {
+  const common = {
+    alt: "The Frigate skiff on the shallow flats off Sanibel Island",
+    sizes: "100vw",
+    priority: true,
+  };
+  const {
+    props: { srcSet: wide },
+  } = getImageProps({ ...common, src: boat.photo.src, width: 1512, height: 2016, quality: 80 });
+  const {
+    props: { srcSet: tall, ...rest },
+  } = getImageProps({ ...common, src: boat.photo2.src, width: 1512, height: 2016, quality: 75 });
+  return (
+    <picture>
+      <source media="(min-width: 768px)" srcSet={wide} />
+      <img
+        {...rest}
+        srcSet={tall}
+        alt={common.alt}
+        className="absolute inset-x-0 top-[-34%] -z-10 h-[134%] w-full object-cover object-[50%_45%] md:top-0 md:h-full md:object-[50%_62%]"
+      />
+    </picture>
+  );
+}
 
 export default function Home() {
-  const boat = fleet[0];
-  const pictured = species.filter((s) => s.photo);
-  const listed = species.filter((s) => !s.photo);
+  const reports = getReports().slice(0, 3);
+  const specs = boat.specs.filter((s) => s.value);
 
   return (
     <>
-      {/* Hero: boat video on phones, mangrove photo on larger screens */}
-      <section className="relative isolate flex min-h-[100svh] items-end overflow-hidden bg-abyss text-white">
-        <div className="absolute inset-0 -z-10 hidden md:block">
-          <Photo photo={heroPhoto} sizes="100vw" priority />
-        </div>
-        <video
-          className="absolute inset-0 -z-10 h-full w-full object-cover md:hidden"
-          src={heroVideo.src}
-          poster={heroVideo.poster}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          aria-hidden="true"
-        />
-        <div className="absolute inset-0 -z-10 bg-gradient-to-t from-abyss/90 via-abyss/30 to-abyss/45" />
-        <div className="absolute inset-0 -z-10 hidden bg-gradient-to-r from-abyss/60 to-transparent md:block" />
+      {/* Hero */}
+      <section className="relative isolate flex min-h-[100svh] items-end overflow-hidden bg-seafoam-night text-paper">
+        <HeroPhoto />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-t from-ink/80 via-ink/25 to-ink/30" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-ink/45 to-transparent" />
 
-        <div className="shell pb-10 pt-32 md:pb-16">
-          <h1 className="display-xl hero-rise max-w-[12ch]" style={{ animationDelay: "0.35s" }}>
-            Local waters. Unforgettable days.
-          </h1>
-          <div className="horizon hero-horizon mt-8 md:mt-10" />
-          <div className="mt-8 grid gap-8 md:grid-cols-12 md:items-end">
-            <p
-              className="lede hero-rise text-white/90 md:col-span-6 lg:col-span-5"
-              style={{ animationDelay: "0.6s" }}
-            >
-              Inshore fly fishing and light tackle charters around{" "}
-              {site.serviceArea ?? "Sanibel Island"} and Southwest Florida.
-              Snook, redfish, tarpon and more, from the boat or on foot.
+        <div className="shell grid gap-10 pb-12 pt-32 md:pb-16 lg:grid-cols-12 lg:items-end">
+          <div className="lg:col-span-8">
+            <p className="label rise text-paper/85">
+              {site.location}
+              <span className="mx-2 opacity-60">/</span>
+              {site.geo.label}
             </p>
-            <div
-              className="hero-rise flex flex-col gap-3 sm:flex-row md:col-span-6 md:justify-end lg:col-span-7"
-              style={{ animationDelay: "0.75s" }}
-            >
-              <Link href="/book" className="btn btn-primary">
-                Book your trip
+            <h1 className="display-xl rise mt-5 max-w-[15ch] uppercase" style={{ animationDelay: "0.15s" }}>
+              Fish the wild waters of Southwest Florida
+            </h1>
+            <p className="lede rise mt-6 max-w-2xl text-paper/90" style={{ animationDelay: "0.3s" }}>
+              Experience the incredible inshore fisheries of Sanibel and the
+              surrounding islands with Frigate Fly &amp; Light Tackle Charters.
+            </p>
+            <div className="rise mt-9 flex flex-col gap-3 sm:flex-row" style={{ animationDelay: "0.45s" }}>
+              <Link href="/book" className="btn btn-sun">
+                Book a trip
               </Link>
-              <Link href="/charters" className="btn btn-light">
-                See the trips
+              <Link href="/fishery" className="btn btn-ghost">
+                Explore our fishery
               </Link>
             </div>
           </div>
+          <figure className="hidden lg:col-span-4 lg:block">
+            <FishSketch species="snook" draw className="w-full text-paper/85" />
+            <figcaption className="label mt-1 text-right text-paper/75">
+              Centropomus undecimalis, the common snook
+            </figcaption>
+          </figure>
         </div>
       </section>
 
       {/* Introduction */}
       <section aria-labelledby="intro-title" className="py-20 md:py-28">
-        <div className="shell grid items-center gap-10 md:grid-cols-12 md:gap-14">
-          <div className="md:col-span-7">
-            <h2 id="intro-title" className="display-lg">
-              Fly and light tackle on Sanibel&apos;s flats, beaches and mangroves.
+        <div className="shell grid gap-12 md:grid-cols-12">
+          <aside className="md:col-span-3 md:border-r md:border-tan/60 md:pr-8">
+            <Illustration name="icon-florida" className="w-16 text-seafoam-deep" />
+            <p className="label mt-5 text-ink-soft">Waters we fish</p>
+            <ul className="mt-2 space-y-1 font-display text-[1.2rem]">
+              {site.serviceArea.map((a) => (
+                <li key={a}>{a}</li>
+              ))}
+              <li className="text-ink-soft">and the surrounding Southwest Florida waters</li>
+            </ul>
+          </aside>
+          <div className="md:col-span-9">
+            <h2 id="intro-title" className="sr-only">
+              About Frigate Fly &amp; Light Tackle Charters
             </h2>
-            <p className="lede mt-6 max-w-2xl text-slate">
-              Every trip is tailored: fly rod or spinning gear, fishing the
-              flats from the boat or wading the shoreline, early tide or evening tide. You
-              bring the sunscreen; we&apos;ll bring the local knowledge.
+            <p className="font-display text-[clamp(1.3rem,2.6vw,2.2rem)] leading-[1.4]">
+              Frigate Fly &amp; Light Tackle Charters offers personalized inshore
+              fishing experiences throughout the waters of Southwest Florida. From
+              sight fishing for snook along the beaches to chasing tarpon across
+              the backcountry, every trip is built around the conditions, the
+              fish, and making the most of your time on the water.
             </p>
-            <div className="mt-8 flex flex-wrap gap-x-8 gap-y-3">
-              <Link href="/about" className="link-tide font-semibold">
-                About Frigate
-              </Link>
-              {site.social.instagram && (
-                <a
-                  href={site.social.instagram}
-                  target="_blank"
-                  rel="noopener"
-                  className="link-tide font-semibold"
-                >
-                  Follow along on Instagram
-                </a>
-              )}
+            <Illustration name="fly" className="mt-10 w-48 text-tan-deep md:w-60" />
+          </div>
+        </div>
+      </section>
+
+      {/* Fishing experiences */}
+      <section aria-labelledby="fishery-title" className="pb-20 md:pb-28">
+        <div className="shell">
+          <SectionHeading
+            id="fishery-title"
+            label="The fishery"
+            title="Three ways to fish Sanibel"
+            lede="Each trip is shaped by the season, the tide and what the fish are doing."
+          />
+          <div className="mt-14 grid gap-12 md:grid-cols-3 md:gap-8">
+            {experiences.map((e, i) => (
+              <article key={e.slug} className={`flex flex-col ${i === 1 ? "md:mt-16" : ""}`}>
+                <Link href={`/fishery#${e.slug}`} tabIndex={-1} aria-hidden="true" className="group relative block">
+                  <div className="relative aspect-[4/5] overflow-hidden rounded-[3px] bg-seafoam-pale">
+                    {e.photo ? (
+                      <Photo
+                        photo={e.photo}
+                        sizes="(min-width: 768px) 32vw, 100vw"
+                        className="transition-transform duration-700 ease-[var(--ease-tide)] group-hover:scale-[1.04]"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center p-8">
+                        <FishSketch species={e.sketch} className="w-full text-seafoam-deep" />
+                      </div>
+                    )}
+                  </div>
+                  {e.photo && (
+                    <div className="absolute -bottom-6 right-3 w-40 rounded-[3px] bg-parchment px-3 py-2 shadow-[0_1px_0_rgb(185_154_114/0.6)]">
+                      <FishSketch species={e.sketch} className="w-full text-ink/80" />
+                    </div>
+                  )}
+                </Link>
+                <h3 className="mt-10 text-[1.9rem] uppercase tracking-[0.02em]">{e.name}</h3>
+                <p className="mt-3 flex-1 text-ink-soft">{e.summary}</p>
+                <Link href={`/fishery#${e.slug}`} className="link mt-5 self-start font-bold">
+                  Learn more<span className="sr-only"> about {e.name}</span>
+                </Link>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Meet your captain */}
+      <section aria-labelledby="captain-title" className="bg-seafoam-pale py-20 md:py-28">
+        <div className="shell grid items-center gap-12 md:grid-cols-12">
+          <div className="relative md:col-span-5">
+            <div className="relative aspect-[4/5] rotate-[-1.2deg] overflow-hidden rounded-[3px] border-[10px] border-paper shadow-[0_18px_40px_-24px_rgb(42_39_33/0.6)]">
+              <Photo photo={captain.photo} sizes="(min-width: 768px) 40vw, 100vw" />
             </div>
+            <span aria-hidden="true" className="absolute -top-3 left-1/2 h-7 w-24 -translate-x-1/2 rotate-[3deg] bg-tan/45" />
           </div>
-          <div className="relative aspect-[4/5] overflow-hidden md:col-span-5">
-            <Photo photo={introPhoto} sizes="(min-width: 768px) 40vw, 100vw" />
-          </div>
-        </div>
-      </section>
-
-      {/* Trips */}
-      <section aria-labelledby="trips-title" className="pb-20 md:pb-28">
-        <div className="shell">
-          <SectionIntro
-            id="trips-title"
-            title="The trips"
-            lede="Three ways to fish Sanibel. Pick a starting point and we'll tailor the rest."
-            action={
-              <Link href="/charters" className="link-tide shrink-0 font-semibold">
-                Compare the trips
-              </Link>
-            }
-          />
-          <div className="mt-12 grid gap-x-8 gap-y-14 md:grid-cols-2 lg:grid-cols-3">
-            {experiences.map((e) => (
-              <ExperienceCard key={e.slug} experience={e} />
-            ))}
-          </div>
-          <div className="mt-16">
-            <h3 className="mb-2 text-[1.75rem]">Rates</h3>
-            <RatesTable />
-          </div>
-        </div>
-      </section>
-
-      {/* Species */}
-      <section aria-labelledby="species-title" className="bg-mist py-20 md:py-28">
-        <div className="shell">
-          <SectionIntro
-            id="species-title"
-            title="What we fish for"
-            lede="What's biting changes with the season and the tide. These are the regulars."
-          />
-          <div className="mt-12 grid gap-4 md:grid-cols-12">
-            {pictured.map((s) => (
-              <figure key={s.name} className="relative aspect-[4/5] overflow-hidden md:col-span-4">
-                <Photo photo={s.photo!} sizes="(min-width: 768px) 33vw, 100vw" />
-                <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-abyss/90 to-transparent p-6 pt-24 text-white">
-                  <span className="block font-display text-[2rem] leading-tight">{s.name}</span>
-                  <span className="mt-1 block text-sm text-white/85">{s.note}</span>
-                </figcaption>
-              </figure>
-            ))}
-            <ul className="flex flex-col justify-end gap-6 border-t border-champagne pt-6 md:col-span-4 md:border-l md:border-t-0 md:pl-8 md:pt-0">
-              {listed.map((s) => (
-                <li key={s.name}>
-                  <span className="block font-display text-[1.75rem] leading-tight">{s.name}</span>
-                  <span className="mt-1 block text-slate">{s.note}</span>
+          <div className="md:col-span-7 md:pl-6">
+            <p className="label text-orange-ink">Meet your captain</p>
+            <h2 id="captain-title" className="display-lg mt-3">
+              {captain.name ?? "A local who knows these waters"}
+            </h2>
+            <p className="lede mt-5 text-ink-soft">{captain.intro}</p>
+            <ul className="mt-8 grid gap-3 sm:grid-cols-2">
+              {captain.specialties.map((s) => (
+                <li key={s} className="flex items-start gap-3">
+                  <Illustration name="icon-fly" className="mt-0.5 w-6 shrink-0 text-seafoam-deep" />
+                  <span className="font-semibold">{s}</span>
                 </li>
               ))}
             </ul>
+            <Link href="/captain" className="btn btn-ink mt-10">
+              Meet your captain
+            </Link>
           </div>
         </div>
       </section>
 
-      <RegulationsSection />
-
       {/* The boat */}
-      {boat && (
-        <section aria-labelledby="boat-title" className="bg-abyss py-20 text-white md:py-28">
-          <div className="shell grid items-center gap-10 lg:grid-cols-12 lg:gap-14">
-            <Link
-              href={`/fleet/${boat.slug}`}
-              tabIndex={-1}
-              aria-hidden="true"
-              className="group relative block aspect-[4/5] overflow-hidden sm:aspect-[4/3] lg:col-span-7 lg:aspect-[5/6]"
-            >
-              <div className="absolute inset-0 transition-transform duration-[1.2s] ease-[var(--ease-tide)] group-hover:scale-[1.03]">
-                <Photo photo={boat.photo} sizes="(min-width: 1024px) 58vw, 100vw" />
-              </div>
-            </Link>
-            <div className="lg:col-span-5">
-              <h2 id="boat-title" className="display-md">
-                The boat
-              </h2>
-              <p className="mt-2 text-foam">{boat.model}</p>
-              <p className="lede mt-5">{boat.tagline}</p>
-              <div className="horizon my-7" />
-              <ul className="space-y-2.5 text-foam">
-                {boat.amenities.map((a) => (
-                  <li key={a} className="flex gap-3">
-                    <span aria-hidden="true" className="mt-3 h-px w-3 shrink-0 bg-champagne" />
-                    {a}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-7">
-                <Specs
-                  tone="dark"
-                  items={[
-                    { label: "Anglers", value: boat.capacity ? `Up to ${boat.capacity}` : undefined },
-                    { label: "Length", value: boat.length },
-                  ]}
-                />
-              </div>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Link href={`/fleet/${boat.slug}`} className="btn btn-light">
-                  More about the boat
-                </Link>
-                <Link href="/book" className="btn btn-primary">
-                  Book your trip
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Why Frigate */}
-      <section aria-labelledby="why-title" className="py-20 md:py-28">
+      <section aria-labelledby="boat-title" className="py-20 md:py-28">
         <div className="shell grid gap-12 lg:grid-cols-12">
-          <div className="lg:col-span-4">
-            <h2 id="why-title" className="display-md">
-              How we fish
-            </h2>
-            <p className="mt-4 text-slate">Tailored trips, local knowledge, lasting memories.</p>
+          <div className="relative aspect-[4/5] overflow-hidden rounded-[3px] lg:col-span-7 lg:aspect-auto lg:min-h-[38rem]">
+            <Photo photo={boat.photo} sizes="(min-width: 1024px) 58vw, 100vw" />
           </div>
-          <div className="grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:col-span-8">
-            {reasons.map((r) => (
-              <div key={r.title} className="border-t border-champagne pt-6">
-                <h3 className="text-[1.625rem]">{r.title}</h3>
-                <p className="mt-3 text-slate">{r.body}</p>
-              </div>
-            ))}
+          <div className="flex flex-col lg:col-span-5">
+            <p className="label text-orange-ink">The boat</p>
+            <h2 id="boat-title" className="display-md mt-3">
+              {boat.name}
+            </h2>
+            <p className="mt-4 text-ink-soft">{boat.description[0]}</p>
+            <dl className="mt-8 border-t border-tan/60">
+              {specs.map((s) => (
+                <div key={s.label} className="flex items-baseline gap-3 border-b border-tan/60 py-3">
+                  <dt className="label shrink-0 text-ink-soft">{s.label}</dt>
+                  <span aria-hidden="true" className="flex-1" />
+                  <dd className="text-right font-semibold">{s.value}</dd>
+                </div>
+              ))}
+            </dl>
+            <Illustration name="boat-sketch" className="mt-10 w-full max-w-sm self-end text-ink/70" />
+            <Link href="/boat" className="link mt-6 self-start font-bold">
+              More about the boat
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Rates */}
+      <section aria-labelledby="rates-title" className="border-y border-tan/50 bg-parchment-deep/60 py-20 md:py-24">
+        <div className="shell grid gap-12 md:grid-cols-12 md:items-center">
+          <div className="md:col-span-5">
+            <p className="label text-orange-ink">Trips &amp; rates</p>
+            <h2 id="rates-title" className="display-md mt-3">
+              Half, three-quarter or full day
+            </h2>
+            <p className="mt-4 max-w-md text-ink-soft">
+              One boat, one captain, your group. Pick the length of day and we&apos;ll
+              plan it around the tides and the fish.
+            </p>
+            <Illustration name="fly-caster" className="mt-8 hidden w-56 text-ink/70 md:block" />
+          </div>
+          <div className="md:col-span-7">
+            <RatesLedger />
+            <Link href="/book" className="btn btn-primary mt-8">
+              Book a trip
+            </Link>
           </div>
         </div>
       </section>
 
       {/* Gallery preview */}
-      <section aria-labelledby="gallery-title" className="pb-20 md:pb-28">
+      <section aria-labelledby="gallery-title" className="py-20 md:py-28">
         <div className="shell">
-          <SectionIntro
+          <SectionHeading
             id="gallery-title"
-            title="From the water"
+            label="From the water"
+            title="Recent days on the water"
             action={
-              <Link href="/gallery" className="link-tide shrink-0 font-semibold">
+              <Link href="/gallery" className="link shrink-0 font-bold">
                 See all {gallery.length} photos
               </Link>
             }
           />
-          <div className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-4 md:grid-rows-2 md:gap-4">
-            {gallery.slice(0, 5).map((g, i) => (
-              <Link
-                key={g.src}
-                href="/gallery"
-                className={`relative block overflow-hidden ${
-                  i === 0 ? "col-span-2 aspect-[4/3] md:row-span-2 md:aspect-auto" : "aspect-square"
-                }`}
-              >
-                <span className="sr-only">Open the gallery: {g.alt}</span>
-                <Photo photo={g} sizes={i === 0 ? "(min-width: 768px) 50vw, 100vw" : "(min-width: 768px) 25vw, 50vw"} />
+          <div className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-12 md:gap-4">
+            {[
+              { p: gallery[1], c: "col-span-2 aspect-[16/10] md:col-span-7 md:row-span-2 md:aspect-auto" },
+              { p: gallery[0], c: "aspect-[4/5] md:col-span-5 md:aspect-[16/11]" },
+              { p: gallery[2], c: "aspect-[4/5] md:col-span-5 md:aspect-[16/11]" },
+            ].map(({ p, c }) => (
+              <Link key={p.src} href={`/gallery#${p.category}`} className={`group relative block overflow-hidden rounded-[3px] ${c}`}>
+                <span className="sr-only">Gallery: {p.alt}</span>
+                <Image
+                  src={p.src}
+                  alt=""
+                  fill
+                  sizes="(min-width: 768px) 50vw, 100vw"
+                  className="object-cover transition-transform duration-700 ease-[var(--ease-tide)] group-hover:scale-[1.04]"
+                />
               </Link>
             ))}
           </div>
         </div>
       </section>
 
-      <ReviewsSection />
-
-      {/* FAQ */}
-      <section aria-labelledby="faq-title" className="py-20 md:py-28">
+      {/* Fishing reports */}
+      <section aria-labelledby="reports-title" className="bg-paper/70 py-20 md:py-24">
         <div className="shell grid gap-12 lg:grid-cols-12">
           <div className="lg:col-span-4">
-            <h2 id="faq-title" className="display-md">
-              Questions, answered
+            <p className="label text-orange-ink">Fishing reports</p>
+            <h2 id="reports-title" className="display-md mt-3">
+              Notes from the water
             </h2>
-            <p className="mt-4 text-slate">
-              Something else on your mind?{" "}
-              <Link href="/contact" className="link-tide font-semibold text-ink">
-                Ask us directly
-              </Link>
-              .
+            <p className="mt-4 text-ink-soft">
+              Conditions, seasonal patterns and recent catches from around Sanibel.
             </p>
+            <Link href="/reports" className="link mt-6 inline-block font-bold">
+              All fishing reports
+            </Link>
           </div>
-          <div className="lg:col-span-8">
-            <FaqList />
-          </div>
+          <ul className="divide-y divide-tan/50 border-y border-tan/50 lg:col-span-8">
+            {reports.map((r) => (
+              <li key={r.slug}>
+                <Link href={`/reports/${r.slug}`} className="group grid gap-2 py-6 sm:grid-cols-[9rem_1fr]">
+                  <span className="label text-ink-soft">
+                    {formatDate(r.date)}
+                    <br />
+                    {r.category}
+                  </span>
+                  <span>
+                    <span className="block font-display text-[1.5rem] leading-snug group-hover:text-seafoam-deep">
+                      {r.title}
+                    </span>
+                    <span className="mt-1 block text-ink-soft">{r.summary}</span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
-      <BookingCta />
+      <LocationMap />
+
+      <BookingBand />
     </>
   );
 }

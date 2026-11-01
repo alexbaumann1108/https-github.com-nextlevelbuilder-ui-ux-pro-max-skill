@@ -1,26 +1,53 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { categories, type Category, type GalleryPhoto } from "@/content/gallery";
+import { site } from "@/content/site";
 
-type Item = {
-  alt: string;
-  wide: boolean;
-  thumb: React.ReactNode;
-  full: React.ReactNode;
-};
+type Filter = Category | "all";
 
-export function GalleryGrid({ items }: { items: Item[] }) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  const triggerRefs = useRef<(HTMLButtonElement | null)[]>([]);
+/** Category from the address bar hash, e.g. /gallery#snook. */
+function readHash(): Filter {
+  if (typeof window === "undefined") return "all";
+  const h = window.location.hash.slice(1);
+  return categories.some((c) => c.id === h) ? (h as Category) : "all";
+}
+
+export function GalleryGrid({ photos }: { photos: GalleryPhoto[] }) {
+  const [filter, setFilter] = useState<Filter>("all");
   const [index, setIndex] = useState<number | null>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const triggers = useRef<(HTMLButtonElement | null)[]>([]);
   const touchX = useRef<number | null>(null);
+
+  useEffect(() => {
+    const sync = () => setFilter(readHash());
+    sync();
+    window.addEventListener("hashchange", sync);
+    return () => window.removeEventListener("hashchange", sync);
+  }, []);
+
+  const shown = useMemo(
+    () => (filter === "all" ? photos : photos.filter((p) => p.category === filter)),
+    [filter, photos],
+  );
+
+  const choose = (f: Filter) => {
+    setFilter(f);
+    history.replaceState(null, "", f === "all" ? location.pathname : `#${f}`);
+  };
 
   const open = (i: number) => {
     setIndex(i);
     dialogRef.current?.showModal();
   };
+  const close = useCallback(() => dialogRef.current?.close(), []);
+  const go = useCallback(
+    (d: number) => setIndex((i) => (i === null ? i : (i + d + shown.length) % shown.length)),
+    [shown.length],
+  );
 
-  // Stop the page behind the viewer from scrolling while it is open.
   const isOpen = index !== null;
   useEffect(() => {
     if (!isOpen) return;
@@ -31,65 +58,103 @@ export function GalleryGrid({ items }: { items: Item[] }) {
     };
   }, [isOpen]);
 
-  const close = useCallback(() => {
-    dialogRef.current?.close();
-  }, []);
-
-  const go = useCallback(
-    (d: number) => setIndex((i) => (i === null ? i : (i + d + items.length) % items.length)),
-    [items.length],
-  );
-
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
-    const onClose = () => {
+    const onClose = () =>
       setIndex((i) => {
-        if (i !== null) triggerRefs.current[i]?.focus();
+        if (i !== null) triggers.current[i]?.focus();
         return null;
       });
-    };
     dialog.addEventListener("close", onClose);
     return () => dialog.removeEventListener("close", onClose);
   }, []);
 
-  const onKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "ArrowRight") go(1);
-    if (e.key === "ArrowLeft") go(-1);
-  };
-
-  const current = index === null ? null : items[index];
+  const current = index === null ? null : shown[index];
+  const counts = Object.fromEntries(
+    categories.map((c) => [c.id, photos.filter((p) => p.category === c.id).length]),
+  ) as Record<Category, number>;
 
   return (
     <>
-      <ul className="grid grid-flow-dense grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 md:gap-4">
-        {items.map((item, i) => (
-          <li key={i} className={item.wide ? "sm:col-span-2" : ""}>
+      <div role="group" aria-label="Filter photos" className="flex flex-wrap gap-2">
+        {([{ id: "all", label: "All photos" }, ...categories] as { id: Filter; label: string }[]).map((c) => {
+          const active = filter === c.id;
+          const n = c.id === "all" ? photos.length : counts[c.id as Category];
+          return (
             <button
-              ref={(el) => {
-                triggerRefs.current[i] = el;
-              }}
+              key={c.id}
               type="button"
-              onClick={() => open(i)}
-              className="group relative block aspect-[4/3] w-full overflow-hidden bg-mist md:aspect-auto md:h-[22rem]"
-              aria-label={`View full screen: ${item.alt}`}
+              aria-pressed={active}
+              onClick={() => choose(c.id)}
+              className={`rounded-full border-[1.5px] px-4 py-2 text-sm font-bold transition-colors ${
+                active
+                  ? "border-seafoam-deep bg-seafoam-deep text-paper"
+                  : "border-tan text-ink hover:border-seafoam-deep"
+              }`}
             >
-              <span className="absolute inset-0 block transition-transform duration-[1.2s] ease-[var(--ease-tide)] group-hover:scale-[1.03]">
-                {item.thumb}
-              </span>
+              {c.label}
+              <span className={`ml-1.5 font-normal ${active ? "text-paper/75" : "text-ink-soft"}`}>{n}</span>
             </button>
-          </li>
-        ))}
-      </ul>
+          );
+        })}
+      </div>
+
+      <p className="sr-only" aria-live="polite">
+        Showing {shown.length} photos
+      </p>
+
+      {shown.length === 0 ? (
+        <div className="mt-10 rounded-[3px] border-[1.5px] border-dashed border-tan p-10 text-center">
+          <p className="font-display text-[1.6rem]">No photos here yet.</p>
+          <p className="mt-2 text-ink-soft">
+            New catches go up on Instagram first:{" "}
+            <a href={site.instagram.url} target="_blank" rel="noopener" className="link font-semibold text-ink">
+              {site.instagram.handle}
+            </a>
+          </p>
+        </div>
+      ) : (
+        <ul className="mt-10 columns-1 gap-4 sm:columns-2 lg:columns-3 [&>li]:mb-4">
+          {shown.map((p, i) => (
+            <li key={p.src} className="break-inside-avoid">
+              <button
+                ref={(el) => {
+                  triggers.current[i] = el;
+                }}
+                type="button"
+                onClick={() => open(i)}
+                className="group relative block w-full overflow-hidden rounded-[3px] bg-parchment-deep"
+                aria-label={`View full screen: ${p.alt}`}
+              >
+                <Image
+                  src={p.src}
+                  alt=""
+                  width={p.width}
+                  height={p.height}
+                  sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw"
+                  className="h-auto w-full transition-transform duration-700 ease-[var(--ease-tide)] group-hover:scale-[1.035]"
+                />
+                <span className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 bg-gradient-to-t from-ink/75 to-transparent p-4 pt-12 text-left text-sm text-paper opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100">
+                  {p.alt}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
 
       <dialog
         ref={dialogRef}
         aria-label="Photo viewer"
-        onKeyDown={onKeyDown}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowRight") go(1);
+          if (e.key === "ArrowLeft") go(-1);
+        }}
         onClick={(e) => {
           if (e.target === e.currentTarget) close();
         }}
-        className="m-0 h-[100dvh] max-h-none w-screen max-w-none bg-abyss/97 p-0 text-white backdrop:bg-abyss/80"
+        className="m-0 h-[100dvh] max-h-none w-screen max-w-none bg-seafoam-night p-0 text-parchment backdrop:bg-ink/80"
       >
         {current && index !== null && (
           <div
@@ -103,46 +168,22 @@ export function GalleryGrid({ items }: { items: Item[] }) {
             }}
           >
             <div className="flex items-center justify-between px-4 py-3 sm:px-6">
-              <p className="text-sm text-foam" aria-live="polite">
-                {index + 1} of {items.length}
+              <p className="label text-parchment/80" aria-live="polite">
+                {index + 1} of {shown.length}
               </p>
-              <button
-                type="button"
-                onClick={close}
-                className="inline-flex h-11 items-center gap-2 px-2 text-sm"
-                autoFocus
-              >
-                Close
-                <span aria-hidden="true" className="text-xl leading-none">×</span>
+              <button type="button" onClick={close} className="inline-flex h-11 items-center gap-2 px-2 text-sm font-bold" autoFocus>
+                Close <span aria-hidden="true" className="text-xl leading-none">×</span>
               </button>
             </div>
-            <div className="relative flex min-h-0 flex-1 items-center justify-center px-2 sm:px-16">
-              <figure key={index} className="flex h-full w-full max-w-6xl flex-col justify-center [animation:rise_0.45s_var(--ease-tide)_both]">
-                <div className="relative aspect-[16/10] max-h-full w-full overflow-hidden">{current.full}</div>
-                <figcaption className="mt-4 text-center text-foam">{current.alt}</figcaption>
-              </figure>
-              <button
-                type="button"
-                onClick={() => go(-1)}
-                className="absolute left-1 top-1/2 hidden h-14 w-14 -translate-y-1/2 items-center justify-center text-3xl text-white/80 hover:text-white sm:flex"
-                aria-label="Previous photo"
-              >
-                ‹
-              </button>
-              <button
-                type="button"
-                onClick={() => go(1)}
-                className="absolute right-1 top-1/2 hidden h-14 w-14 -translate-y-1/2 items-center justify-center text-3xl text-white/80 hover:text-white sm:flex"
-                aria-label="Next photo"
-              >
-                ›
-              </button>
-            </div>
-            <div className="flex justify-center gap-3 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 sm:hidden">
-              <button type="button" onClick={() => go(-1)} className="btn btn-light flex-1">
+            <figure key={current.src} className="relative mx-2 min-h-0 flex-1 rise sm:mx-16">
+              <Image src={current.src} alt={current.alt} fill sizes="100vw" className="object-contain" />
+            </figure>
+            <p className="px-4 pt-3 text-center text-parchment/85">{current.alt}</p>
+            <div className="flex justify-center gap-3 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3">
+              <button type="button" onClick={() => go(-1)} className="btn btn-ghost flex-1 sm:flex-none">
                 Previous
               </button>
-              <button type="button" onClick={() => go(1)} className="btn btn-light flex-1">
+              <button type="button" onClick={() => go(1)} className="btn btn-ghost flex-1 sm:flex-none">
                 Next
               </button>
             </div>

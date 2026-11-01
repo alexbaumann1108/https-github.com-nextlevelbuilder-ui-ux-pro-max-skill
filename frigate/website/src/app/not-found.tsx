@@ -1,24 +1,28 @@
 import Link from "next/link";
-import { Seascape } from "@/components/seascape";
+import { FishSketch } from "@/components/fish-sketch";
 
 export default function NotFound() {
   return (
-    <section className="relative isolate flex min-h-[90svh] items-end overflow-hidden bg-abyss text-white">
-      <Seascape scene="dusk" seed="lost" className="absolute inset-0 -z-10 h-full w-full" />
-      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-abyss/90 to-abyss/30" />
-      <div className="shell pb-16 pt-32">
-        <h1 className="display-lg max-w-2xl">This page has drifted off course.</h1>
-        <p className="lede mt-5 max-w-xl text-foam">
-          The link may be old or mistyped. Head back to the trips, or start a
-          booking request.
-        </p>
-        <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-          <Link href="/" className="btn btn-primary">
-            Return home
-          </Link>
-          <Link href="/charters" className="btn btn-light">
-            See the trips
-          </Link>
+    <section className="pb-24 pt-36 md:pt-44">
+      <div className="shell grid items-center gap-12 md:grid-cols-12">
+        <div className="md:col-span-7">
+          <p className="label text-orange-ink">Page not found</p>
+          <h1 className="display-lg mt-4">This one got off the hook.</h1>
+          <p className="lede mt-5 max-w-xl text-ink-soft">
+            The link may be old or mistyped. Head back to the homepage, or start
+            a booking inquiry.
+          </p>
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <Link href="/" className="btn btn-primary">
+              Back to the homepage
+            </Link>
+            <Link href="/book" className="btn btn-ink">
+              Book a trip
+            </Link>
+          </div>
+        </div>
+        <div className="md:col-span-5">
+          <FishSketch species="snook" className="w-full text-tan-deep" />
         </div>
       </div>
     </section>

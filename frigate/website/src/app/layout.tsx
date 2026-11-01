@@ -1,42 +1,65 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, Nunito_Sans } from "next/font/google";
-import { site, siteUrl, inArea } from "@/content/site";
+import { Libre_Caslon_Text, Nunito_Sans, Special_Elite } from "next/font/google";
+import { site, siteUrl } from "@/content/site";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MobileBookBar } from "@/components/mobile-book-bar";
 import { LocalBusinessJsonLd } from "@/components/json-ld";
 import "./globals.css";
 
-// Display serif echoing the "Frigate" lettering on the brand board.
-const cormorant = Cormorant_Garamond({
-  variable: "--font-display-face",
+// Classic serif for headings.
+const caslon = Libre_Caslon_Text({
+  variable: "--font-serif-face",
   subsets: ["latin"],
-  weight: ["500", "600"],
+  weight: ["400", "700"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
-// Brand text face (closest free match to the business card lettering).
+// Brand text face, the closest free match to the business card lettering.
 const nunito = Nunito_Sans({
   variable: "--font-text-face",
   subsets: ["latin"],
   display: "swap",
 });
 
-const description = `Inshore fly fishing and light tackle charters on Sanibel Island and Southwest Florida. Snook, redfish, tarpon and more, from the boat or wading. Book your trip online.`;
+// Typewriter labels, like notes in a field book.
+const typewriter = Special_Elite({
+  variable: "--font-label-face",
+  subsets: ["latin"],
+  weight: "400",
+  display: "swap",
+});
+
+const description =
+  "Fly and light tackle fishing charters on Sanibel Island, Florida. Sight fishing for beach snook, tarpon and backcountry redfish around Sanibel, Captiva, Pine Island Sound and Fort Myers.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `${site.name} | ${inArea("Fly fishing charters")}`,
-    template: `%s | ${site.name}`,
+    default: "Sanibel Island Fishing Charters | Fly & Light Tackle | Frigate",
+    template: "%s | Frigate Fly & Light Tackle Charters",
   },
   description,
+  keywords: [
+    "Sanibel Island fishing charters",
+    "Sanibel fishing guide",
+    "Southwest Florida fly fishing",
+    "Captiva fishing charter",
+    "Pine Island Sound fishing",
+    "snook fishing Sanibel",
+    "tarpon fishing Sanibel",
+    "redfish fishing Fort Myers",
+    "inshore fishing charter Florida",
+    "light tackle fishing",
+  ],
   applicationName: site.name,
   openGraph: {
     type: "website",
     siteName: site.name,
     locale: "en_US",
     url: "/",
+    title: "Frigate Fly & Light Tackle Charters, Sanibel Island",
     description,
   },
   twitter: { card: "summary_large_image" },
@@ -44,12 +67,12 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#3e2e21",
+  themeColor: "#f4eee1",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${cormorant.variable} ${nunito.variable}`}>
+    <html lang="en" className={`${caslon.variable} ${nunito.variable} ${typewriter.variable}`}>
       <body className="flex min-h-svh flex-col">
         <SiteHeader />
         <main id="main" className="flex-1">

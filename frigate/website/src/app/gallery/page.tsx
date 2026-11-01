@@ -1,43 +1,30 @@
 import type { Metadata } from "next";
 import { gallery } from "@/content/gallery";
-import { site } from "@/content/site";
-import { Photo } from "@/components/photo";
-import { Seascape } from "@/components/seascape";
 import { GalleryGrid } from "@/components/gallery-grid";
-import { BookingCta, PageMasthead } from "@/components/sections";
+import { BookingBand, PageHeader } from "@/components/ui";
 
 export const metadata: Metadata = {
-  title: "Gallery",
-  description: `Photos from fly fishing and light tackle trips with ${site.name}${site.serviceArea ? ` on ${site.serviceArea}` : ""}.`,
+  title: "Photo Gallery: Snook, Tarpon & Redfish on Sanibel",
+  description:
+    "Photos from fly fishing and light tackle trips around Sanibel Island: beach snook, redfish, the boat and days on the water in Southwest Florida.",
   alternates: { canonical: "/gallery" },
 };
 
 export default function GalleryPage() {
-  // Thumbnails and full-size views are rendered on the server and handed to
-  // the client grid, so the lightbox stays a small client component.
-  const items = gallery.map((g) => ({
-    alt: g.alt,
-    wide: !!g.wide,
-    thumb: <Photo photo={g} sizes={g.wide ? "(min-width: 768px) 66vw, 100vw" : "(min-width: 768px) 33vw, 100vw"} />,
-    full: g.src ? (
-      <Photo photo={g} sizes="100vw" hideLabel className="!object-contain" />
-    ) : (
-      <Seascape scene={g.scene} seed={g.shot} label={g.alt} className="h-full w-full" />
-    ),
-  }));
-
   return (
     <>
-      <PageMasthead
-        title="Gallery"
-        lede="Snook, redfish and days on Sanibel's water. Select any photo to view it full screen."
+      <PageHeader
+        label="Gallery"
+        title="Days on the water"
+        lede="Snook from the beaches, redfish from the backcountry and the boat that gets us there. Select any photo to see it full screen."
+        sketch="redfish"
       />
-      <section className="py-16 md:py-24">
+      <section aria-label="Photos" className="py-14 md:py-20">
         <div className="shell">
-          <GalleryGrid items={items} />
+          <GalleryGrid photos={gallery} />
         </div>
       </section>
-      <BookingCta />
+      <BookingBand />
     </>
   );
 }

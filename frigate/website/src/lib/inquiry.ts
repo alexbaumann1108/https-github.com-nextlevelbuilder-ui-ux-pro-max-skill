@@ -1,20 +1,15 @@
 import { z } from "zod";
-import { experiences } from "@/content/experiences";
-import { fleet } from "@/content/fleet";
+import { experiences } from "@/content/fishery";
 import { rates } from "@/content/rates";
 
 /** Shared by the booking form, the contact form and the API route. */
 
-export const timeOptions = [
-  { value: "morning", label: "Morning" },
-  { value: "midday", label: "Midday" },
-  { value: "afternoon", label: "Afternoon" },
-  { value: "sunset", label: "Sunset" },
-  { value: "flexible", label: "I'm flexible" },
+export const experienceOptions = [
+  ...experiences.map((e) => ({ value: e.slug, label: e.name })),
+  { value: "undecided", label: "Not sure yet, help me choose" },
 ] as const;
 
-const experienceValues = [...experiences.map((e) => e.slug), "undecided"] as const;
-const vesselValues = [...fleet.map((v) => v.slug), "any"] as const;
+const experienceValues = experienceOptions.map((o) => o.value) as [string, ...string[]];
 
 const name = z
   .string()
@@ -47,44 +42,31 @@ export function todayISO(offsetDays = 0) {
   return `${d.getFullYear()}-${m}-${day}`;
 }
 
-export const bookingSchema = z
-  .object({
-    kind: z.literal("booking"),
-    experience: z.enum(experienceValues, { error: "Choose a charter, or pick “Not sure yet”." }),
-    vessel: z.enum(vesselValues, { error: "Choose a boat, or pick “No preference”." }),
-    tripLength: z.enum(rates.map((r) => String(r.hours)) as [string, ...string[]], {
-      error: "Choose how long you'd like to fish.",
-    }),
-    date: z
-      .string()
-      .regex(/^\d{4}-\d{2}-\d{2}$/, "Choose your preferred date.")
-      // One day of slack covers visitors in time zones ahead of the server.
-      .refine((v) => v >= todayISO(-1), "Choose a date from today onwards.")
-      .refine((v) => v <= todayISO(730), "Choose a date within the next two years."),
-    time: z.enum(timeOptions.map((t) => t.value) as [string, ...string[]], {
-      error: "Choose a preferred time of day.",
-    }),
-    guests: z.coerce
-      .number({ error: "Enter the number of guests." })
-      .int("Enter a whole number of guests.")
-      .min(1, "At least 1 guest is needed.")
-      .max(150, "For groups over 150, contact us directly."),
-    name,
-    email,
-    phone: phone.refine((v) => v !== "", "Enter a phone number so we can reach you about the day."),
-    message: z.string().trim().max(2000, "Keep your message under 2,000 characters.").default(""),
-    website: z.string().max(0).optional(), // honeypot
-  })
-  .superRefine((data, ctx) => {
-    const v = fleet.find((f) => f.slug === data.vessel);
-    if (v?.capacity && data.guests > v.capacity) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["guests"],
-        message: `${v.name} takes up to ${v.capacity} guests. Choose another boat or reduce the group.`,
-      });
-    }
-  });
+export const bookingSchema = z.object({
+  kind: z.literal("booking"),
+  name,
+  email,
+  phone: phone.refine((v) => v !== "", "Enter a phone number so we can reach you about the trip."),
+  date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Choose your preferred fishing date.")
+    // One day of slack covers visitors in time zones ahead of the server.
+    .refine((v) => v >= todayISO(-1), "Choose a date from today onwards.")
+    .refine((v) => v <= todayISO(730), "Choose a date within the next two years."),
+  guests: z.coerce
+    .number({ error: "Enter the number of anglers." })
+    .int("Enter a whole number of anglers.")
+    .min(1, "At least 1 angler is needed.")
+    .max(10, "For groups over 10, call us and we'll work it out."),
+  experience: z.enum(experienceValues, {
+    error: "Choose a type of fishing, or pick “Not sure yet”.",
+  }),
+  tripLength: z.enum(rates.map((r) => String(r.hours)) as [string, ...string[]], {
+    error: "Choose how long you'd like to fish.",
+  }),
+  message: z.string().trim().max(2000, "Keep your message under 2,000 characters.").default(""),
+  website: z.string().max(0).optional(), // honeypot
+});
 
 export const contactSchema = z.object({
   kind: z.literal("contact"),

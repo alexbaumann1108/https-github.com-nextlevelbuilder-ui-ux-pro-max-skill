@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { site } from "@/content/site";
-import { PageMasthead } from "@/components/sections";
-import { PlaceholderNote } from "@/components/placeholder-note";
+import { PageHeader, PlaceholderNote } from "@/components/ui";
 
 export const metadata: Metadata = {
   title: "Privacy notice",
@@ -12,9 +11,9 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <>
-      <PageMasthead title="Privacy notice" />
+      <PageHeader label="Privacy" title="Privacy notice" />
       <section className="py-16 md:py-24">
-        <div className="shell max-w-3xl space-y-6 text-slate [&_h2]:mt-10 [&_h2]:text-[1.5rem] [&_h2]:text-ink">
+        <div className="shell max-w-3xl space-y-6 text-ink-soft [&_h2]:mt-10 [&_h2]:text-[1.5rem] [&_h2]:text-ink">
           <PlaceholderNote>
             A starting point only. Have it reviewed for the laws that apply to
             your business, and name the services you use (for example your

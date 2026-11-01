@@ -8,6 +8,16 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
   },
+  // Old page addresses from earlier versions of the site.
+  async redirects() {
+    return [
+      { source: "/charters", destination: "/fishery", permanent: true },
+      { source: "/about", destination: "/captain", permanent: true },
+      { source: "/contact", destination: "/book", permanent: true },
+      { source: "/fleet", destination: "/boat", permanent: true },
+      { source: "/fleet/:slug", destination: "/boat", permanent: true },
+    ];
+  },
   async headers() {
     return [
       {

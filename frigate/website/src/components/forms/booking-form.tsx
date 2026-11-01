@@ -3,11 +3,9 @@
 import Link from "next/link";
 import { useRef } from "react";
 import { useSearchParams } from "next/navigation";
-import { experiences, getExperience } from "@/content/experiences";
-import { fleet, getVessel } from "@/content/fleet";
 import { site, showPlaceholders } from "@/content/site";
-import { bookingSchema, timeOptions, todayISO } from "@/lib/inquiry";
 import { rates, formatPrice } from "@/content/rates";
+import { bookingSchema, experienceOptions, todayISO } from "@/lib/inquiry";
 import { ErrorSummary, Field } from "./field";
 import { useInquiry } from "./use-inquiry";
 
@@ -23,23 +21,20 @@ function formatDate(iso: string) {
 
 export function BookingForm() {
   const params = useSearchParams();
-  const qExperience = params.get("experience") ?? "";
-  const qVessel = params.get("vessel") ?? "";
-
+  const qTrip = params.get("trip") ?? "";
   const formRef = useRef<HTMLFormElement>(null);
   const summaryRef = useRef<HTMLDivElement>(null);
+
   const f = useInquiry(
     bookingSchema,
     {
-      experience: getExperience(qExperience) ? qExperience : "",
-      vessel: getVessel(qVessel) ? qVessel : "any",
-      tripLength: "",
-      date: "",
-      time: "",
-      guests: "2",
       name: "",
       email: "",
       phone: "",
+      date: "",
+      guests: "2",
+      experience: experienceOptions.some((o) => o.value === qTrip) ? qTrip : "",
+      tripLength: "",
       message: "",
       website: "",
     },
@@ -47,80 +42,57 @@ export function BookingForm() {
     { form: formRef, summary: summaryRef },
   );
   const v = f.values;
-  const vessel = getVessel(v.vessel);
-  const maxGuests = vessel?.capacity ?? 150;
 
   if (f.status.state === "success") {
-    const exp = getExperience(v.experience);
+    const exp = experienceOptions.find((o) => o.value === v.experience);
+    const rate = rates.find((r) => String(r.hours) === v.tripLength);
     return (
-      <div className="bg-white p-6 shadow-[0_1px_0_rgb(30_25_19/0.06)] sm:p-10" role="status">
-        <svg width="44" height="30" viewBox="0 0 30 20" fill="none" aria-hidden="true">
-          <path d="M7 14a8 8 0 0 1 16 0" stroke="var(--color-champagne)" strokeWidth="1.5" />
-          <path d="M0 14.75h30" stroke="var(--color-abyss)" strokeWidth="1.5" />
-        </svg>
-        <h2 className="display-md mt-6">Request sent</h2>
-        <p className="lede mt-4 text-slate">
-          Thank you, {v.name.split(" ")[0]}. Your trip is not booked yet: we
-          will check the tides and availability for your date and reply
-          {site.replyTime ? ` ${site.replyTime}` : ""} to confirm the details.
+      <div role="status">
+        <p className="label text-orange-ink">Inquiry received</p>
+        <h2 className="display-md mt-3">Thanks, {v.name.split(" ")[0]}. We&apos;ll be in touch.</h2>
+        <p className="mt-4 text-ink-soft">
+          Your trip isn&apos;t booked yet. We&apos;ll check the tides and the
+          calendar for your date and reply to {v.email} or call you to plan the
+          day and confirm.
         </p>
         {!f.status.delivered && showPlaceholders && (
           <p className="mt-6 rounded-sm border border-dashed border-alert/60 bg-alert/5 px-3 py-2 text-sm text-alert">
             <strong>Preview only:</strong> no delivery destination is set, so this
-            request was not sent anywhere. Set INQUIRY_WEBHOOK_URL to receive
-            requests.
+            inquiry was not sent anywhere. See the README to connect your email or
+            booking system.
           </p>
         )}
-        <dl className="mt-8 grid gap-x-8 gap-y-4 border-t border-ink/10 pt-6 text-sm sm:grid-cols-2">
-          <div>
-            <dt className="text-slate">Reference</dt>
-            <dd className="mt-0.5 font-semibold tracking-wide">{f.status.ref}</dd>
-          </div>
-          <div>
-            <dt className="text-slate">Trip</dt>
-            <dd className="mt-0.5">{exp?.name ?? "Not sure yet"}</dd>
-          </div>
-          <div>
-            <dt className="text-slate">Trip length</dt>
-            <dd className="mt-0.5">
-              {(() => {
-                const r = rates.find((x) => String(x.hours) === v.tripLength);
-                return r ? `${r.name}, ${r.hours} hours (${formatPrice(r.price)})` : "";
-              })()}
-            </dd>
-          </div>
-          <div hidden={fleet.length === 1}>
-            <dt className="text-slate">Boat</dt>
-            <dd className="mt-0.5">{vessel?.name ?? "No preference"}</dd>
-          </div>
-          <div>
-            <dt className="text-slate">Preferred date</dt>
-            <dd className="mt-0.5">
-              {formatDate(v.date)}, {timeOptions.find((t) => t.value === v.time)?.label.toLowerCase()}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-slate">Anglers</dt>
-            <dd className="mt-0.5">{v.guests}</dd>
-          </div>
-          <div>
-            <dt className="text-slate">We will reply to</dt>
-            <dd className="mt-0.5 break-all">{v.email}</dd>
-          </div>
+        <dl className="mt-8 grid gap-x-8 gap-y-4 border-t border-tan/50 pt-6 text-sm sm:grid-cols-2">
+          {[
+            ["Reference", f.status.ref],
+            ["Fishing", exp?.label ?? ""],
+            ["Trip", rate ? `${rate.name}, ${rate.hours} hours (${formatPrice(rate.price)})` : ""],
+            ["Preferred date", formatDate(v.date)],
+            ["Anglers", v.guests],
+            ["Phone", v.phone],
+          ].map(([k, val]) => (
+            <div key={k}>
+              <dt className="label text-ink-soft">{k}</dt>
+              <dd className="mt-0.5 font-semibold">{val}</dd>
+            </div>
+          ))}
         </dl>
         <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-          <Link href="/charters" className="btn btn-dark">
-            Back to the trips
+          <Link href="/fishery" className="btn btn-ink">
+            Read about the fishery
           </Link>
-          <Link href="/" className="btn btn-dark">
-            Return home
-          </Link>
+          <a href={site.instagram.url} target="_blank" rel="noopener" className="btn btn-ink">
+            See {site.instagram.handle}
+          </a>
         </div>
       </div>
     );
   }
 
   const submitting = f.status.state === "submitting";
+  const set = (k: keyof typeof v) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
+    f.set(k, e.target.value);
+  const blur = (k: keyof typeof v) => () => f.blur(k);
 
   return (
     <form ref={formRef} onSubmit={f.submit} noValidate className="space-y-10">
@@ -131,55 +103,44 @@ export function BookingForm() {
       />
 
       <fieldset className="space-y-6">
-        <legend className="mb-6 font-display text-[1.75rem]">Your trip</legend>
-        <Field label="Trip" error={f.errors.experience}>
-          <select
-            name="experience"
-            className="field"
-            value={v.experience}
-            onChange={(e) => f.set("experience", e.target.value)}
-            onBlur={() => f.blur("experience")}
-          >
+        <legend className="mb-6 font-display text-[1.6rem]">About you</legend>
+        <Field label="Your name" error={f.errors.name}>
+          <input name="name" className="field" autoComplete="name" value={v.name} onChange={set("name")} onBlur={blur("name")} />
+        </Field>
+        <div className="grid gap-6 sm:grid-cols-2">
+          <Field label="Email" error={f.errors.email}>
+            <input type="email" name="email" className="field" autoComplete="email" inputMode="email" value={v.email} onChange={set("email")} onBlur={blur("email")} />
+          </Field>
+          <Field label="Phone number" error={f.errors.phone}>
+            <input type="tel" name="phone" className="field" autoComplete="tel" inputMode="tel" value={v.phone} onChange={set("phone")} onBlur={blur("phone")} />
+          </Field>
+        </div>
+      </fieldset>
+
+      <fieldset className="space-y-6">
+        <legend className="mb-6 font-display text-[1.6rem]">Your trip</legend>
+        <div className="grid gap-6 sm:grid-cols-2">
+          <Field label="Preferred fishing date" error={f.errors.date}>
+            <input type="date" name="date" className="field" min={todayISO()} max={todayISO(730)} value={v.date} onChange={set("date")} onBlur={blur("date")} />
+          </Field>
+          <Field label="Number of anglers" error={f.errors.guests}>
+            <AnglerStepper value={v.guests} onChange={(n) => f.set("guests", n)} onBlur={blur("guests")} />
+          </Field>
+        </div>
+        <Field label="Type of fishing" error={f.errors.experience}>
+          <select name="experience" className="field" value={v.experience} onChange={set("experience")} onBlur={blur("experience")}>
             <option value="" disabled>
-              Choose a trip
+              Choose a fishery
             </option>
-            {experiences.map((e) => (
-              <option key={e.slug} value={e.slug}>
-                {e.name}
-              </option>
-            ))}
-            <option value="undecided">Not sure yet, help me choose</option>
-          </select>
-        </Field>
-
-        {fleet.length > 1 && (
-        <Field label="Boat" error={f.errors.vessel}>
-          <select
-            name="vessel"
-            className="field"
-            value={v.vessel}
-            onChange={(e) => f.set("vessel", e.target.value)}
-            onBlur={() => f.blur("vessel")}
-          >
-            <option value="any">No preference</option>
-            {fleet.map((b) => (
-              <option key={b.slug} value={b.slug}>
-                {b.name}
-                {b.capacity ? ` (up to ${b.capacity} guests)` : ""}
+            {experienceOptions.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
               </option>
             ))}
           </select>
         </Field>
-        )}
-
         <Field label="Trip length" error={f.errors.tripLength}>
-          <select
-            name="tripLength"
-            className="field"
-            value={v.tripLength}
-            onChange={(e) => f.set("tripLength", e.target.value)}
-            onBlur={() => f.blur("tripLength")}
-          >
+          <select name="tripLength" className="field" value={v.tripLength} onChange={set("tripLength")} onBlur={blur("tripLength")}>
             <option value="" disabled>
               Choose a trip length
             </option>
@@ -190,130 +151,31 @@ export function BookingForm() {
             ))}
           </select>
         </Field>
-
-        <div className="grid gap-6 sm:grid-cols-2">
-          <Field label="Preferred date" error={f.errors.date}>
-            <input
-              type="date"
-              name="date"
-              className="field"
-              min={todayISO()}
-              max={todayISO(730)}
-              value={v.date}
-              onChange={(e) => f.set("date", e.target.value)}
-              onBlur={() => f.blur("date")}
-            />
-          </Field>
-          <Field label="Preferred time" error={f.errors.time}>
-            <select
-              name="time"
-              className="field"
-              value={v.time}
-              onChange={(e) => f.set("time", e.target.value)}
-              onBlur={() => f.blur("time")}
-            >
-              <option value="" disabled>
-                Choose a time
-              </option>
-              {timeOptions.map((t) => (
-                <option key={t.value} value={t.value}>
-                  {t.label}
-                </option>
-              ))}
-            </select>
-          </Field>
-        </div>
-
         <Field
-          label="Number of anglers"
-          hint={vessel?.capacity ? `${vessel.name} takes up to ${vessel.capacity}.` : undefined}
-          error={f.errors.guests}
-        >
-          <GuestStepper
-            value={v.guests}
-            max={maxGuests}
-            onChange={(n) => f.set("guests", n)}
-            onBlur={() => f.blur("guests")}
-          />
-        </Field>
-      </fieldset>
-
-      <fieldset className="space-y-6">
-        <legend className="mb-6 font-display text-[1.75rem]">Your details</legend>
-        <Field label="Full name" error={f.errors.name}>
-          <input
-            name="name"
-            className="field"
-            autoComplete="name"
-            value={v.name}
-            onChange={(e) => f.set("name", e.target.value)}
-            onBlur={() => f.blur("name")}
-          />
-        </Field>
-        <div className="grid gap-6 sm:grid-cols-2">
-          <Field label="Email" error={f.errors.email}>
-            <input
-              type="email"
-              name="email"
-              className="field"
-              autoComplete="email"
-              inputMode="email"
-              value={v.email}
-              onChange={(e) => f.set("email", e.target.value)}
-              onBlur={() => f.blur("email")}
-            />
-          </Field>
-          <Field label="Phone" error={f.errors.phone}>
-            <input
-              type="tel"
-              name="phone"
-              className="field"
-              autoComplete="tel"
-              inputMode="tel"
-              value={v.phone}
-              onChange={(e) => f.set("phone", e.target.value)}
-              onBlur={() => f.blur("phone")}
-            />
-          </Field>
-        </div>
-        <Field
-          label="Anything we should know?"
+          label="Questions or comments"
           optional
-          hint="The occasion, ages of children, accessibility needs, special requests."
+          hint="Fly or spin, experience level, the fish you'd love to catch, anything else."
           error={f.errors.message}
         >
-          <textarea
-            name="message"
-            className="field"
-            rows={5}
-            value={v.message}
-            onChange={(e) => f.set("message", e.target.value)}
-            onBlur={() => f.blur("message")}
-          />
+          <textarea name="message" className="field" rows={5} value={v.message} onChange={set("message")} onBlur={blur("message")} />
         </Field>
         {/* Honeypot: hidden from people, filled by bots. */}
         <div className="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden="true">
           <label>
             Website
-            <input
-              name="website"
-              tabIndex={-1}
-              autoComplete="off"
-              value={v.website}
-              onChange={(e) => f.set("website", e.target.value)}
-            />
+            <input name="website" tabIndex={-1} autoComplete="off" value={v.website} onChange={set("website")} />
           </label>
         </div>
       </fieldset>
 
       <div className="space-y-4">
-        <button type="submit" className="btn btn-primary w-full sm:w-auto" disabled={submitting} aria-disabled={submitting}>
-          {submitting ? "Sending request…" : "Send booking request"}
+        <button type="submit" className="btn btn-primary w-full sm:w-auto" disabled={submitting}>
+          {submitting ? "Sending inquiry…" : "Send booking inquiry"}
         </button>
-        <p className="text-sm text-slate">
-          Sending a request does not commit you to anything. We use your details
-          only to reply about this trip. See our{" "}
-          <Link href="/privacy" className="underline">
+        <p className="text-sm text-ink-soft">
+          This is an inquiry, not a confirmed booking. We use your details only to
+          plan your trip. See our{" "}
+          <Link href="/privacy" className="link">
             privacy notice
           </Link>
           .
@@ -323,28 +185,26 @@ export function BookingForm() {
   );
 }
 
-function GuestStepper({
+function AnglerStepper({
   value,
-  max,
   onChange,
   onBlur,
   ...aria
 }: {
   value: string;
-  max: number;
   onChange: (v: string) => void;
   onBlur: () => void;
 }) {
   const n = Number(value) || 0;
-  const step = (d: number) => onChange(String(Math.min(max, Math.max(1, n + d))));
+  const step = (d: number) => onChange(String(Math.min(10, Math.max(1, n + d))));
   return (
     <div className="flex items-stretch">
       <button
         type="button"
         onClick={() => step(-1)}
         disabled={n <= 1}
-        className="w-14 shrink-0 border border-r-0 border-[#cfc2b2] bg-white text-xl disabled:opacity-40"
-        aria-label="Fewer guests"
+        className="w-14 shrink-0 rounded-l-[3px] border-[1.5px] border-r-0 border-[#cbbd9f] bg-paper text-xl disabled:opacity-40"
+        aria-label="Fewer anglers"
       >
         −
       </button>
@@ -355,15 +215,15 @@ function GuestStepper({
         pattern="[0-9]*"
         className="field !rounded-none text-center"
         value={value}
-        onChange={(e) => onChange(e.target.value.replace(/\D/g, "").slice(0, 3))}
+        onChange={(e) => onChange(e.target.value.replace(/\D/g, "").slice(0, 2))}
         onBlur={onBlur}
       />
       <button
         type="button"
         onClick={() => step(1)}
-        disabled={n >= max}
-        className="w-14 shrink-0 border border-l-0 border-[#cfc2b2] bg-white text-xl disabled:opacity-40"
-        aria-label="More guests"
+        disabled={n >= 10}
+        className="w-14 shrink-0 rounded-r-[3px] border-[1.5px] border-l-0 border-[#cbbd9f] bg-paper text-xl disabled:opacity-40"
+        aria-label="More anglers"
       >
         +
       </button>

@@ -1,96 +1,116 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { site, inArea } from "@/content/site";
+import { site } from "@/content/site";
 import { BookingForm } from "@/components/forms/booking-form";
-import { PageMasthead } from "@/components/sections";
-import { PlaceholderNote } from "@/components/placeholder-note";
+import { Illustration } from "@/components/illustration";
+import { LocationMap } from "@/components/location-map";
+import { PageHeader, RatesLedger } from "@/components/ui";
 
 export const metadata: Metadata = {
-  title: "Book your trip",
-  description: `${inArea("Request a fly fishing or light tackle trip")}. Choose your trip, date and number of anglers, and we'll confirm.`,
+  title: "Book a Trip: Sanibel Island Fishing Charter",
+  description:
+    "Send a booking inquiry for a fly or light tackle fishing charter on Sanibel Island. Half, three-quarter and full-day trips for snook, tarpon and redfish.",
   alternates: { canonical: "/book" },
 };
 
 const steps = [
-  {
-    title: "Send your request",
-    body: "Choose the trip, your preferred date and how many are fishing. It takes about two minutes.",
-  },
-  {
-    title: "We check the tides and confirm",
-    body: `We check the date and the tides and reply${site.replyTime ? ` ${site.replyTime}` : ""} with the details, or suggest the nearest good day.`,
-  },
-  {
-    title: "Your trip is booked",
-    body: "Once you have agreed the details with us, your date is reserved and you will receive everything you need for the day.",
-  },
+  { title: "Send an inquiry", body: "Tell us your date, how many are fishing and what you'd like to chase." },
+  { title: "We plan it together", body: "We check the tides and the calendar and get back to you by email or phone." },
+  { title: "You're booked", body: "Once we've agreed the details with you, your date is set." },
 ];
 
 export default function BookPage() {
   return (
     <>
-      <PageMasthead
-        title="Book your trip"
-        lede="Send a request and we will confirm availability with you directly. Nothing is charged online."
+      <PageHeader
+        label="Book a trip"
+        title="Send a booking inquiry"
+        lede="There's no automatic calendar here: you'll hear back from your captain, who'll plan the day with you."
+        art="emblem"
       />
-      <section className="bg-mist py-16 md:py-24">
+
+      <section className="py-14 md:py-20">
         <div className="shell grid gap-14 lg:grid-cols-12">
           <div className="lg:col-span-7">
-            <div className="bg-white p-6 sm:p-10">
-              <Suspense fallback={<p className="text-slate">Loading the booking form…</p>}>
+            <div className="rounded-[3px] border-[1.5px] border-tan bg-paper/80 p-6 shadow-[0_18px_40px_-30px_rgb(42_39_33/0.6)] sm:p-10">
+              <Suspense fallback={<p className="text-ink-soft">Loading the booking form…</p>}>
                 <BookingForm />
               </Suspense>
             </div>
+            {site.bookingPlatformUrl && (
+              <p className="mt-6 text-ink-soft">
+                Prefer to book online?{" "}
+                <a href={site.bookingPlatformUrl} className="link font-bold text-ink">
+                  Book online
+                </a>
+              </p>
+            )}
           </div>
-          <aside className="lg:col-span-5">
-            <div className="lg:sticky lg:top-28">
-              <h2 className="text-[1.75rem]">How booking works</h2>
-              <ol className="mt-8 space-y-8">
+
+          <aside className="space-y-12 lg:col-span-5">
+            <div>
+              <h2 className="display-md">Talk to us directly</h2>
+              <ul className="mt-6 space-y-4">
+                <li>
+                  <p className="label text-ink-soft">Phone</p>
+                  <a href={site.phoneHref} className="font-display text-[1.6rem] hover:text-seafoam-deep">
+                    {site.phone}
+                  </a>
+                </li>
+                <li>
+                  <p className="label text-ink-soft">Email</p>
+                  <a href={`mailto:${site.email}`} className="break-all font-display text-[1.3rem] hover:text-seafoam-deep">
+                    {site.email}
+                  </a>
+                </li>
+              </ul>
+              <a
+                href={site.instagram.url}
+                target="_blank"
+                rel="noopener"
+                className="mt-8 flex items-center gap-4 rounded-[3px] bg-seafoam-deep p-5 text-paper transition-colors hover:bg-seafoam-night"
+              >
+                <svg viewBox="0 0 24 24" className="h-9 w-9 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+                  <rect x="3" y="3" width="18" height="18" rx="5" />
+                  <circle cx="12" cy="12" r="4.2" />
+                  <circle cx="17.4" cy="6.6" r="1" fill="currentColor" stroke="none" />
+                </svg>
+                <span>
+                  <span className="block font-display text-[1.4rem] leading-tight">{site.instagram.handle}</span>
+                  <span className="block text-sm text-paper/80">Recent catches and daily updates on Instagram</span>
+                </span>
+              </a>
+            </div>
+
+            <div>
+              <h2 className="display-md">How booking works</h2>
+              <ol className="mt-6 space-y-6">
                 {steps.map((s, i) => (
-                  <li key={s.title} className="grid grid-cols-[2.5rem_1fr] gap-4">
-                    <span
-                      aria-hidden="true"
-                      className="flex h-10 w-10 items-center justify-center rounded-full border border-champagne font-display text-lg"
-                    >
+                  <li key={s.title} className="grid grid-cols-[2.4rem_1fr] gap-4">
+                    <span aria-hidden="true" className="flex h-10 w-10 items-center justify-center rounded-full border-[1.5px] border-orange font-display text-lg">
                       {i + 1}
                     </span>
                     <div>
-                      <h3 className="font-sans text-base font-semibold">{s.title}</h3>
-                      <p className="mt-1 text-slate">{s.body}</p>
+                      <h3 className="font-sans text-base font-bold">{s.title}</h3>
+                      <p className="mt-1 text-ink-soft">{s.body}</p>
                     </div>
                   </li>
                 ))}
               </ol>
-              <div className="horizon my-10" />
-              <h2 className="text-[1.375rem]">Prefer to talk?</h2>
-              {site.phone || site.email ? (
-                <div className="mt-3 space-y-1">
-                  {site.phone && (
-                    <a className="link-tide inline-block font-semibold" href={`tel:${site.phone.replace(/\s/g, "")}`}>
-                      {site.phone}
-                    </a>
-                  )}
-                  {site.email && (
-                    <a className="block text-slate underline" href={`mailto:${site.email}`}>
-                      {site.email}
-                    </a>
-                  )}
-                </div>
-              ) : (
-                <PlaceholderNote className="mt-3">
-                  Add your phone and email in src/content/site.ts so guests can
-                  call instead.
-                </PlaceholderNote>
-              )}
-              <PlaceholderNote className="mt-6">
-                Booking requests are delivered to the address set in
-                INQUIRY_WEBHOOK_URL (see README). Add your reply time and
-                deposit terms once confirmed.
-              </PlaceholderNote>
             </div>
+
+            <div>
+              <h2 className="display-md">Rates</h2>
+              <div className="mt-4">
+                <RatesLedger />
+              </div>
+            </div>
+            <Illustration name="fly" className="w-48 text-tan-deep" />
           </aside>
         </div>
       </section>
+
+      <LocationMap />
     </>
   );
 }
