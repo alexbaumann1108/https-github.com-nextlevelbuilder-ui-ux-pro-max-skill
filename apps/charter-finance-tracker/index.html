@@ -1,0 +1,612 @@
+<title>Charter Logbook</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Layout: a captain's logbook — sticky header with tabs, one column on phones, two-up cards on wide screens. Teal = money in, buoy orange = money out. */
+:root {
+  --bg: #eef3f4; --surface: #ffffff; --surface-2: #f6f9f9; --ink: #102530; --muted: #5a6e77; --line: #d6e0e3;
+  --accent: #0d6b70; --accent-ink: #ffffff; --out: #d9622a; --good: #2b8a4b; --bad: #bf432b; --warn: #a8740b;
+  --display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0a171d; --surface: #0f222a; --surface-2: #132b34; --ink: #e3eef0; --muted: #8aa1a9; --line: #1f3b46;
+  --accent: #3db1ad; --accent-ink: #062024; --out: #f0874f; --good: #5ac47b; --bad: #ef7a5c; --warn: #e2b04a; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0a171d; --surface: #0f222a; --surface-2: #132b34; --ink: #e3eef0; --muted: #8aa1a9; --line: #1f3b46;
+  --accent: #3db1ad; --accent-ink: #062024; --out: #f0874f; --good: #5ac47b; --bad: #ef7a5c; --warn: #e2b04a; color-scheme: dark }
+
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.45; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+.wrap { max-width: 980px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.num { font-variant-numeric: tabular-nums; }
+h1, h2, h3 { font-family: var(--display); font-weight: 700; letter-spacing: .01em; margin: 0; text-wrap: balance; }
+h2 { font-size: 1.35rem; }
+.label { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--line); }
+.top-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 12px 8px; }
+.brand { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+.brand h1 { font-size: 1.6rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.brand .sub { color: var(--muted); font-size: .85rem; white-space: nowrap; }
+.tabs { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
+.tab { border: 0; background: none; padding: 7px 12px; border-radius: 999px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.tab[aria-selected="true"] { background: var(--ink); color: var(--surface); }
+
+.add-row { display: flex; gap: 8px; }
+.btn { border: 1px solid var(--line); background: var(--surface); padding: 8px 14px; border-radius: 8px; font-weight: 600; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.out { background: var(--out); color: #fff; border-color: var(--out); }
+.btn.ghost { background: none; }
+.btn.danger { color: var(--bad); }
+.btn.small { padding: 5px 10px; font-size: .85rem; }
+
+main { padding-block: 16px 48px; display: grid; gap: 16px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; min-width: 0; }
+.card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.grid2 { display: grid; gap: 16px; grid-template-columns: 1fr; }
+@media (min-width: 760px) { .grid2 { grid-template-columns: 1fr 1fr; } }
+
+.periods { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 5px 12px; font-size: .88rem; font-weight: 500; }
+.chip[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: var(--surface-2); font-weight: 600; }
+
+.banner { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; background: var(--surface-2); border: 1px dashed var(--warn); border-radius: var(--r); padding: 10px 14px; font-size: .92rem; }
+.banner strong { color: var(--warn); }
+
+.hero { display: grid; gap: 14px; grid-template-columns: 1fr; }
+@media (min-width: 640px) { .hero { grid-template-columns: 1.3fr 1fr 1fr; } }
+.big { font-family: var(--display); font-size: 2.6rem; line-height: 1; font-weight: 700; }
+.mid { font-family: var(--display); font-size: 1.7rem; line-height: 1.05; font-weight: 700; }
+.pos { color: var(--good); } .neg { color: var(--bad); } .in { color: var(--accent); } .outc { color: var(--out); }
+.stat { display: grid; gap: 4px; align-content: start; }
+.stat .hint { font-size: .85rem; color: var(--muted); }
+.tiles { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0,1fr)); margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+@media (min-width: 640px) { .tiles { grid-template-columns: repeat(4, minmax(0,1fr)); } }
+.tile .v { font-family: var(--display); font-size: 1.35rem; font-weight: 700; }
+
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th, td { padding: 8px 6px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+thead th { font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 600; }
+tr.total td { font-weight: 700; border-bottom: 0; }
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
+
+.bars { display: grid; gap: 9px; }
+.bar-row { display: grid; grid-template-columns: minmax(0, 9.5rem) 1fr auto; gap: 10px; align-items: center; font-size: .9rem; }
+.bar-row .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar-track { height: 10px; background: var(--surface-2); border-radius: 5px; overflow: hidden; }
+.bar-fill { height: 100%; background: var(--out); border-radius: 5px; }
+.bar-row .amt { font-variant-numeric: tabular-nums; font-weight: 600; min-width: 4.5rem; text-align: right; }
+
+.insights { display: grid; gap: 0; }
+.ins { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: .93rem; }
+.ins:last-child { border-bottom: 0; }
+.ins .k { color: var(--muted); }
+.ins .v { font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+
+.chart svg { display: block; width: 100%; height: auto; }
+.legend { display: flex; gap: 14px; font-size: .82rem; color: var(--muted); }
+
+.list { display: grid; }
+.row { display: grid; grid-template-columns: 3.2rem 1fr auto; gap: 12px; align-items: center; padding: 10px 4px; border-bottom: 1px solid var(--line); background: none; border-left: 0; border-right: 0; border-top: 0; text-align: left; width: 100%; }
+.row:hover { background: var(--surface-2); }
+.row .date { font-family: var(--display); font-weight: 700; line-height: 1.05; text-align: center; color: var(--muted); }
+.row .date b { display: block; font-size: 1.3rem; color: var(--ink); }
+.row .main { min-width: 0; }
+.row .t1 { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row .t2 { font-size: .84rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row .amt { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
+.pill { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 1px 7px; border-radius: 999px; border: 1px solid currentColor; margin-left: 6px; vertical-align: 1px; }
+.pill.half { color: var(--accent); } .pill.full { color: var(--ink); } .pill.other { color: var(--muted); }
+.pill.booked { color: var(--warn); } .pill.cancelled { color: var(--bad); } .pill.ex { color: var(--warn); border-style: dashed; }
+
+.empty { text-align: center; padding: 28px 12px; color: var(--muted); }
+.empty h3 { color: var(--ink); font-size: 1.3rem; margin-bottom: 6px; }
+.note { font-size: .88rem; color: var(--muted); }
+.status-line { font-size: .85rem; color: var(--muted); }
+
+dialog { border: 1px solid var(--line); border-radius: 14px; padding: 0; width: min(560px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); background: var(--surface); color: var(--ink); }
+dialog::backdrop { background: rgb(5 15 20 / .55); }
+.dlg-in { padding: 18px; display: grid; gap: 14px; }
+.dlg-head { display: flex; justify-content: space-between; align-items: center; }
+.fgrid { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+.fgrid .full { grid-column: 1 / -1; }
+.field { display: grid; gap: 4px; min-width: 0; }
+.field label { font-size: .78rem; font-weight: 600; color: var(--muted); }
+.field input, .field select, .field textarea { width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-2); min-width: 0; }
+.field textarea { min-height: 60px; resize: vertical; }
+.seg { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { flex: 1; border: 0; background: var(--surface-2); padding: 9px 6px; font-weight: 600; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.dlg-foot { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.dlg-foot .right { display: flex; gap: 8px; margin-left: auto; }
+.err { color: var(--bad); font-size: .88rem; }
+
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--surface); padding: 9px 16px; border-radius: 999px; font-weight: 600; font-size: .9rem; z-index: 20; }
+@media (prefers-reduced-motion: no-preference) { .toast { animation: rise .2s ease-out; } @keyframes rise { from { transform: translate(-50%, 8px); opacity: 0 } } }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="top-row">
+      <div class="brand"><h1 id="bizName">Charter Logbook</h1><span class="sub" id="todayLbl"></span></div>
+      <div class="add-row">
+        <button class="btn primary" id="addTripBtn" type="button">+ Trip</button>
+        <button class="btn out" id="addExpBtn" type="button">+ Expense</button>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button class="tab" role="tab" data-tab="overview" aria-selected="true" type="button">Overview</button>
+      <button class="tab" role="tab" data-tab="trips" aria-selected="false" type="button">Trips</button>
+      <button class="tab" role="tab" data-tab="ledger" aria-selected="false" type="button">Ledger</button>
+      <button class="tab" role="tab" data-tab="settings" aria-selected="false" type="button">Settings</button>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+  <main id="app">
+    <div class="card empty"><h3>Loading your logbook…</h3><p>Trips, fuel, bait, insurance and every other cost will show up here. Tap <b>+ Trip</b> or <b>+ Expense</b> to log your first entry.</p></div>
+  </main>
+</div>
+
+<dialog id="dlg"><form class="dlg-in" id="dlgForm" novalidate></form></dialog>
+
+<script>
+(() => {
+  // ---------- constants ----------
+  const EXP_CATS = [
+    { id: "fuel", name: "Fuel", fixed: false },
+    { id: "bait", name: "Bait & ice", fixed: false },
+    { id: "gear", name: "Gear & tackle", fixed: false },
+    { id: "maintenance", name: "Maintenance & repairs", fixed: false },
+    { id: "crew", name: "Crew / mate pay", fixed: false },
+    { id: "supplies", name: "Food, drinks & supplies", fixed: false },
+    { id: "insurance", name: "Insurance", fixed: true },
+    { id: "dockage", name: "Dockage & slip", fixed: true },
+    { id: "boatpay", name: "Boat loan payment", fixed: true },
+    { id: "licenses", name: "Licenses & permits", fixed: true },
+    { id: "marketing", name: "Marketing & booking fees", fixed: true },
+    { id: "equipment", name: "Electronics & safety gear", fixed: true },
+    { id: "other", name: "Other expense", fixed: false },
+  ];
+  const INC_CATS = [
+    { id: "fishcleaning", name: "Fish cleaning" },
+    { id: "merch", name: "Merchandise" },
+    { id: "giftcert", name: "Gift certificate" },
+    { id: "otherinc", name: "Other income" },
+  ];
+  const TRIP_TYPES = { half: "Half day", full: "Full day", other: "Other" };
+  const PAY = ["Cash", "Card", "Venmo / Zelle", "Check", "Booking site"];
+  const catName = id => (EXP_CATS.find(c => c.id === id) || INC_CATS.find(c => c.id === id) || { name: id }).name;
+  const DAY = 864e5;
+
+  // ---------- state ----------
+  let db = null, canWrite = true;
+  let trips = [], ledger = [], settings = { name: "", halfPrice: 600, fullPrice: 1100, taxRate: 25 };
+  let loaded = { trips: false, ledger: false };
+  let tab = "overview", period = "year", ledgerFilter = "all", tripFilter = "all";
+  let note = "";
+
+  // ---------- helpers ----------
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const money = (n, d = 0) => (n < 0 ? "−$" : "$") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+  const num = (n, d = 1) => (isFinite(n) ? n : 0).toLocaleString("en-US", { maximumFractionDigits: d, minimumFractionDigits: d });
+  const pd = s => { const [y, m, d] = String(s).split("-").map(Number); return new Date(y, (m || 1) - 1, d || 1); };
+  const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const today = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; };
+  const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const WD = ["Sundays","Mondays","Tuesdays","Wednesdays","Thursdays","Fridays","Saturdays"];
+  const tripIncome = t => t.status === "completed" ? (+t.fee || 0) + (+t.tips || 0) : t.status === "cancelled" ? (+t.deposit || 0) : 0;
+  function toast(msg) { const el = document.createElement("div"); el.className = "toast"; el.textContent = msg; document.body.appendChild(el); setTimeout(() => el.remove(), 2200); }
+
+  function periodRange(p) {
+    const t = today();
+    if (p === "week") { const s = new Date(t); s.setDate(t.getDate() - ((t.getDay() + 6) % 7)); return { start: s, end: t, label: "This week" }; }
+    if (p === "month") return { start: new Date(t.getFullYear(), t.getMonth(), 1), end: t, label: MON[t.getMonth()] + " " + t.getFullYear() };
+    if (p === "year") return { start: new Date(t.getFullYear(), 0, 1), end: t, label: String(t.getFullYear()) + " so far" };
+    if (p === "lastyear") return { start: new Date(t.getFullYear() - 1, 0, 1), end: new Date(t.getFullYear() - 1, 11, 31), label: String(t.getFullYear() - 1) };
+    const dates = [...trips.map(x => x.date), ...ledger.map(x => x.date)].filter(Boolean).sort();
+    const s = dates.length ? pd(dates[0]) : t;
+    return { start: s < t ? s : t, end: t, label: "All time" };
+  }
+  const inRange = (d, r) => { const x = pd(d); return x >= r.start && x <= r.end; };
+
+  // ---------- computations ----------
+  function compute(r) {
+    const days = Math.max(1, Math.round((r.end - r.start) / DAY) + 1);
+    const T = trips.filter(t => inRange(t.date, r));
+    const done = T.filter(t => t.status === "completed");
+    const canc = T.filter(t => t.status === "cancelled");
+    const L = ledger.filter(e => inRange(e.date, r));
+    const exp = L.filter(e => e.kind === "expense");
+    const otherInc = L.filter(e => e.kind === "income").reduce((a, e) => a + (+e.amount || 0), 0);
+    const tripInc = T.reduce((a, t) => a + tripIncome(t), 0);
+    const tips = done.reduce((a, t) => a + (+t.tips || 0), 0);
+    const expTotal = exp.reduce((a, e) => a + (+e.amount || 0), 0);
+    const income = tripInc + otherInc;
+    const byCat = {};
+    exp.forEach(e => byCat[e.cat] = (byCat[e.cat] || 0) + (+e.amount || 0));
+    const types = {};
+    for (const k of Object.keys(TRIP_TYPES)) {
+      const ts = done.filter(t => t.type === k);
+      types[k] = { n: ts.length, rev: ts.reduce((a, t) => a + tripIncome(t), 0) };
+    }
+    const fuel = exp.filter(e => e.cat === "fuel");
+    const fuelCost = fuel.reduce((a, e) => a + (+e.amount || 0), 0);
+    const gallons = fuel.reduce((a, e) => a + (+e.gallons || 0), 0);
+    const fuelPricedCost = fuel.filter(e => +e.gallons > 0).reduce((a, e) => a + (+e.amount || 0), 0);
+    const variable = exp.filter(e => !(EXP_CATS.find(c => c.id === e.cat) || {}).fixed).reduce((a, e) => a + (+e.amount || 0), 0);
+    const fixed = expTotal - variable;
+    const hours = done.reduce((a, t) => a + (+t.hours || 0), 0);
+    const party = done.filter(t => +t.party > 0);
+    const wd = Array(7).fill(0); done.forEach(t => wd[pd(t.date).getDay()]++);
+    const months = {};
+    T.forEach(t => { const k = t.date.slice(0, 7); (months[k] ||= { inc: 0, exp: 0 }).inc += tripIncome(t); });
+    L.forEach(e => { const k = e.date.slice(0, 7); (months[k] ||= { inc: 0, exp: 0 })[e.kind === "income" ? "inc" : "exp"] += +e.amount || 0; });
+    return { days, weeks: days / 7, monthsN: days / 30.4375, yearsN: days / 365.25, T, done, canc, income, tripInc, otherInc, tips, expTotal,
+      net: income - expTotal, byCat, types, fuelCost, gallons, fuelPricedCost, variable, fixed, hours, party, wd, months };
+  }
+
+  // ---------- rendering ----------
+  function render() {
+    $("#bizName").textContent = settings.name || "Charter Logbook";
+    $("#todayLbl").textContent = today().toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+    document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === tab)));
+    $("#addTripBtn").hidden = $("#addExpBtn").hidden = !canWrite || !db;
+    const app = $("#app");
+    if (!db) { app.innerHTML = `<div class="card empty"><h3>Can't reach your logbook</h3><p>${esc(note || "Open this page while signed in to claude.ai to save and see entries.")}</p></div>`; return; }
+    if (!loaded.trips || !loaded.ledger) { app.innerHTML = `<div class="card empty"><h3>Loading your logbook…</h3><p>${esc(note || "Fetching trips and expenses.")}</p></div>`; return; }
+    const ex = trips.some(t => t.example) || ledger.some(e => e.example);
+    const banner = ex ? `<div class="banner"><span><strong>Example data.</strong> These sample trips and expenses show how the logbook works. Clear them before you log your own.</span>${canWrite ? `<button class="btn small" type="button" data-act="clear-ex">Clear examples</button>` : ""}</div>` : "";
+    const stat = note ? `<p class="status-line">${esc(note)}</p>` : "";
+    app.innerHTML = banner + stat + ({ overview: viewOverview, trips: viewTrips, ledger: viewLedger, settings: viewSettings }[tab])();
+    if (tab === "overview") drawChart();
+  }
+
+  function periodChips() {
+    const opts = [["week", "Week"], ["month", "Month"], ["year", "Year"], ["lastyear", "Last year"], ["all", "All time"]];
+    return `<div class="periods">${opts.map(([k, l]) => `<button class="chip" type="button" data-period="${k}" aria-pressed="${period === k}">${l}</button>`).join("")}</div>`;
+  }
+
+  function viewOverview() {
+    const r = periodRange(period), c = compute(r);
+    const nTrips = c.done.length;
+    const margin = c.income > 0 ? c.net / c.income * 100 : 0;
+    const tax = Math.max(0, c.net) * (+settings.taxRate || 0) / 100;
+
+    // trip averages table
+    const rows = Object.entries(TRIP_TYPES).filter(([k]) => k !== "other" || c.types.other.n > 0).map(([k, name]) => {
+      const t = c.types[k];
+      return `<tr><td><span class="pill ${k}" style="margin:0 6px 0 0">${k === "half" ? "½" : k === "full" ? "1" : "·"}</span>${name}</td><td>${t.n}</td><td>${num(t.n / c.weeks)}</td><td>${num(t.n / c.monthsN)}</td><td>${num(t.n / c.yearsN, 0)}</td><td>${money(t.rev)}</td><td>${t.n ? money(t.rev / t.n) : "—"}</td></tr>`;
+    }).join("");
+    const allRev = Object.values(c.types).reduce((a, t) => a + t.rev, 0);
+    const table = `<div class="tbl-wrap"><table><thead><tr><th>Trip type</th><th>Trips</th><th>/ week</th><th>/ month</th><th>/ year</th><th>Revenue</th><th>Avg</th></tr></thead><tbody>${rows}
+      <tr class="total"><td>All trips</td><td>${nTrips}</td><td>${num(nTrips / c.weeks)}</td><td>${num(nTrips / c.monthsN)}</td><td>${num(nTrips / c.yearsN, 0)}</td><td>${money(allRev)}</td><td>${nTrips ? money(allRev / nTrips) : "—"}</td></tr></tbody></table></div>`;
+
+    // expense breakdown
+    const cats = Object.entries(c.byCat).sort((a, b) => b[1] - a[1]);
+    const maxCat = cats.length ? cats[0][1] : 1;
+    const bars = cats.length ? `<div class="bars">${cats.map(([k, v]) => `<div class="bar-row"><span class="nm">${esc(catName(k))}</span><span class="bar-track"><span class="bar-fill" style="display:block;width:${Math.max(2, v / maxCat * 100)}%"></span></span><span class="amt">${money(v)}</span></div>`).join("")}</div>`
+      : `<p class="note">No expenses logged in this period.</p>`;
+
+    // insights
+    const busiest = c.wd.some(x => x) ? WD[c.wd.indexOf(Math.max(...c.wd))] : "—";
+    const fixedPerMonth = c.fixed / Math.max(1, c.monthsN);
+    const avgRev = nTrips ? c.tripInc / nTrips : 0;
+    const varPerTrip = nTrips ? c.variable / nTrips : 0;
+    const contrib = avgRev - varPerTrip;
+    const breakEven = contrib > 0 && c.fixed > 0 ? Math.ceil(fixedPerMonth / contrib) : null;
+    const cancRate = (c.done.length + c.canc.length) ? c.canc.length / (c.done.length + c.canc.length) * 100 : 0;
+    const ppg = c.gallons > 0 ? c.fuelPricedCost / c.gallons : 0;
+    const monthsSorted = Object.entries(c.months).sort((a, b) => (b[1].inc - b[1].exp) - (a[1].inc - a[1].exp));
+    const best = monthsSorted.length ? `${MON[+monthsSorted[0][0].slice(5) - 1]} ${monthsSorted[0][0].slice(0, 4)} (${money(monthsSorted[0][1].inc - monthsSorted[0][1].exp)})` : "—";
+    const ins = [
+      ["Fuel per trip", nTrips ? money(c.fuelCost / nTrips) : "—"],
+      ["Gallons burned · avg price", c.gallons ? `${num(c.gallons, 0)} gal · ${money(ppg, 2)}/gal` : "—"],
+      ["All costs per trip", nTrips ? money(c.expTotal / nTrips) : "—"],
+      ["Profit per trip", nTrips ? money(c.net / nTrips) : "—"],
+      ["Fixed costs per month", money(fixedPerMonth)],
+      ["Trips a month to cover fixed costs", breakEven ? `${breakEven} trips` : "—"],
+      ["Revenue per hour on the water", c.hours ? money(c.tripInc / c.hours) : "—"],
+      ["Average party size", c.party.length ? num(c.party.reduce((a, t) => a + +t.party, 0) / c.party.length) + " anglers" : "—"],
+      ["Busiest day", busiest],
+      ["Cancellations", `${c.canc.length} (${num(cancRate, 0)}%)`],
+      ["Best month", best],
+    ].map(([k, v]) => `<div class="ins"><span class="k">${k}</span><span class="v">${v}</span></div>`).join("");
+
+    // upcoming
+    const t0 = iso(today());
+    const up = trips.filter(t => t.status === "booked" && t.date >= t0).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 6);
+    const upHtml = up.length ? `<div class="list">${up.map(tripRow).join("")}</div>` : `<p class="note">No upcoming bookings. Log a trip with status “Booked” to see it here.</p>`;
+    const booked = trips.filter(t => t.status === "booked" && t.date >= t0).reduce((a, t) => a + (+t.fee || 0), 0);
+
+    return `
+    <div class="card">
+      <div class="card-head"><h2>${esc(r.label)}</h2>${periodChips()}</div>
+      <div class="hero">
+        <div class="stat"><span class="label">Net profit</span><span class="big num ${c.net >= 0 ? "pos" : "neg"}">${money(c.net)}</span><span class="hint">${c.income > 0 ? num(margin, 0) + "% margin" : "No income yet"} · set aside ${money(tax)} for taxes</span></div>
+        <div class="stat"><span class="label">Money in</span><span class="mid num in">${money(c.income)}</span><span class="hint">${money(c.tripInc)} trips · ${money(c.tips)} tips${c.otherInc ? " · " + money(c.otherInc) + " other" : ""}</span></div>
+        <div class="stat"><span class="label">Money out</span><span class="mid num outc">${money(c.expTotal)}</span><span class="hint">${money(c.fixed)} fixed · ${money(c.variable)} per-trip</span></div>
+      </div>
+      <div class="tiles">
+        <div class="tile"><div class="label">Trips run</div><div class="v num">${nTrips}</div></div>
+        <div class="tile"><div class="label">Half / full</div><div class="v num">${c.types.half.n} / ${c.types.full.n}</div></div>
+        <div class="tile"><div class="label">Avg per trip</div><div class="v num">${nTrips ? money(avgRev) : "—"}</div></div>
+        <div class="tile"><div class="label">Trips / week</div><div class="v num">${num(nTrips / c.weeks)}</div></div>
+      </div>
+    </div>
+    <div class="card"><div class="card-head"><h2>Trip averages</h2><span class="note">${esc(r.label)} · ${c.days} days</span></div>${table}
+      <p class="note" style="margin:10px 0 0">Per week, month and year are your pace over the selected period. Only completed trips count.</p></div>
+    <div class="card chart"><div class="card-head"><h2>Last 12 months</h2><div class="legend"><span><span class="dot" style="background:var(--accent)"></span>Money in</span><span><span class="dot" style="background:var(--out)"></span>Money out</span></div></div><div id="chart"></div></div>
+    <div class="grid2">
+      <div class="card"><div class="card-head"><h2>Where the money goes</h2><span class="note">${money(c.expTotal)}</span></div>${bars}</div>
+      <div class="card"><div class="card-head"><h2>By the numbers</h2></div><div class="insights">${ins}</div></div>
+    </div>
+    <div class="card"><div class="card-head"><h2>Upcoming bookings</h2><span class="note">${up.length ? money(booked) + " on the books" : ""}</span></div>${upHtml}</div>`;
+  }
+
+  function drawChart() {
+    const el = $("#chart"); if (!el) return;
+    const t = today(); const ms = [];
+    for (let i = 11; i >= 0; i--) { const d = new Date(t.getFullYear(), t.getMonth() - i, 1); ms.push({ k: iso(d).slice(0, 7), m: d.getMonth(), inc: 0, exp: 0 }); }
+    const idx = Object.fromEntries(ms.map((m, i) => [m.k, i]));
+    trips.forEach(x => { const i = idx[x.date?.slice(0, 7)]; if (i != null) ms[i].inc += tripIncome(x); });
+    ledger.forEach(x => { const i = idx[x.date?.slice(0, 7)]; if (i != null) ms[i][x.kind === "income" ? "inc" : "exp"] += +x.amount || 0; });
+    const max = Math.max(1, ...ms.map(m => Math.max(m.inc, m.exp)));
+    const step = niceStep(max / 4), top = Math.ceil(max / step) * step;
+    const W = 720, H = 240, L = 52, R = 8, Tp = 10, B = 26, cw = (W - L - R) / 12, bw = Math.min(16, cw * .32);
+    const y = v => Tp + (H - Tp - B) * (1 - v / top);
+    let g = "";
+    for (let v = 0; v <= top + 1e-9; v += step) g += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L - 8}" y="${y(v) + 4}" text-anchor="end" font-size="11" fill="var(--muted)">${short(v)}</text>`;
+    ms.forEach((m, i) => {
+      const cx = L + cw * i + cw / 2;
+      g += `<rect x="${cx - bw - 1}" y="${y(m.inc)}" width="${bw}" height="${Math.max(0, y(0) - y(m.inc))}" rx="2" fill="var(--accent)"><title>${MON[m.m]}: ${money(m.inc)} in</title></rect>`;
+      g += `<rect x="${cx + 1}" y="${y(m.exp)}" width="${bw}" height="${Math.max(0, y(0) - y(m.exp))}" rx="2" fill="var(--out)"><title>${MON[m.m]}: ${money(m.exp)} out</title></rect>`;
+      g += `<text x="${cx}" y="${H - 8}" text-anchor="middle" font-size="11" fill="var(--muted)">${MON[m.m]}</text>`;
+    });
+    el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Money in and out by month for the last 12 months">${g}</svg>`;
+  }
+  function niceStep(x) { const p = Math.pow(10, Math.floor(Math.log10(Math.max(x, 1)))); const f = x / p; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p; }
+  function short(v) { return v >= 1000 ? "$" + (v / 1000).toFixed(v % 1000 ? 1 : 0) + "k" : "$" + v; }
+
+  function dateCell(d) { const x = pd(d); return `<span class="date">${MON[x.getMonth()]}<b>${x.getDate()}</b></span>`; }
+  function tripRow(t) {
+    const st = t.status !== "completed" ? `<span class="pill ${t.status}">${t.status}</span>` : "";
+    const sub = [t.customer, t.party ? t.party + " anglers" : "", t.hours ? t.hours + " hrs" : "", t.pay].filter(Boolean).map(esc).join(" · ");
+    const amt = t.status === "booked" ? `<span class="amt" style="color:var(--muted)">${money(+t.fee || 0)}</span>` : `<span class="amt in">${money(tripIncome(t))}</span>`;
+    return `<button class="row" type="button" data-edit-trip="${esc(t.id)}">${dateCell(t.date)}<span class="main"><span class="t1">${TRIP_TYPES[t.type] || "Trip"} charter<span class="pill ${t.type}">${t.type === "half" ? "½ day" : t.type === "full" ? "Full" : "Other"}</span>${st}${t.example ? `<span class="pill ex">example</span>` : ""}</span><span class="t2">${sub || "&nbsp;"}</span></span>${amt}</button>`;
+  }
+  function ledgerRow(e) {
+    const sub = [e.vendor, e.gallons ? num(+e.gallons, 1) + " gal" : "", e.notes].filter(Boolean).map(esc).join(" · ");
+    const isInc = e.kind === "income";
+    return `<button class="row" type="button" data-edit-ledger="${esc(e.id)}">${dateCell(e.date)}<span class="main"><span class="t1">${esc(catName(e.cat))}${e.example ? `<span class="pill ex">example</span>` : ""}</span><span class="t2">${sub || "&nbsp;"}</span></span><span class="amt ${isInc ? "in" : "outc"}">${isInc ? "+" : "−"}${money(+e.amount || 0, 2).replace("−", "")}</span></button>`;
+  }
+
+  function viewTrips() {
+    const r = periodRange(period);
+    let list = trips.filter(t => period === "all" || inRange(t.date, r) || (t.status === "booked" && pd(t.date) > r.end && period !== "lastyear"));
+    if (tripFilter !== "all") list = list.filter(t => tripFilter === t.type || tripFilter === t.status);
+    list.sort((a, b) => b.date.localeCompare(a.date));
+    const f = [["all", "All"], ["half", "Half day"], ["full", "Full day"], ["booked", "Booked"], ["cancelled", "Cancelled"]];
+    return `<div class="card"><div class="card-head"><h2>Trips · ${esc(r.label)}</h2>${periodChips()}</div>
+      <div class="periods" style="margin-bottom:8px">${f.map(([k, l]) => `<button class="chip" type="button" data-tripfilter="${k}" aria-pressed="${tripFilter === k}">${l}</button>`).join("")}</div>
+      ${list.length ? `<div class="list">${list.map(tripRow).join("")}</div>` : `<div class="empty"><h3>No trips here yet</h3><p>Tap <b>+ Trip</b> after each charter. Log future bookings too, with status “Booked”.</p></div>`}</div>`;
+  }
+
+  function viewLedger() {
+    const r = periodRange(period);
+    let rows = [...trips.filter(t => inRange(t.date, r) && t.status !== "booked").map(t => ({ ...t, _t: "trip" })), ...ledger.filter(e => inRange(e.date, r)).map(e => ({ ...e, _t: "ledger" }))];
+    if (ledgerFilter === "expense") rows = rows.filter(x => x._t === "ledger" && x.kind === "expense");
+    else if (ledgerFilter === "income") rows = rows.filter(x => x._t === "trip" || x.kind === "income");
+    else if (ledgerFilter !== "all") rows = rows.filter(x => x._t === "ledger" && x.cat === ledgerFilter);
+    rows.sort((a, b) => b.date.localeCompare(a.date) || (b.created || 0) - (a.created || 0));
+    const sumIn = rows.reduce((a, x) => a + (x._t === "trip" ? tripIncome(x) : x.kind === "income" ? +x.amount || 0 : 0), 0);
+    const sumOut = rows.reduce((a, x) => a + (x._t === "ledger" && x.kind === "expense" ? +x.amount || 0 : 0), 0);
+    const f = [["all", "Everything"], ["income", "Money in"], ["expense", "Money out"], ["fuel", "Fuel"], ["bait", "Bait"], ["gear", "Gear"], ["maintenance", "Maintenance"], ["insurance", "Insurance"]];
+    return `<div class="card"><div class="card-head"><h2>Ledger · ${esc(r.label)}</h2>${periodChips()}</div>
+      <div class="periods" style="margin-bottom:8px">${f.map(([k, l]) => `<button class="chip" type="button" data-ledgerfilter="${k}" aria-pressed="${ledgerFilter === k}">${l}</button>`).join("")}</div>
+      <p class="note num" style="margin:4px 0 8px">In <b class="in">${money(sumIn, 2)}</b> · Out <b class="outc">${money(sumOut, 2)}</b> · ${rows.length} entries</p>
+      ${rows.length ? `<div class="list">${rows.map(x => x._t === "trip" ? tripRow(x) : ledgerRow(x)).join("")}</div>` : `<div class="empty"><h3>Nothing logged here</h3><p>Tap <b>+ Expense</b> for fuel, bait, insurance, repairs and anything else you spend.</p></div>`}</div>`;
+  }
+
+  function viewSettings() {
+    return `<div class="card"><div class="card-head"><h2>Business settings</h2></div>
+      <form id="setForm" class="fgrid">
+        <div class="field full"><label for="s-name">Business or boat name</label><input id="s-name" name="name" value="${esc(settings.name)}" placeholder="e.g. Reel Time Charters" ${canWrite ? "" : "disabled"}></div>
+        <div class="field"><label for="s-half">Half-day price ($)</label><input id="s-half" name="halfPrice" type="number" step="1" min="0" inputmode="decimal" value="${esc(settings.halfPrice)}" ${canWrite ? "" : "disabled"}></div>
+        <div class="field"><label for="s-full">Full-day price ($)</label><input id="s-full" name="fullPrice" type="number" step="1" min="0" inputmode="decimal" value="${esc(settings.fullPrice)}" ${canWrite ? "" : "disabled"}></div>
+        <div class="field"><label for="s-tax">Tax set-aside (% of profit)</label><input id="s-tax" name="taxRate" type="number" step="1" min="0" max="60" inputmode="decimal" value="${esc(settings.taxRate)}" ${canWrite ? "" : "disabled"}></div>
+        <div class="field" style="align-self:end">${canWrite ? `<button class="btn primary" type="submit">Save settings</button>` : ""}</div>
+      </form>
+      <p class="note">Prices fill in automatically when you log a new trip. The tax set-aside is a rough reserve, not tax advice. Ask your accountant what rate fits you.</p></div>
+    <div class="card"><div class="card-head"><h2>Export</h2></div>
+      <p class="note" style="margin-top:0">Download every trip and expense as a spreadsheet (CSV) for your accountant or for tax time.</p>
+      <div class="add-row"><button class="btn" type="button" data-act="export">Download CSV</button></div></div>
+    <div class="card"><div class="card-head"><h2>Expense categories</h2></div>
+      <p class="note" style="margin-top:0"><b>Fixed</b> costs you pay whether or not you fish: ${EXP_CATS.filter(c => c.fixed).map(c => c.name).join(", ")}.</p>
+      <p class="note"><b>Per-trip</b> costs go up the more you run: ${EXP_CATS.filter(c => !c.fixed).map(c => c.name).join(", ")}.</p>
+      <p class="note">The split drives “Trips a month to cover fixed costs” on the Overview.</p></div>`;
+  }
+
+  // ---------- forms ----------
+  const dlg = $("#dlg"), form = $("#dlgForm");
+  function field(id, label, input, cls = "") { return `<div class="field ${cls}"><label for="${id}">${label}</label>${input}</div>`; }
+
+  function openTrip(t) {
+    const isNew = !t;
+    t = t || { date: iso(today()), type: "half", status: "completed", fee: settings.halfPrice, tips: "", deposit: "", party: "", hours: 4, pay: "Cash", customer: "", notes: "" };
+    form.innerHTML = `
+      <div class="dlg-head"><h2>${isNew ? "Log a trip" : "Edit trip"}</h2><button class="btn ghost small" type="button" data-act="close">Close</button></div>
+      <div class="seg" role="group" aria-label="Trip type">${Object.entries(TRIP_TYPES).map(([k, l]) => `<button type="button" data-type="${k}" aria-pressed="${t.type === k}">${l}</button>`).join("")}</div>
+      <div class="fgrid">
+        ${field("f-date", "Date", `<input id="f-date" type="date" required value="${esc(t.date)}">`)}
+        ${field("f-status", "Status", `<select id="f-status">${["completed", "booked", "cancelled"].map(s => `<option value="${s}" ${t.status === s ? "selected" : ""}>${s[0].toUpperCase() + s.slice(1)}</option>`).join("")}</select>`)}
+        ${field("f-fee", "Charter fee ($)", `<input id="f-fee" type="number" step="0.01" min="0" inputmode="decimal" value="${esc(t.fee)}">`)}
+        ${field("f-tips", "Tips ($)", `<input id="f-tips" type="number" step="0.01" min="0" inputmode="decimal" value="${esc(t.tips)}" placeholder="0">`)}
+        ${field("f-deposit", "Deposit received ($)", `<input id="f-deposit" type="number" step="0.01" min="0" inputmode="decimal" value="${esc(t.deposit)}" placeholder="0">`)}
+        ${field("f-pay", "Paid by", `<select id="f-pay">${PAY.map(p => `<option ${t.pay === p ? "selected" : ""}>${p}</option>`).join("")}</select>`)}
+        ${field("f-party", "Party size", `<input id="f-party" type="number" step="1" min="0" inputmode="numeric" value="${esc(t.party)}" placeholder="e.g. 4">`)}
+        ${field("f-hours", "Hours on the water", `<input id="f-hours" type="number" step="0.5" min="0" inputmode="decimal" value="${esc(t.hours)}">`)}
+        ${field("f-customer", "Customer", `<input id="f-customer" value="${esc(t.customer)}" placeholder="Name or group">`, "full")}
+        ${field("f-notes", "Notes", `<textarea id="f-notes" placeholder="Species, spot, conditions…">${esc(t.notes)}</textarea>`, "full")}
+      </div>
+      <p class="note" style="margin:0">Completed trips count the fee plus tips. Cancelled trips count only the deposit you kept. Booked trips show under Upcoming.</p>
+      <p class="err" id="f-err" hidden></p>
+      <div class="dlg-foot">${isNew ? "" : `<button class="btn danger" type="button" data-del="trip">Delete</button>`}<div class="right"><button class="btn" type="button" data-act="close">Cancel</button><button class="btn primary" type="submit" data-save="trip">${isNew ? "Save trip" : "Save changes"}</button></div></div>`;
+    form.dataset.id = isNew ? "" : t.id;
+    form.dataset.type = t.type;
+    form.querySelectorAll("[data-type]").forEach(b => b.onclick = () => {
+      const prev = form.dataset.type; form.dataset.type = b.dataset.type;
+      form.querySelectorAll("[data-type]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+      const fee = $("#f-fee"), hrs = $("#f-hours");
+      const defFee = { half: settings.halfPrice, full: settings.fullPrice }, defH = { half: 4, full: 8 };
+      if (isNew && (fee.value === "" || +fee.value === +defFee[prev])) fee.value = defFee[b.dataset.type] ?? "";
+      if (isNew && (hrs.value === "" || +hrs.value === defH[prev])) hrs.value = defH[b.dataset.type] ?? "";
+    });
+    dlg.showModal();
+  }
+
+  function openLedger(e, kind) {
+    const isNew = !e;
+    e = e || { kind: kind || "expense", date: iso(today()), cat: kind === "income" ? "fishcleaning" : "fuel", amount: "", vendor: "", gallons: "", notes: "" };
+    const cats = e.kind === "income" ? INC_CATS : EXP_CATS;
+    form.innerHTML = `
+      <div class="dlg-head"><h2>${isNew ? (e.kind === "income" ? "Log other income" : "Log an expense") : "Edit entry"}</h2><button class="btn ghost small" type="button" data-act="close">Close</button></div>
+      ${isNew ? `<div class="seg" role="group" aria-label="Entry kind"><button type="button" data-kind="expense" aria-pressed="${e.kind === "expense"}">Expense</button><button type="button" data-kind="income" aria-pressed="${e.kind === "income"}">Other income</button></div>` : ""}
+      <div class="fgrid">
+        ${field("l-date", "Date", `<input id="l-date" type="date" required value="${esc(e.date)}">`)}
+        ${field("l-amount", "Amount ($)", `<input id="l-amount" type="number" step="0.01" min="0" inputmode="decimal" required value="${esc(e.amount)}" placeholder="0.00">`)}
+        ${field("l-cat", "Category", `<select id="l-cat">${cats.map(c => `<option value="${c.id}" ${e.cat === c.id ? "selected" : ""}>${c.name}</option>`).join("")}</select>`, "full")}
+        ${field("l-gallons", "Gallons (fuel only)", `<input id="l-gallons" type="number" step="0.1" min="0" inputmode="decimal" value="${esc(e.gallons)}" placeholder="e.g. 42">`)}
+        ${field("l-vendor", e.kind === "income" ? "From" : "Vendor / paid to", `<input id="l-vendor" value="${esc(e.vendor)}" placeholder="${e.kind === "income" ? "Customer" : "e.g. Marina fuel dock"}">`)}
+        ${field("l-notes", "Notes", `<textarea id="l-notes" placeholder="Policy number, part replaced, receipt #…">${esc(e.notes)}</textarea>`, "full")}
+      </div>
+      <p class="err" id="f-err" hidden></p>
+      <div class="dlg-foot">${isNew ? "" : `<button class="btn danger" type="button" data-del="ledger">Delete</button>`}<div class="right"><button class="btn" type="button" data-act="close">Cancel</button><button class="btn primary" type="submit" data-save="ledger">${isNew ? "Save" : "Save changes"}</button></div></div>`;
+    form.dataset.id = isNew ? "" : e.id;
+    form.dataset.kind = e.kind;
+    const syncGal = () => { const g = $("#l-gallons").closest(".field"); g.hidden = $("#l-cat").value !== "fuel"; };
+    $("#l-cat").onchange = syncGal; syncGal();
+    form.querySelectorAll("[data-kind]").forEach(b => b.onclick = () => {
+      const keep = { date: $("#l-date").value, amount: $("#l-amount").value, vendor: $("#l-vendor").value, notes: $("#l-notes").value };
+      dlg.close(); openLedger(null, b.dataset.kind);
+      $("#l-date").value = keep.date; $("#l-amount").value = keep.amount; $("#l-vendor").value = keep.vendor; $("#l-notes").value = keep.notes;
+    });
+    if (!dlg.open) dlg.showModal();
+  }
+
+  function showErr(m) { const el = $("#f-err"); if (el) { el.textContent = m; el.hidden = false; } }
+  function writeErr(e) {
+    if (e?.code === "invalid_argument") { canWrite = false; return "You have view-only access to this logbook, so changes can't be saved."; }
+    if (e?.code === "quota_exceeded") return "The logbook is full. Export to CSV and delete old example or test entries to make room.";
+    return "Couldn't save. Check your connection and try again.";
+  }
+
+  async function saveTrip() {
+    const v = id => $(id).value.trim();
+    const date = v("#f-date");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return showErr("Pick a date for the trip.");
+    const body = { date, type: form.dataset.type || "half", status: v("#f-status"), fee: +v("#f-fee") || 0, tips: +v("#f-tips") || 0, deposit: +v("#f-deposit") || 0,
+      pay: v("#f-pay"), party: +v("#f-party") || 0, hours: +v("#f-hours") || 0, customer: v("#f-customer"), notes: v("#f-notes") };
+    const id = form.dataset.id;
+    const prev = id ? trips.find(t => t.id === id) : null;
+    body.created = prev?.created || Date.now();
+    body.example = false;
+    try { await (id ? db.collection("trips").doc(id) : db.collection("trips").doc()).set(body); dlg.close(); toast(id ? "Trip updated" : "Trip logged"); }
+    catch (e) { showErr(writeErr(e)); }
+  }
+  async function saveLedger() {
+    const v = id => $(id).value.trim();
+    const date = v("#l-date"), amount = +v("#l-amount");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return showErr("Pick a date.");
+    if (!(amount > 0)) return showErr("Enter an amount greater than $0.");
+    const cat = v("#l-cat");
+    const body = { kind: form.dataset.kind, date, amount, cat, vendor: v("#l-vendor"), gallons: cat === "fuel" ? (+v("#l-gallons") || 0) : 0, notes: v("#l-notes") };
+    const id = form.dataset.id;
+    const prev = id ? ledger.find(t => t.id === id) : null;
+    body.created = prev?.created || Date.now();
+    body.example = false;
+    try { await (id ? db.collection("ledger").doc(id) : db.collection("ledger").doc()).set(body); dlg.close(); toast(id ? "Entry updated" : (body.kind === "income" ? "Income logged" : "Expense logged")); }
+    catch (e) { showErr(writeErr(e)); }
+  }
+  async function del(kind) {
+    const btn = form.querySelector("[data-del]");
+    if (btn.dataset.armed !== "1") { btn.dataset.armed = "1"; btn.textContent = "Tap again to delete"; return; }
+    try { await db.collection(kind === "trip" ? "trips" : "ledger").doc(form.dataset.id).delete(); dlg.close(); toast("Deleted"); }
+    catch (e) { showErr(writeErr(e)); }
+  }
+
+  let clearArmed = false;
+  async function clearExamples(btn) {
+    if (!clearArmed) { clearArmed = true; btn.textContent = "Tap again to clear examples"; return; }
+    btn.disabled = true; btn.textContent = "Clearing…";
+    try {
+      for (const t of trips.filter(x => x.example)) await db.collection("trips").doc(t.id).delete();
+      for (const e of ledger.filter(x => x.example)) await db.collection("ledger").doc(e.id).delete();
+      toast("Examples cleared");
+    } catch (e) { toast(writeErr(e)); }
+    clearArmed = false;
+  }
+
+  async function exportCsv() {
+    const q = s => `"${String(s ?? "").replace(/"/g, '""')}"`;
+    const lines = [["Date", "Kind", "Category / trip type", "Status", "Amount", "Tips", "Deposit", "Gallons", "Party", "Hours", "Customer / vendor", "Payment", "Notes"].join(",")];
+    trips.slice().sort((a, b) => a.date.localeCompare(b.date)).forEach(t => lines.push([t.date, "Trip", TRIP_TYPES[t.type], t.status, t.fee, t.tips, t.deposit, "", t.party, t.hours, q(t.customer), q(t.pay), q(t.notes)].join(",")));
+    ledger.slice().sort((a, b) => a.date.localeCompare(b.date)).forEach(e => lines.push([e.date, e.kind === "income" ? "Income" : "Expense", q(catName(e.cat)), "", e.amount, "", "", e.gallons || "", "", "", q(e.vendor), "", q(e.notes)].join(",")));
+    const dl = await window.claude?.use?.("downloads");
+    if (!dl) { toast("Downloads aren't available in this view"); return; }
+    try { await dl.save({ filename: `charter-logbook-${iso(today())}.csv`, data: lines.join("\n") }); } catch (e) { if (e?.code !== "cancelled") toast("Download didn't go through"); }
+  }
+
+  // ---------- events ----------
+  document.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    if (b.dataset.tab) { tab = b.dataset.tab; render(); window.scrollTo(0, 0); }
+    else if (b.dataset.period) { period = b.dataset.period; render(); }
+    else if (b.dataset.tripfilter) { tripFilter = b.dataset.tripfilter; render(); }
+    else if (b.dataset.ledgerfilter) { ledgerFilter = b.dataset.ledgerfilter; render(); }
+    else if (b.id === "addTripBtn") openTrip();
+    else if (b.id === "addExpBtn") openLedger();
+    else if (b.dataset.editTrip && canWrite) openTrip(trips.find(t => t.id === b.dataset.editTrip));
+    else if (b.dataset.editLedger && canWrite) openLedger(ledger.find(x => x.id === b.dataset.editLedger));
+    else if (b.dataset.act === "close") dlg.close();
+    else if (b.dataset.del) del(b.dataset.del);
+    else if (b.dataset.act === "clear-ex") clearExamples(b);
+    else if (b.dataset.act === "export") exportCsv();
+  });
+  form.dataset.mode = "";
+  document.addEventListener("submit", async e => {
+    if (e.target.id === "dlgForm") { e.preventDefault(); const sv = form.querySelector("[data-save]"); if (sv?.dataset.save === "trip") saveTrip(); else if (sv) saveLedger(); return; }
+    if (e.target.id !== "setForm") return;
+    e.preventDefault();
+    const f = new FormData(e.target);
+    const body = { name: String(f.get("name") || "").trim(), halfPrice: +f.get("halfPrice") || 0, fullPrice: +f.get("fullPrice") || 0, taxRate: Math.min(60, Math.max(0, +f.get("taxRate") || 0)) };
+    try { await db.doc("settings/main").set(body); toast("Settings saved"); } catch (err) { toast(writeErr(err)); }
+  });
+
+  // ---------- boot ----------
+  render();
+  (async () => {
+    db = await window.claude?.use?.("db") ?? null;
+    if (!db) { note = "Open this page while signed in to claude.ai to save and see entries."; render(); return; }
+    const user = await window.claude.use("user");
+    if (user) { const ok = await user.canEdit(); if (ok === false) canWrite = false; }
+    const timer = setTimeout(() => { note = "Your logbook is taking a while to load. Entries may be out of date until the connection comes back."; render(); }, 10000);
+    const done = () => { if (loaded.trips && loaded.ledger) { clearTimeout(timer); if (note.startsWith("Your logbook")) note = ""; } };
+    const fail = err => { clearTimeout(timer); note = err?.code === "revoked" ? "Access to this logbook changed." : "Couldn't load the logbook. Reload the page to try again."; loaded.trips = loaded.ledger = true; render(); };
+    db.collection("trips").onSnapshot(s => { trips = s.docs.map(d => ({ id: d.id, ...d.data() })); if (!s.metadata.fromCache) loaded.trips = true; done(); render(); }, fail);
+    db.collection("ledger").onSnapshot(s => { ledger = s.docs.map(d => ({ id: d.id, ...d.data() })); if (!s.metadata.fromCache) loaded.ledger = true; done(); render(); }, fail);
+    db.doc("settings/main").onSnapshot(s => { if (s.exists) settings = { ...settings, ...s.data() }; if (tab !== "settings") render(); }, () => {});
+  })();
+})();
+</script>
