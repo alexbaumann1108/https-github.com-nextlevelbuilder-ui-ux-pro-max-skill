@@ -196,7 +196,7 @@ its half-day slots (`"am"`, `"pm"`) and whether longer trips run
 
 | Variable | Purpose |
 | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | Your domain, e.g. `https://www.frigatefly.com` (canonical links, sitemap, social cards) |
+| `NEXT_PUBLIC_SITE_URL` | Your domain, `https://www.frigatefly.com` (the default for production builds) (canonical links, sitemap, social cards) |
 | `INQUIRY_WEBHOOK_URL` | Where booking inquiries are delivered |
 | `RESEND_API_KEY` | Sends each booking request to your email |
 | `OWNER_EMAIL` | Optional: where requests go (defaults to the site email) |

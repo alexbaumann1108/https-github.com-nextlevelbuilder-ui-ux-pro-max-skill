@@ -34,7 +34,7 @@ export const site = {
  */
 export const showPlaceholders = process.env.NEXT_PUBLIC_SHOW_PLACEHOLDERS !== "false";
 
-export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || (process.env.NODE_ENV === "production" ? "https://www.frigatefly.com" : "http://localhost:3000")).replace(/\/$/, "");
 
 export const nav = [
   { href: "/fishery", label: "The Fishery" },
