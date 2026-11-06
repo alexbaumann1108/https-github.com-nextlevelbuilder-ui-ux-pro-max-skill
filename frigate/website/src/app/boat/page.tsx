@@ -6,9 +6,9 @@ import { Illustration } from "@/components/illustration";
 import { BookingBand, PageHeader, Photo, RatesLedger } from "@/components/ui";
 
 export const metadata: Metadata = {
-  title: "The Boat: Action Craft Fly Fisher Flats Skiff",
+  title: "The Boat: 1720 Action Craft Fly Fisher SE",
   description:
-    "Fish Sanibel's beaches and backcountry from an Action Craft Fly Fisher, a shallow-water flats skiff with a Mercury outboard, Minn Kota trolling motor and Power-Pole.",
+    "Fish Sanibel's beaches and backcountry from a 1720 Action Craft Fly Fisher SE, a shallow-water flats skiff with a 115 Mercury outboard, Minn Kota Terrova trolling motor and Power-Pole.",
   alternates: { canonical: "/boat" },
 };
 

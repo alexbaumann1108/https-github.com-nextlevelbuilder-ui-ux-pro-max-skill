@@ -12,7 +12,10 @@ The single source of truth for contact details on the website and in print.
 | Service area | Sanibel, Captiva, Pine Island Sound, Fort Myers and surrounding SW Florida | Confirmed by owner |
 | Fishing | Fly fishing and light tackle, inshore | From card and brand board |
 | Fisheries | Beach snook; tarpon (migrating and resident); backcountry and redfish | Confirmed by owner |
-| Boat | Action Craft Fly Fisher, Mercury outboard | From photos |
+| Boat | 1720 Action Craft Fly Fisher SE | Confirmed by owner |
+| Outboard | 115 Mercury | Confirmed by owner |
+| Trolling motor | Minn Kota Terrova | Confirmed by owner |
+| Shallow-water anchor | Power-Pole | From photos |
 | Half day (4 hours) | $600 per trip | Confirmed by owner |
 | Three-quarter day (6 hours) | $900 per trip | Confirmed by owner |
 | Full day (8 hours) | $1,200 per trip | Confirmed by owner |

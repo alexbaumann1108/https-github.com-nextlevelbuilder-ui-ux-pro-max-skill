@@ -9,7 +9,7 @@ Next.js 16, React 19, TypeScript and Tailwind CSS 4.
 | `/` | Home: hero, introduction, the three fisheries, captain, boat, rates, gallery, reports, map |
 | `/fishery` | Beach Snook, Tarpon, Backcountry & Redfish, rates and FWC regulations |
 | `/captain` | Meet your captain |
-| `/boat` | The Action Craft Fly Fisher, specifications and equipment |
+| `/boat` | The 1720 Action Craft Fly Fisher SE, specifications and equipment |
 | `/gallery` | Photo gallery with categories (`/gallery#snook` opens one category) |
 | `/reports` | Fishing reports, and a page for each report |
 | `/conditions` | Windfinder wind, tide and live forecasts for Sanibel, plus regulations |
