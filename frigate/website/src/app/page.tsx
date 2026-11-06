@@ -54,14 +54,14 @@ export default function Home() {
 
         <div className="shell grid gap-10 pb-12 pt-32 md:pb-16 lg:grid-cols-12 lg:items-end">
           <div className="lg:col-span-8">
-            <p className="label rise text-paper/85">
+            <h1 className="display-xl rise max-w-[15ch] uppercase" style={{ animationDelay: "0.15s" }}>
+              Fish Southwest Florida
+            </h1>
+            <p className="label rise mt-4 text-paper/85" style={{ animationDelay: "0.22s" }}>
               {site.location}
               <span className="mx-2 opacity-60">/</span>
               {site.geo.label}
             </p>
-            <h1 className="display-xl rise mt-5 max-w-[15ch] uppercase" style={{ animationDelay: "0.15s" }}>
-              Fish the wild waters of Southwest Florida
-            </h1>
             <p className="lede rise mt-6 max-w-2xl text-paper/90" style={{ animationDelay: "0.3s" }}>
               Experience the incredible inshore fisheries of Sanibel and the
               surrounding islands with Frigate Fly &amp; Light Tackle Charters.
