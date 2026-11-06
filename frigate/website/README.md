@@ -96,7 +96,7 @@ the server, filters spam bots and limits repeated sends.
 accepts a JSON POST. Easy options:
 
 - **Zapier or Make:** "Catch Hook" trigger, then "Send email" to
-  frigateflycharters@gmail.com (or add a row to a Google Sheet).
+  CaptainAlex@frigatefly.com (or add a row to a Google Sheet).
 - **Formspree:** create a form and use its endpoint URL.
 - **A booking platform or CRM** that accepts webhooks.
 
@@ -137,11 +137,16 @@ for this volume) with every detail and two buttons:
 - **Reply to confirm** opens a ready-written confirmation email to the
   customer.
 
-Setup: create a Resend account **with frigateflycharters@gmail.com**, make an
-API key (API Keys → Create), and set `RESEND_API_KEY` in your host. Until you
-verify your own domain with Resend, emails come from
-`onboarding@resend.dev` and can only go to your Resend account email, which
-is where these go.
+Setup: make a Resend API key (API Keys → Create) and set `RESEND_API_KEY` in
+your host. Until frigatefly.com is verified with Resend, emails come from
+`onboarding@resend.dev` and can only go to the Resend account email
+(frigateflycharters@gmail.com), so that's where they go for now.
+
+**To get them at CaptainAlex@frigatefly.com:** in Resend, add the domain
+frigatefly.com (Domains → Add Domain), add the DNS records it shows in
+Namecheap's Advanced DNS, and press Verify. Then set
+`EMAIL_FROM=Frigate Website <bookings@frigatefly.com>` in your host. Booking
+emails then go to CaptainAlex@frigatefly.com (or `OWNER_EMAIL`, if set).
 
 ## Booking calendar (blocks booked dates)
 
@@ -199,7 +204,8 @@ its half-day slots (`"am"`, `"pm"`) and whether longer trips run
 | `NEXT_PUBLIC_SITE_URL` | Your domain, `https://www.frigatefly.com` (the default for production builds) (canonical links, sitemap, social cards) |
 | `INQUIRY_WEBHOOK_URL` | Where booking inquiries are delivered |
 | `RESEND_API_KEY` | Sends each booking request to your email |
-| `OWNER_EMAIL` | Optional: where requests go (defaults to the site email) |
+| `OWNER_EMAIL` | Optional: where requests go (defaults to the site email once `EMAIL_FROM` is set) |
+| `EMAIL_FROM` | Sender on your verified domain, e.g. `Frigate Website <bookings@frigatefly.com>` |
 | `BOOKING_CALENDAR_ICS_URL` | Secret iCal address of your bookings calendar; its events block dates |
 | `NEXT_PUBLIC_SHOW_PLACEHOLDERS` | `false` at launch hides the dashed "To fill in" notes |
 

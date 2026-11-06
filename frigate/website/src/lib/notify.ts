@@ -36,6 +36,18 @@ export type Inquiry = Booking | Contact;
 
 export const emailConfigured = () => !!process.env.RESEND_API_KEY;
 
+/**
+ * The Resend account's login email. Resend's shared test sender
+ * (onboarding@resend.dev) can only deliver there, so booking emails go to it
+ * until EMAIL_FROM is set to an address on frigatefly.com (verified in Resend).
+ */
+const resendAccountEmail = "frigateflycharters@gmail.com";
+
+function ownerInbox() {
+  if (process.env.OWNER_EMAIL) return process.env.OWNER_EMAIL;
+  return process.env.EMAIL_FROM ? site.email : resendAccountEmail;
+}
+
 const esc = (s: string) =>
   s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 
@@ -182,7 +194,7 @@ export async function emailOwner(inq: Inquiry) {
     },
     body: JSON.stringify({
       from: process.env.EMAIL_FROM || "Frigate Website <onboarding@resend.dev>",
-      to: [process.env.OWNER_EMAIL || site.email],
+      to: [ownerInbox()],
       reply_to: inq.email,
       subject,
       html,

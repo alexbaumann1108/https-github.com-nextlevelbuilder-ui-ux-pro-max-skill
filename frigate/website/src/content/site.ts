@@ -11,7 +11,7 @@ export const site = {
     "Sanibel, Captiva, Pine Island Sound, Fort Myers and the surrounding Southwest Florida waters",
   phone: "(704) 999-0571",
   phoneHref: "tel:+17049990571",
-  email: "frigateflycharters@gmail.com",
+  email: "CaptainAlex@frigatefly.com",
   instagram: { handle: "@frigate_fly", url: "https://www.instagram.com/frigate_fly/" },
 
   /** Sanibel Lighthouse, used for the map and structured data. */
