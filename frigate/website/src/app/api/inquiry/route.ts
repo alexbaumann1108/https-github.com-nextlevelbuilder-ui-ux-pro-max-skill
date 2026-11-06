@@ -1,5 +1,6 @@
 import { inquirySchema, toFieldErrors, type InquiryResponse } from "@/lib/inquiry";
-import { getBookedDates } from "@/lib/booked-dates";
+import { getBooked } from "@/lib/booked-dates";
+import { availabilityProblem } from "@/lib/availability";
 
 /**
  * Receives booking requests and contact messages.
@@ -68,14 +69,12 @@ export async function POST(request: Request) {
 
   // A date can be booked between loading the form and sending it.
   if (parsed.data.kind === "booking") {
-    const { dates } = await getBookedDates();
-    if (dates.includes(parsed.data.date)) {
+    const { booked } = await getBooked();
+    const d = parsed.data;
+    const problem = availabilityProblem(d.date, Number(d.tripLength), d.slot, booked);
+    if (problem) {
       return reply(
-        {
-          ok: false,
-          error: "That date has just been booked.",
-          fieldErrors: { date: "That date has just been booked. Choose another date." },
-        },
+        { ok: false, error: "That time has just been booked.", fieldErrors: { [problem.field]: problem.message } },
         409,
       );
     }

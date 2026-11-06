@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { bookingWindowDays } from "@/content/availability";
-import { dayStatus, todayInFlorida } from "@/lib/availability";
+import { dayStatus, todayInFlorida, type Booked } from "@/lib/availability";
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -30,27 +30,36 @@ export function DateCalendar({
   invalid,
   describedBy,
   id,
+  onBooked,
 }: {
   value: string;
   onChange: (iso: string) => void;
   invalid?: boolean;
   describedBy?: string;
   id?: string;
+  /** Called with the booked half days once they load. */
+  onBooked?: (b: Booked) => void;
 }) {
   const today = todayInFlorida();
   const [ty, tm] = today.split("-").map(Number);
   const start = value ? value.split("-").map(Number) : [ty, tm];
   const [view, setView] = useState({ y: start[0], m: start[1] - 1 });
-  const [booked, setBooked] = useState<Set<string>>(new Set());
+  const [booked, setBooked] = useState<Booked>({});
   const [state, setState] = useState<"loading" | "ready" | "offline">("loading");
+
+  const onBookedRef = useRef(onBooked);
+  useEffect(() => {
+    onBookedRef.current = onBooked;
+  });
 
   useEffect(() => {
     let alive = true;
     fetch("/api/availability", { cache: "no-store" })
       .then((r) => r.json())
-      .then((d: { ok: boolean; booked: string[] }) => {
+      .then((d: { ok: boolean; booked: Booked }) => {
         if (!alive) return;
-        setBooked(new Set(d.booked));
+        setBooked(d.booked ?? {});
+        onBookedRef.current?.(d.booked ?? {});
         setState(d.ok ? "ready" : "offline");
       })
       .catch(() => alive && setState("offline"));
@@ -91,7 +100,7 @@ export function DateCalendar({
       role="group"
       aria-describedby={describedBy}
       data-calendar=""
-      className={`rounded-[3px] border-[1.5px] bg-paper p-4 outline-none sm:p-5 ${
+      className={`scroll-mt-32 rounded-[3px] border-[1.5px] bg-paper p-4 outline-none sm:p-5 ${
         invalid ? "border-alert" : "border-[#cbbd9f]"
       }`}
     >
@@ -130,9 +139,16 @@ export function DateCalendar({
           const s = dayStatus(d, booked);
           const selected = d === value;
           const isBooked = !s.open && s.reason === "booked";
-          const morningOnly = s.open && s.hours.length === 1 && s.hours[0] === 4;
+          // Only one half day left (or a Monday): show which one.
+          const only = s.open && s.freeSlots.length === 1 ? s.freeSlots[0] : null;
           const label = `${longDate(d)}, ${
-            s.open ? (morningOnly ? "available, mornings only" : "available") : isBooked ? "booked" : "not available"
+            s.open
+              ? only
+                ? `${only === "am" ? "morning" : "afternoon"} available`
+                : "morning and afternoon available"
+              : isBooked
+                ? "fully booked"
+                : "not available"
           }`;
           return (
             <button
@@ -152,9 +168,9 @@ export function DateCalendar({
               } ${isBooked ? "line-through decoration-orange-ink/70" : ""}`}
             >
               {Number(d.slice(8))}
-              {morningOnly && (
+              {only && (
                 <span className={`label -mt-0.5 text-[0.6rem] leading-none ${selected ? "text-paper/85" : "text-orange-ink"}`}>
-                  AM
+                  {only === "am" ? "AM" : "PM"}
                 </span>
               )}
             </button>
@@ -167,10 +183,10 @@ export function DateCalendar({
           <span className="font-bold text-ink">12</span> available
         </span>
         <span>
-          <span className="label text-orange-ink">AM</span> Monday mornings only
+          <span className="label text-orange-ink">AM</span>/<span className="label text-orange-ink">PM</span> only that half day open
         </span>
         <span>
-          <span className="line-through decoration-orange-ink/70">12</span> booked
+          <span className="line-through decoration-orange-ink/70">12</span> fully booked
         </span>
         {state === "loading" && <span>Checking the calendar…</span>}
         {state === "offline" && <span>Couldn&apos;t check the latest bookings; we&apos;ll confirm your date.</span>}

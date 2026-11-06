@@ -2,17 +2,22 @@
  * When trips can be requested. Edit this when your schedule changes.
  *
  * Days are numbered 0 = Sunday ... 6 = Saturday. A day that isn't listed is
- * closed. `hours` lists the trip lengths offered that day (see rates.ts).
+ * closed.
+ * - `slots`: the half-day trips offered that day ("am" morning, "pm"
+ *   afternoon). Two half days can be booked on the same date.
+ * - `fullDay`: whether longer trips (three-quarter and full day) run that
+ *   day. They need the whole day free.
  *
- * Booked dates come from your bookings calendar (see README): any event on
- * that calendar blocks the whole day.
+ * Booked times come from your bookings calendar (see README): an event in
+ * the morning blocks the morning, one in the afternoon blocks the
+ * afternoon, and an all-day or long event blocks both.
  */
-export const weeklySchedule: Record<number, { hours: number[]; note?: string }> = {
-  1: { hours: [4], note: "Mornings only (half day)" }, // Monday
-  2: { hours: [4, 6, 8] }, // Tuesday
-  3: { hours: [4, 6, 8] }, // Wednesday
-  4: { hours: [4, 6, 8] }, // Thursday
-  5: { hours: [4, 6, 8] }, // Friday
+export const weeklySchedule: Record<number, { slots: ("am" | "pm")[]; fullDay: boolean }> = {
+  1: { slots: ["am"], fullDay: false }, // Monday: mornings only
+  2: { slots: ["am", "pm"], fullDay: true }, // Tuesday
+  3: { slots: ["am", "pm"], fullDay: true }, // Wednesday
+  4: { slots: ["am", "pm"], fullDay: true }, // Thursday
+  5: { slots: ["am", "pm"], fullDay: true }, // Friday
 };
 
 /** How far ahead people can request a date, in days. */

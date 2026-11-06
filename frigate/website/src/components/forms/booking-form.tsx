@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { site, showPlaceholders } from "@/content/site";
 import { rates, formatPrice } from "@/content/rates";
 import { bookingSchema, experienceOptions } from "@/lib/inquiry";
-import { dayStatus } from "@/lib/availability";
+import { dayStatus, slotLabel, type Booked, type Slot } from "@/lib/availability";
 import { scheduleSummary } from "@/content/availability";
 import { DateCalendar } from "./date-calendar";
 import { ErrorSummary, Field } from "./field";
@@ -26,6 +26,7 @@ export function BookingForm() {
   const params = useSearchParams();
   const qTrip = params.get("trip") ?? "";
   const formRef = useRef<HTMLFormElement>(null);
+  const [booked, setBooked] = useState<Booked>({});
   const summaryRef = useRef<HTMLDivElement>(null);
 
   const f = useInquiry(
@@ -38,6 +39,7 @@ export function BookingForm() {
       guests: "2",
       experience: experienceOptions.some((o) => o.value === qTrip) ? qTrip : "",
       tripLength: "",
+      slot: "",
       message: "",
       website: "",
     },
@@ -70,6 +72,7 @@ export function BookingForm() {
             ["Reference", f.status.ref],
             ["Fishing", exp?.label ?? ""],
             ["Trip", rate ? `${rate.name}, ${rate.hours} hours (${formatPrice(rate.price)})` : ""],
+            ["Time", v.slot ? `${slotLabel[v.slot as Slot]} half day` : "Full trip, start time to plan together"],
             ["Preferred date", formatDate(v.date)],
             ["Anglers", v.guests],
             ["Phone", v.phone],
@@ -93,9 +96,30 @@ export function BookingForm() {
   }
 
   const submitting = f.status.state === "submitting";
-  const chosen = v.date ? dayStatus(v.date) : null;
-  const allowedHours = chosen && chosen.open && chosen.hours.length < rates.length ? chosen.hours : null;
-  const mondayNote = !!allowedHours;
+  const chosen = v.date ? dayStatus(v.date, booked) : null;
+  const allowedHours = chosen && chosen.open && !chosen.fullDay ? chosen.hours : null;
+  const halfDayNote = chosen && chosen.open && !chosen.fullDay
+    ? chosen.freeSlots.length === 1 && chosen.freeSlots[0] === "am" && !booked[v.date]?.length
+      ? "Monday trips are morning half days (4 hours)."
+      : `Only the ${chosen.freeSlots.map((x) => slotLabel[x].toLowerCase()).join(" or ")} half day is still open on this date.`
+    : null;
+  const isHalf = v.tripLength === "4";
+
+  // Keep trip length and morning/afternoon consistent with the chosen date.
+  const fit = (patch: { date?: string; tripLength?: string }) => {
+    const date = patch.date ?? v.date;
+    let trip = patch.tripLength ?? v.tripLength;
+    let slot = v.slot as Slot | "";
+    const st = date ? dayStatus(date, booked) : null;
+    if (st && st.open) {
+      if (trip && !st.hours.map(String).includes(trip)) trip = "4";
+      if (trip === "4") {
+        if (st.freeSlots.length === 1) slot = st.freeSlots[0];
+        else if (slot && !st.freeSlots.includes(slot)) slot = "";
+      } else slot = "";
+    } else if (trip !== "4") slot = "";
+    f.setMany({ ...patch, tripLength: trip, slot });
+  };
   const set = (k: keyof typeof v) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
     f.set(k, e.target.value);
   const blur = (k: keyof typeof v) => () => f.blur(k);
@@ -138,14 +162,14 @@ export function BookingForm() {
           </select>
         </Field>
         <Field label="Trip length" error={f.errors.tripLength}>
-          <select name="tripLength" className="field" value={v.tripLength} onChange={set("tripLength")} onBlur={blur("tripLength")}>
+          <select name="tripLength" className="field" value={v.tripLength} onChange={(e) => fit({ tripLength: e.target.value })} onBlur={blur("tripLength")}>
             <option value="" disabled>
               Choose a trip length
             </option>
             {rates.map((r) => (
               <option key={r.hours} value={String(r.hours)} disabled={!!allowedHours && !allowedHours.includes(r.hours)}>
                 {r.name}, {r.hours} hours ({formatPrice(r.price)})
-                {allowedHours && !allowedHours.includes(r.hours) ? " (not on Mondays)" : ""}
+                {allowedHours && !allowedHours.includes(r.hours) ? " (not available that day)" : ""}
               </option>
             ))}
           </select>
@@ -162,21 +186,52 @@ export function BookingForm() {
             value={v.date}
             invalid={!!f.errors.date}
             describedBy={`date-label date-hint${f.errors.date ? " date-error" : ""}`}
-            onChange={(d) => {
-              const s = dayStatus(d);
-              const fits = s.open && s.hours.map(String).includes(v.tripLength);
-              f.setMany(fits || !s.open || !v.tripLength ? { date: d } : { date: d, tripLength: String(s.open ? s.hours[0] : "") });
-            }}
+            onBooked={setBooked}
+            onChange={(d) => fit({ date: d })}
           />
-          {mondayNote && (
-            <p className="mt-2 text-sm text-orange-ink">Monday trips are morning half days (4 hours).</p>
-          )}
+          {halfDayNote && <p className="mt-2 text-sm text-orange-ink">{halfDayNote}</p>}
           {f.errors.date && (
             <p id="date-error" className="field-error">
               {f.errors.date}
             </p>
           )}
         </div>
+        {isHalf && (
+          <fieldset data-field="slot" tabIndex={-1} className="scroll-mt-32 outline-none">
+            <legend className="field-label">Morning or afternoon</legend>
+            <div className="grid grid-cols-2 gap-3">
+              {(["am", "pm"] as Slot[]).map((sl) => {
+                const free = !chosen || (chosen.open && chosen.freeSlots.includes(sl));
+                const on = v.slot === sl;
+                return (
+                  <label
+                    key={sl}
+                    className={`flex min-h-[3.25rem] cursor-pointer items-center justify-center gap-2 rounded-[3px] border-[1.5px] px-3 text-center font-semibold transition-colors ${
+                      on
+                        ? "border-seafoam-deep bg-seafoam-deep text-paper"
+                        : free
+                          ? "border-[#cbbd9f] bg-paper hover:border-seafoam-deep"
+                          : "cursor-not-allowed border-[#cbbd9f]/60 text-ink/35 line-through"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="slot"
+                      value={sl}
+                      checked={on}
+                      disabled={!free}
+                      onChange={() => f.setMany({ slot: sl })}
+                      className="sr-only"
+                    />
+                    {slotLabel[sl]}
+                    {!free && <span className="sr-only"> (booked)</span>}
+                  </label>
+                );
+              })}
+            </div>
+            {f.errors.slot && <p className="field-error">{f.errors.slot}</p>}
+          </fieldset>
+        )}
         <Field label="Number of anglers" error={f.errors.guests}>
           <AnglerStepper value={v.guests} onChange={(n) => f.set("guests", n)} onBlur={blur("guests")} />
         </Field>

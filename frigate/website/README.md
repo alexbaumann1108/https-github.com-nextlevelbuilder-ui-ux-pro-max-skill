@@ -112,6 +112,7 @@ Each inquiry arrives as:
   "guests": 3,
   "experience": "beach-snook",
   "tripLength": "4",
+  "slot": "am",
   "message": "…"
 }
 ```
@@ -128,13 +129,24 @@ beside the form.
 
 The booking form shows a calendar. Customers can only pick days you run
 trips (set in `src/content/availability.ts`: currently Monday mornings,
-half day only, and Tuesday to Friday). Any day with an event on your
-**bookings calendar** is crossed out and can't be requested.
+half day only, and Tuesday to Friday).
+
+Each day has two half-day slots, **morning** and **afternoon**, so two
+half-day trips can be booked on the same date. Three-quarter and full-day
+trips need the whole day free.
 
 **Your routine:** when you confirm a trip, add it to the bookings calendar
-on your phone. Within about 5 minutes that date is blocked on the website.
-Add an event for a day off or a vacation and those days are blocked too.
-Events marked "Free" or "Cancelled" don't block anything.
+on your phone with its real start and end times. Within about 5 minutes
+the website blocks:
+
+- the **morning** for an event that starts before noon (e.g. 7–11am),
+- the **afternoon** for an event that runs past noon (e.g. 1–5pm),
+- **both** for an all-day event or one that spans noon (e.g. a 6 or 8 hour
+  trip, a day off, a vacation).
+
+Days with one half left show "AM" or "PM" on the calendar; fully booked
+days are crossed out. Events marked "Free" or "Cancelled" don't block
+anything.
 
 ### Connect it once (Google Calendar)
 
@@ -159,7 +171,8 @@ public iCloud calendar can be viewed by anyone who has the link.
 ### Changing your schedule
 
 Edit `weeklySchedule` in `src/content/availability.ts`. Each weekday lists
-the trip lengths offered (4, 6 or 8 hours); leave a day out to close it.
+its half-day slots (`"am"`, `"pm"`) and whether longer trips run
+(`fullDay`); leave a day out to close it.
 
 ## Environment variables
 

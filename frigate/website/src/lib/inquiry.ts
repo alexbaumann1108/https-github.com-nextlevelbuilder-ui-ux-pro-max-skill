@@ -62,12 +62,14 @@ export const bookingSchema = z.object({
   tripLength: z.enum(rates.map((r) => String(r.hours)) as [string, ...string[]], {
     error: "Choose how long you'd like to fish.",
   }),
+  // Half days only: morning or afternoon. Longer trips take the whole day.
+  slot: z.enum(["am", "pm", ""]).default(""),
   message: z.string().trim().max(2000, "Keep your message under 2,000 characters.").default(""),
   website: z.string().max(0).optional(), // honeypot
 }).superRefine((data, ctx) => {
   // Weekly schedule (booked dates are checked on the server).
   if (!/^\d{4}-\d{2}-\d{2}$/.test(data.date)) return;
-  const problem = availabilityProblem(data.date, Number(data.tripLength) || null);
+  const problem = availabilityProblem(data.date, Number(data.tripLength) || null, data.slot);
   if (problem) ctx.addIssue({ code: "custom", path: [problem.field], message: problem.message });
 });
 
