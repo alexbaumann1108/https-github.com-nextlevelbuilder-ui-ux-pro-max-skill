@@ -71,9 +71,9 @@ export const experiences: Experience[] = [
       { label: "Fish", value: "Redfish, snook, trout and more" },
     ],
     photo: {
-      src: "/photos/redfish-in-the-mangroves.jpg",
-      alt: "An angler holding a golden redfish beside the mangroves",
-      position: "50% 45%",
+      src: "/photos/redfish-on-the-fly-backcountry.jpg",
+      alt: "An angler holding a big redfish caught on a fly rod, calm water behind",
+      position: "60% 55%",
     },
   },
 ];

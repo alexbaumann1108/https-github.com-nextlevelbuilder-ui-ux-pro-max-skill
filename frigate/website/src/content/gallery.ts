@@ -30,6 +30,7 @@ const p = (file: string, category: Category, alt: string, width: number, height:
 });
 
 export const gallery: GalleryPhoto[] = [
+  p("redfish-on-the-fly-backcountry.jpg", "redfish", "A big redfish on the fly", 2400, 2025),
   p("snook-wading-big-fish-2.jpg", "snook", "A big snook landed while wading the beach", 1932, 2576),
   p("wading-the-mangroves-golden-light.jpg", "days", "Wading the mangrove shoreline at golden hour", 2576, 1717),
   p("redfish-on-the-boat-fly-rod.jpg", "redfish", "A redfish on the fly from the boat", 2576, 2174),

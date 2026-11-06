@@ -12,7 +12,7 @@ frigate/
 │   └── business-card-original.png
 ├── business-details.md       Confirmed contact details
 ├── media/
-│   ├── photos/                 Trip photos (16)
+│   ├── photos/                 Trip photos (17)
 │   └── videos/
 │       ├── originals/          iPhone clips as recorded (.mov)
 │       └── web/                Website-ready copies (.mp4, muted) and poster frames
