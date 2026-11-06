@@ -83,7 +83,7 @@ export default function FisheryPage() {
             <h2 id="rates-title" className="display-md mt-3">
               Any fishery, three lengths of day
             </h2>
-            <Illustration name="fly-small" className="mt-8 w-28 text-ink/85" />
+            <Illustration name="fly-small" className="mt-8 w-48 text-ink/85" />
           </div>
           <div className="md:col-span-7">
             <RatesLedger />

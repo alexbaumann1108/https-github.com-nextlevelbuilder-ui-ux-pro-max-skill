@@ -4,8 +4,8 @@
  */
 const art = {
   emblem: { w: 1079, h: 654, alt: "A frigatebird flying past a palm island" },
-  fly: { w: 492, h: 231, alt: "A saltwater fly" },
-  "fly-small": { w: 217, h: 118, alt: "A small saltwater fly" },
+  fly: { w: 1100, h: 433, alt: "A saltwater streamer fly" },
+  "fly-small": { w: 1100, h: 433, alt: "A saltwater streamer fly" },
   "fly-caster": { w: 652, h: 666, alt: "A fly angler casting from the shallows" },
   "palm-sunset": { w: 1041, h: 224, alt: "A palm island on the horizon" },
   "boat-sketch": { w: 1200, h: 655, alt: "A sketch of a flats skiff on the water" },

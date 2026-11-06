@@ -108,7 +108,7 @@ export default function Home() {
               the backcountry, every trip is built around the conditions, the
               fish, and making the most of your time on the water.
             </p>
-            <Illustration name="fly" className="mt-10 w-48 text-ink/85 md:w-60" />
+            <Illustration name="fly" className="mt-10 w-64 text-ink/85 md:w-80" />
           </div>
         </div>
       </section>

@@ -69,7 +69,7 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-14 flex items-end justify-between gap-6">
-          <Illustration name="fly" className="w-32 text-parchment/50 md:w-40" />
+          <Illustration name="fly" className="w-44 text-parchment/55 md:w-56" />
           <Illustration name="bird" className="w-36 text-parchment/40 md:w-48" />
         </div>
         <div className="mt-6 flex flex-col gap-3 border-t border-parchment/15 pt-6 text-sm text-parchment/70 sm:flex-row sm:items-center sm:justify-between">
