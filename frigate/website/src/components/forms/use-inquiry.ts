@@ -44,6 +44,17 @@ export function useInquiry<T extends Record<string, string>>(
     }
   }
 
+  /** Change several fields at once (e.g. a date that limits trip length). */
+  function setMany(patch: Partial<T>) {
+    const next = { ...values, ...patch };
+    setValues(next);
+    const touchedKeys = Object.keys(patch).filter((k) => touched[k]);
+    if (touchedKeys.length) {
+      const all = validate(next);
+      setErrors((e) => ({ ...e, ...Object.fromEntries(touchedKeys.map((k) => [k, all[k]])) }));
+    }
+  }
+
   function blur(name: keyof T) {
     setTouched((t) => ({ ...t, [name]: true }));
     const all = validate(values);
@@ -53,7 +64,7 @@ export function useInquiry<T extends Record<string, string>>(
   function focusFirstError(errs: FieldErrors) {
     const first = Object.keys(errs)[0];
     if (!first) return;
-    const el = refs.form.current?.querySelector<HTMLElement>(`[name="${first}"]`);
+    const el = refs.form.current?.querySelector<HTMLElement>(`[name="${first}"], [data-field="${first}"]`);
     if (el) el.focus();
     else refs.summary.current?.focus();
   }
@@ -99,5 +110,5 @@ export function useInquiry<T extends Record<string, string>>(
 
   const errorCount = Object.values(errors).filter(Boolean).length;
 
-  return { values, set, blur, errors, status, submit, errorCount };
+  return { values, set, setMany, blur, errors, status, submit, errorCount };
 }

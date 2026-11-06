@@ -124,12 +124,50 @@ pretends an inquiry was sent.
 (FareHarbor, Peek, Checkfront, Calendly...) and a "Book online" link appears
 beside the form.
 
+## Booking calendar (blocks booked dates)
+
+The booking form shows a calendar. Customers can only pick days you run
+trips (set in `src/content/availability.ts`: currently Monday mornings,
+half day only, and Tuesday to Friday). Any day with an event on your
+**bookings calendar** is crossed out and can't be requested.
+
+**Your routine:** when you confirm a trip, add it to the bookings calendar
+on your phone. Within about 5 minutes that date is blocked on the website.
+Add an event for a day off or a vacation and those days are blocked too.
+Events marked "Free" or "Cancelled" don't block anything.
+
+### Connect it once (Google Calendar)
+
+1. On a computer, open calendar.google.com, choose **Other calendars → +
+   → Create new calendar**, and name it "Frigate Bookings".
+2. Open that calendar's **Settings**, scroll to **Integrate calendar**, and
+   copy the **Secret address in iCal format**.
+3. In your website host (Vercel: Project → Settings → Environment
+   Variables), add `BOOKING_CALENDAR_ICS_URL` with that address, and
+   redeploy.
+
+The address is secret: anyone with it can see your bookings calendar. It
+stays on the server and is never shown to visitors.
+
+### Or Apple Calendar (iCloud)
+
+In Calendar on iPhone, tap **Calendars → (i)** next to the bookings
+calendar, turn on **Public Calendar** and copy the link. Use it as
+`BOOKING_CALENDAR_ICS_URL` (a `webcal://` link works as is). Note that a
+public iCloud calendar can be viewed by anyone who has the link.
+
+### Changing your schedule
+
+Edit `weeklySchedule` in `src/content/availability.ts`. Each weekday lists
+the trip lengths offered (4, 6 or 8 hours); leave a day out to close it.
+
 ## Environment variables
 
 | Variable | Purpose |
 | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | Your domain, e.g. `https://www.frigatefly.com` (canonical links, sitemap, social cards) |
 | `INQUIRY_WEBHOOK_URL` | Where booking inquiries are delivered |
+| `BOOKING_CALENDAR_ICS_URL` | Secret iCal address of your bookings calendar; its events block dates |
 | `NEXT_PUBLIC_SHOW_PLACEHOLDERS` | `false` at launch hides the dashed "To fill in" notes |
 
 ## Deploy (Vercel, free tier works)

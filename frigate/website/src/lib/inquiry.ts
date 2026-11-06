@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { experiences } from "@/content/fishery";
 import { rates } from "@/content/rates";
+import { availabilityProblem } from "@/lib/availability";
 
 /** Shared by the booking form, the contact form and the API route. */
 
@@ -49,10 +50,7 @@ export const bookingSchema = z.object({
   phone: phone.refine((v) => v !== "", "Enter a phone number so we can reach you about the trip."),
   date: z
     .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Choose your preferred fishing date.")
-    // One day of slack covers visitors in time zones ahead of the server.
-    .refine((v) => v >= todayISO(-1), "Choose a date from today onwards.")
-    .refine((v) => v <= todayISO(730), "Choose a date within the next two years."),
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Choose your preferred fishing date on the calendar."),
   guests: z.coerce
     .number({ error: "Enter the number of anglers." })
     .int("Enter a whole number of anglers.")
@@ -66,6 +64,11 @@ export const bookingSchema = z.object({
   }),
   message: z.string().trim().max(2000, "Keep your message under 2,000 characters.").default(""),
   website: z.string().max(0).optional(), // honeypot
+}).superRefine((data, ctx) => {
+  // Weekly schedule (booked dates are checked on the server).
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(data.date)) return;
+  const problem = availabilityProblem(data.date, Number(data.tripLength) || null);
+  if (problem) ctx.addIssue({ code: "custom", path: [problem.field], message: problem.message });
 });
 
 export const contactSchema = z.object({

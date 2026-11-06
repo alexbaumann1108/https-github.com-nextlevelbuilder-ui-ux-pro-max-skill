@@ -1,4 +1,5 @@
 import { inquirySchema, toFieldErrors, type InquiryResponse } from "@/lib/inquiry";
+import { getBookedDates } from "@/lib/booked-dates";
 
 /**
  * Receives booking requests and contact messages.
@@ -63,6 +64,21 @@ export async function POST(request: Request) {
       { ok: false, error: "Some details need attention.", fieldErrors: toFieldErrors(parsed.error) },
       422,
     );
+  }
+
+  // A date can be booked between loading the form and sending it.
+  if (parsed.data.kind === "booking") {
+    const { dates } = await getBookedDates();
+    if (dates.includes(parsed.data.date)) {
+      return reply(
+        {
+          ok: false,
+          error: "That date has just been booked.",
+          fieldErrors: { date: "That date has just been booked. Choose another date." },
+        },
+        409,
+      );
+    }
   }
 
   const ref = makeRef();

@@ -14,9 +14,9 @@ export const metadata: Metadata = {
 };
 
 const steps = [
-  { title: "Send an inquiry", body: "Tell us your date, how many are fishing and what you'd like to chase." },
-  { title: "We plan it together", body: "We check the tides and the calendar and get back to you by email or phone." },
-  { title: "You're booked", body: "Once we've agreed the details with you, your date is set." },
+  { title: "Pick an open date", body: "Greyed-out days are already booked or not running. Trips run Monday mornings and Tuesday through Friday." },
+  { title: "We confirm by email or phone", body: "We check the tides and get back to you to plan the day." },
+  { title: "You're booked", body: "Once we've confirmed, your date comes off the calendar so no one else can request it." },
 ];
 
 export default function BookPage() {
@@ -25,7 +25,7 @@ export default function BookPage() {
       <PageHeader
         label="Book a trip"
         title="Send a booking inquiry"
-        lede="There's no automatic calendar here: you'll hear back from your captain, who'll plan the day with you."
+        lede="Pick an open date and send your request. Your captain will get back to you to confirm and plan the day."
         art="emblem"
       />
 

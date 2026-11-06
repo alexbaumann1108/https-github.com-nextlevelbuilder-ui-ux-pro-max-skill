@@ -5,7 +5,10 @@ import { useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { site, showPlaceholders } from "@/content/site";
 import { rates, formatPrice } from "@/content/rates";
-import { bookingSchema, experienceOptions, todayISO } from "@/lib/inquiry";
+import { bookingSchema, experienceOptions } from "@/lib/inquiry";
+import { dayStatus } from "@/lib/availability";
+import { scheduleSummary } from "@/content/availability";
+import { DateCalendar } from "./date-calendar";
 import { ErrorSummary, Field } from "./field";
 import { useInquiry } from "./use-inquiry";
 
@@ -90,6 +93,9 @@ export function BookingForm() {
   }
 
   const submitting = f.status.state === "submitting";
+  const chosen = v.date ? dayStatus(v.date) : null;
+  const allowedHours = chosen && chosen.open && chosen.hours.length < rates.length ? chosen.hours : null;
+  const mondayNote = !!allowedHours;
   const set = (k: keyof typeof v) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
     f.set(k, e.target.value);
   const blur = (k: keyof typeof v) => () => f.blur(k);
@@ -119,14 +125,6 @@ export function BookingForm() {
 
       <fieldset className="space-y-6">
         <legend className="mb-6 font-display text-[1.6rem]">Your trip</legend>
-        <div className="grid gap-6 sm:grid-cols-2">
-          <Field label="Preferred fishing date" error={f.errors.date}>
-            <input type="date" name="date" className="field" min={todayISO()} max={todayISO(730)} value={v.date} onChange={set("date")} onBlur={blur("date")} />
-          </Field>
-          <Field label="Number of anglers" error={f.errors.guests}>
-            <AnglerStepper value={v.guests} onChange={(n) => f.set("guests", n)} onBlur={blur("guests")} />
-          </Field>
-        </div>
         <Field label="Type of fishing" error={f.errors.experience}>
           <select name="experience" className="field" value={v.experience} onChange={set("experience")} onBlur={blur("experience")}>
             <option value="" disabled>
@@ -145,11 +143,42 @@ export function BookingForm() {
               Choose a trip length
             </option>
             {rates.map((r) => (
-              <option key={r.hours} value={String(r.hours)}>
+              <option key={r.hours} value={String(r.hours)} disabled={!!allowedHours && !allowedHours.includes(r.hours)}>
                 {r.name}, {r.hours} hours ({formatPrice(r.price)})
+                {allowedHours && !allowedHours.includes(r.hours) ? " (not on Mondays)" : ""}
               </option>
             ))}
           </select>
+        </Field>
+        <div>
+          <p id="date-label" className="field-label">
+            Preferred fishing date
+          </p>
+          <p id="date-hint" className="-mt-0.5 mb-3 text-sm text-ink-soft">
+            Trips run {scheduleSummary}. Greyed-out dates aren&apos;t available.
+          </p>
+          <DateCalendar
+            id="date-field"
+            value={v.date}
+            invalid={!!f.errors.date}
+            describedBy={`date-label date-hint${f.errors.date ? " date-error" : ""}`}
+            onChange={(d) => {
+              const s = dayStatus(d);
+              const fits = s.open && s.hours.map(String).includes(v.tripLength);
+              f.setMany(fits || !s.open || !v.tripLength ? { date: d } : { date: d, tripLength: String(s.open ? s.hours[0] : "") });
+            }}
+          />
+          {mondayNote && (
+            <p className="mt-2 text-sm text-orange-ink">Monday trips are morning half days (4 hours).</p>
+          )}
+          {f.errors.date && (
+            <p id="date-error" className="field-error">
+              {f.errors.date}
+            </p>
+          )}
+        </div>
+        <Field label="Number of anglers" error={f.errors.guests}>
+          <AnglerStepper value={v.guests} onChange={(n) => f.set("guests", n)} onBlur={blur("guests")} />
         </Field>
         <Field
           label="Questions or comments"

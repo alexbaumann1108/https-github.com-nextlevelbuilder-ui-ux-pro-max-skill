@@ -19,6 +19,7 @@ The single source of truth for contact details on the website and in print.
 | Half day (4 hours) | $600 per trip | Confirmed by owner |
 | Three-quarter day (6 hours) | $900 per trip | Confirmed by owner |
 | Full day (8 hours) | $1,200 per trip | Confirmed by owner |
+| Availability | Monday mornings (half day only), Tuesday to Friday | Confirmed by owner |
 | Fishing license | Provided through the captain; guests don't buy their own | Confirmed by owner |
 
 ## Older versions
