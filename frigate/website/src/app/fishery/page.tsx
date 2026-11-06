@@ -39,7 +39,7 @@ export default function FisheryPage() {
         >
           <div className="shell grid items-center gap-12 lg:grid-cols-12">
             <div className={`relative lg:col-span-6 ${i % 2 ? "lg:order-2" : ""}`}>
-              <div className="relative aspect-[4/5] overflow-hidden rounded-[3px] bg-seafoam-pale sm:aspect-[5/4] lg:aspect-[4/5]">
+              <div className="relative aspect-square overflow-hidden rounded-[3px] bg-seafoam-pale sm:aspect-[5/4] lg:aspect-square">
                 {e.photo ? (
                   <Photo photo={e.photo} sizes="(min-width: 1024px) 50vw, 100vw" />
                 ) : (

@@ -73,7 +73,7 @@ export const experiences: Experience[] = [
     photo: {
       src: "/photos/redfish-on-the-fly-backcountry.jpg",
       alt: "An angler holding a big redfish caught on a fly rod, calm water behind",
-      position: "60% 55%",
+      position: "25% 55%",
     },
   },
 ];

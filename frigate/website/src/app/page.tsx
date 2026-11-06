@@ -126,7 +126,7 @@ export default function Home() {
             {experiences.map((e, i) => (
               <article key={e.slug} className={`flex flex-col ${i === 1 ? "md:mt-16" : ""}`}>
                 <Link href={`/fishery#${e.slug}`} tabIndex={-1} aria-hidden="true" className="group relative block">
-                  <div className="relative aspect-[4/5] overflow-hidden rounded-[3px] bg-seafoam-pale">
+                  <div className="relative aspect-square overflow-hidden rounded-[3px] bg-seafoam-pale">
                     {e.photo ? (
                       <Photo
                         photo={e.photo}
