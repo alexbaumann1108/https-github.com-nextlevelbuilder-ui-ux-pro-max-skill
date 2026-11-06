@@ -17,7 +17,7 @@ export default function CaptainPage() {
     <>
       <PageHeader
         label="Meet your captain"
-        title={captain.name ?? "A local who knows these waters"}
+        title={captain.name ?? "A captain who knows these waters"}
         lede={captain.intro}
         art="fly-caster"
       />

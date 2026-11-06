@@ -168,7 +168,7 @@ export default function Home() {
           <div className="md:col-span-7 md:pl-6">
             <p className="label text-orange-ink">Meet your captain</p>
             <h2 id="captain-title" className="display-lg mt-3">
-              {captain.name ?? "A local who knows these waters"}
+              {captain.name ?? "A captain who knows these waters"}
             </h2>
             <p className="lede mt-5 text-ink-soft">{captain.intro}</p>
             <ul className="mt-8 grid gap-3 sm:grid-cols-2">
