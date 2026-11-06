@@ -6,7 +6,7 @@ The single source of truth for contact details on the website and in print.
 | --- | --- | --- |
 | Business name | Frigate Fly & Light Tackle Charters | Confirmed (card and brand board) |
 | Phone | (704) 999-0571 | Confirmed (card and brand board) |
-| Email | CaptainAlex@frigatefly.com | Confirmed by owner (Google Workspace). Booking notifications go to frigateflycharters@gmail.com until the domain is verified with Resend |
+| Email | CaptainAlex@frigatefly.com | Confirmed by owner (Google Workspace). Booking emails are sent from bookings@frigatefly.com to this address |
 | Instagram | @frigate_fly (instagram.com/frigate_fly) | Confirmed by owner |
 | Location | Sanibel Island, FL | Confirmed by owner |
 | Service area | Sanibel, Captiva, Pine Island Sound, Fort Myers and surrounding SW Florida | Confirmed by owner |

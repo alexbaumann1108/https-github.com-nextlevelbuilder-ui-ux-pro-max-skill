@@ -8,10 +8,10 @@ import { slotLabel, type Slot } from "@/lib/availability";
  * Emails each inquiry to the owner through Resend (resend.com).
  *
  * RESEND_API_KEY  Resend API key.
- * OWNER_EMAIL     Where inquiries go (defaults to the site email).
- * EMAIL_FROM      Sender. Until you verify a domain with Resend, keep the
- *                 default; Resend then only delivers to your own account
- *                 email, which is all this needs.
+ * OWNER_EMAIL     Where inquiries go (defaults to the site email,
+ *                 CaptainAlex@frigatefly.com).
+ * EMAIL_FROM      Sender (defaults to bookings@frigatefly.com, a domain
+ *                 verified in Resend).
  *
  * Booking emails include a "Confirm & add to my calendar" button that opens
  * Google Calendar with the trip filled in. Saving it to the bookings
@@ -36,17 +36,9 @@ export type Inquiry = Booking | Contact;
 
 export const emailConfigured = () => !!process.env.RESEND_API_KEY;
 
-/**
- * The Resend account's login email. Resend's shared test sender
- * (onboarding@resend.dev) can only deliver there, so booking emails go to it
- * until EMAIL_FROM is set to an address on frigatefly.com (verified in Resend).
- */
-const resendAccountEmail = "frigateflycharters@gmail.com";
-
-function ownerInbox() {
-  if (process.env.OWNER_EMAIL) return process.env.OWNER_EMAIL;
-  return process.env.EMAIL_FROM ? site.email : resendAccountEmail;
-}
+/** frigatefly.com is verified with Resend, so mail can come from the domain. */
+const sender = () => process.env.EMAIL_FROM || "Frigate Fly Charters <bookings@frigatefly.com>";
+const ownerInbox = () => process.env.OWNER_EMAIL || site.email;
 
 const esc = (s: string) =>
   s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
@@ -193,7 +185,7 @@ export async function emailOwner(inq: Inquiry) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: process.env.EMAIL_FROM || "Frigate Website <onboarding@resend.dev>",
+      from: sender(),
       to: [ownerInbox()],
       reply_to: inq.email,
       subject,
