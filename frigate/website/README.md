@@ -125,6 +125,24 @@ pretends an inquiry was sent.
 (FareHarbor, Peek, Checkfront, Calendly...) and a "Book online" link appears
 beside the form.
 
+## Booking emails
+
+Each booking request is emailed to you through **Resend** (resend.com, free
+for this volume) with every detail and two buttons:
+
+- **Confirm & add to my calendar** opens Google Calendar with the trip
+  filled in (suggested times in `src/content/availability.ts`). Check the
+  calendar is set to **Frigate Fly Bookings** and save: that blocks the time
+  on the website within about 5 minutes.
+- **Reply to confirm** opens a ready-written confirmation email to the
+  customer.
+
+Setup: create a Resend account **with frigateflycharters@gmail.com**, make an
+API key (API Keys → Create), and set `RESEND_API_KEY` in your host. Until you
+verify your own domain with Resend, emails come from
+`onboarding@resend.dev` and can only go to your Resend account email, which
+is where these go.
+
 ## Booking calendar (blocks booked dates)
 
 The booking form shows a calendar. Customers can only pick days you run
@@ -180,6 +198,8 @@ its half-day slots (`"am"`, `"pm"`) and whether longer trips run
 | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | Your domain, e.g. `https://www.frigatefly.com` (canonical links, sitemap, social cards) |
 | `INQUIRY_WEBHOOK_URL` | Where booking inquiries are delivered |
+| `RESEND_API_KEY` | Sends each booking request to your email |
+| `OWNER_EMAIL` | Optional: where requests go (defaults to the site email) |
 | `BOOKING_CALENDAR_ICS_URL` | Secret iCal address of your bookings calendar; its events block dates |
 | `NEXT_PUBLIC_SHOW_PLACEHOLDERS` | `false` at launch hides the dashed "To fill in" notes |
 

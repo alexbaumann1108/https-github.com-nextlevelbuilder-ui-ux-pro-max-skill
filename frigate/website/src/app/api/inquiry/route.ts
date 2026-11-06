@@ -1,6 +1,7 @@
 import { inquirySchema, toFieldErrors, type InquiryResponse } from "@/lib/inquiry";
 import { getBooked } from "@/lib/booked-dates";
 import { availabilityProblem } from "@/lib/availability";
+import { emailConfigured, emailOwner, type Inquiry } from "@/lib/notify";
 
 /**
  * Receives booking requests and contact messages.
@@ -85,8 +86,9 @@ export async function POST(request: Request) {
   void _honeypot;
   const payload = { ref, receivedAt: new Date().toISOString(), ...data };
   const webhook = process.env.INQUIRY_WEBHOOK_URL;
+  const email = emailConfigured();
 
-  if (!webhook) {
+  if (!webhook && !email) {
     if (process.env.NODE_ENV === "production") {
       return reply(
         {
@@ -97,18 +99,21 @@ export async function POST(request: Request) {
         503,
       );
     }
-    console.info(`[inquiry] ${ref} (${data.kind}) received in development. Not delivered: INQUIRY_WEBHOOK_URL is not set.`);
+    console.info(`[inquiry] ${ref} (${data.kind}) received in development. Not delivered: no email or webhook set.`);
     return reply({ ok: true, ref, delivered: false });
   }
 
   try {
-    const res = await fetch(webhook, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(8000),
-    });
-    if (!res.ok) throw new Error(`Webhook responded ${res.status}`);
+    if (email) await emailOwner({ ref, ...data } as Inquiry);
+    if (webhook) {
+      const res = await fetch(webhook, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(8000),
+      });
+      if (!res.ok) throw new Error(`Webhook responded ${res.status}`);
+    }
   } catch (err) {
     console.error(`[inquiry] ${ref} delivery failed:`, err instanceof Error ? err.message : err);
     return reply(

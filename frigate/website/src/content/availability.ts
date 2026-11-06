@@ -25,3 +25,16 @@ export const bookingWindowDays = 365;
 
 /** Plain-language summary shown on the booking page. */
 export const scheduleSummary = "Monday mornings, and Tuesday through Friday";
+
+/**
+ * Suggested times for the calendar event created when you confirm a trip.
+ * You can change them in Google Calendar before saving. A morning event
+ * blocks the morning, an afternoon event the afternoon, and anything that
+ * runs past noon from the morning blocks the whole day.
+ */
+export const slotTimes: Record<string, { start: string; end: string }> = {
+  am: { start: "07:00", end: "11:00" }, // half day, morning
+  pm: { start: "13:00", end: "17:00" }, // half day, afternoon
+  "6h": { start: "07:00", end: "13:00" }, // three-quarter day
+  "8h": { start: "07:00", end: "15:00" }, // full day
+};
