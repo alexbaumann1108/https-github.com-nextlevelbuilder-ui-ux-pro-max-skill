@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 };
 
 const steps = [
-  { title: "Pick an open date", body: "Greyed-out days are already booked or not running. Trips run Monday mornings and Tuesday through Friday." },
+  { title: "Pick an open date", body: "Crossed-out days aren't available. Trips run Monday mornings and Tuesday through Friday." },
   { title: "We confirm by email or phone", body: "We check the tides and get back to you to plan the day." },
   { title: "You're booked", body: "Once we've confirmed, your date comes off the calendar so no one else can request it." },
 ];

@@ -202,7 +202,7 @@ export function BookingForm() {
             Preferred fishing date
           </p>
           <p id="date-hint" className="-mt-0.5 mb-3 text-sm text-ink-soft">
-            Trips run {scheduleSummary}. Greyed-out dates aren&apos;t available.
+            Trips run {scheduleSummary}. Crossed-out dates aren&apos;t available.
           </p>
           <DateCalendar
             id="date-field"

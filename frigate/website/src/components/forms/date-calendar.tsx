@@ -138,7 +138,6 @@ export function DateCalendar({
           if (!d) return <span key={`e${i}`} aria-hidden="true" />;
           const s = dayStatus(d, booked);
           const selected = d === value;
-          const isBooked = !s.open && s.reason === "booked";
           // Only one half day left (or a Monday): show which one.
           const only = s.open && s.freeSlots.length === 1 ? s.freeSlots[0] : null;
           const label = `${longDate(d)}, ${
@@ -146,9 +145,7 @@ export function DateCalendar({
               ? only
                 ? `${only === "am" ? "morning" : "afternoon"} available`
                 : "morning and afternoon available"
-              : isBooked
-                ? "fully booked"
-                : "not available"
+              : "not available"
           }`;
           return (
             <button
@@ -165,7 +162,7 @@ export function DateCalendar({
                   : s.open
                     ? "font-semibold text-ink hover:bg-seafoam-pale"
                     : "text-ink/30"
-              } ${isBooked ? "line-through decoration-orange-ink/70" : ""}`}
+              } ${s.open ? "" : "line-through decoration-orange-ink/70"}`}
             >
               {Number(d.slice(8))}
               {only && (
@@ -186,7 +183,7 @@ export function DateCalendar({
           <span className="label text-orange-ink">AM</span>/<span className="label text-orange-ink">PM</span> only that half day open
         </span>
         <span>
-          <span className="line-through decoration-orange-ink/70">12</span> fully booked
+          <span className="line-through decoration-orange-ink/70">12</span> not available
         </span>
         {state === "loading" && <span>Checking the calendar…</span>}
         {state === "offline" && <span>Couldn&apos;t check the latest bookings; we&apos;ll confirm your date.</span>}
