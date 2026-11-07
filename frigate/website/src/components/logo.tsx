@@ -10,11 +10,14 @@ export function Logo({
   variant = "wordmark",
   className = "",
   priority,
+  sizes = "240px",
 }: {
   tone?: "light" | "dark";
   variant?: "wordmark" | "full";
   className?: string;
   priority?: boolean;
+  /** How wide it shows, for loading a sharp copy. */
+  sizes?: string;
 }) {
   const color = tone === "light" ? "white" : "black";
   const src =
@@ -29,7 +32,7 @@ export function Logo({
       width={w}
       height={h}
       priority={priority}
-      sizes="240px"
+      sizes={sizes}
       className={`h-auto ${className}`}
     />
   );

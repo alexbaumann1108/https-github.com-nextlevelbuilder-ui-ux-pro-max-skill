@@ -6,6 +6,7 @@ import { fwc } from "@/content/links";
 import { site } from "@/content/site";
 import { FishSketch, type Species } from "./fish-sketch";
 import { Illustration, type ArtName } from "./illustration";
+import { Logo } from "./logo";
 
 /** A photo that fills its positioned parent. */
 export function Photo({
@@ -222,7 +223,7 @@ export function BookingBand({
           </div>
         </div>
         <div className="md:col-span-5">
-          <FishSketch species="tarpon" className="w-full text-parchment/70" />
+          <Logo tone="light" variant="full" sizes="(min-width: 768px) 420px, 80vw" className="mx-auto w-full max-w-[420px] opacity-90" />
         </div>
       </div>
       <Illustration name="palm-sunset" className="w-full text-parchment/25" />
