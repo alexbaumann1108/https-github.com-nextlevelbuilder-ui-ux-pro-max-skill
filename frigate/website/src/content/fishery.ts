@@ -62,11 +62,11 @@ export const experiences: Experience[] = [
     body: [
       "Tarpon are the fish people travel to Florida for: big, acrobatic and unforgettable on a fly rod or heavier tackle.",
       "The big tarpon are seasonal. They arrive along the beaches in late April or early May and stay through August, and that's when we chase them on fly or heavier tackle. They're too big to fight on light tackle.",
-      "Juvenile tarpon are here year-round, so there's a tarpon to cast to in every season.",
+      "Juvenile tarpon are here year-round, and they're a blast on fly or light tackle, so there's a tarpon to cast to in every season.",
     ],
     notes: [
       { label: "Where", value: "The beaches and Pine Island Sound" },
-      { label: "How", value: "Fly or heavier tackle" },
+      { label: "How", value: "Big tarpon: fly or heavier tackle. Juveniles: fly or light tackle" },
       { label: "Fish", value: "Big migrating tarpon and juvenile tarpon" },
       { label: "Season", value: "Big tarpon late April or early May to August; juveniles year-round" },
     ],
