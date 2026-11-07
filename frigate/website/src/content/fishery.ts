@@ -83,7 +83,8 @@ export const experiences: Experience[] = [
       "The mangroves, grass flats and backcountry creeks, in search of redfish, snook and other inshore species.",
     body: [
       "Behind the islands, the backcountry opens into mangrove shorelines, grass flats and quiet creeks.",
-      "Redfish push along the edges and tail on the flats, with snook, trout and other inshore species mixed in. It's sight fishing in skinny water.",
+      "Redfish push along the mangrove edges and cruise the flats, with snook, trout and other inshore species mixed in. It's sight fishing in skinny water.",
+      "And if we're lucky, we'll find tailing reds: fish feeding head-down in inches of water with their tails waving above the surface. Sneaking up on a tailing redfish and laying a fly or bait in front of it is one of the best shots in the backcountry.",
     ],
     notes: [
       { label: "Where", value: "Mangroves, grass flats and backcountry creeks" },
