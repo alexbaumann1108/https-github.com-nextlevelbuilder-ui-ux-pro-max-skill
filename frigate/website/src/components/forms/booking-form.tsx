@@ -7,6 +7,7 @@ import { site, showPlaceholders } from "@/content/site";
 import { rates, formatPrice } from "@/content/rates";
 import { bookingSchema, experienceOptions } from "@/lib/inquiry";
 import { experiences } from "@/content/fishery";
+import { cancellationPolicy } from "@/content/policies";
 import { dayStatus, slotLabel, type Booked, type Slot } from "@/lib/availability";
 import { scheduleSummary } from "@/content/availability";
 import { DateCalendar } from "./date-calendar";
@@ -42,6 +43,7 @@ export function BookingForm() {
       tripLength: "",
       slot: "",
       message: "",
+      policy: "",
       website: "",
     },
     "booking",
@@ -84,6 +86,14 @@ export function BookingForm() {
             </div>
           ))}
         </dl>
+        <div className="mt-8 border-t border-tan/50 pt-6 text-sm">
+          <p className="label text-ink-soft">{cancellationPolicy.title}</p>
+          <ul className="mt-2 list-disc space-y-1 pl-5 text-ink-soft">
+            {cancellationPolicy.items.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </div>
         <div className="mt-10 flex flex-col gap-3 sm:flex-row">
           <Link href="/fishery" className="btn btn-ink">
             Read about the fishery
@@ -264,6 +274,37 @@ export function BookingForm() {
           </label>
         </div>
       </fieldset>
+
+      <div
+        data-field="policy"
+        tabIndex={-1}
+        className="scroll-mt-32 rounded-[3px] border-[1.5px] border-tan bg-paper/70 p-5 outline-none sm:p-6"
+      >
+        <h3 className="font-display text-[1.35rem]">{cancellationPolicy.title}</h3>
+        <p className="mt-2 text-sm text-ink-soft">{cancellationPolicy.intro}</p>
+        <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm text-ink">
+          {cancellationPolicy.items.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+        <label className="mt-5 flex cursor-pointer items-start gap-3 font-semibold">
+          <input
+            type="checkbox"
+            name="policy"
+            className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--color-seafoam-deep)]"
+            checked={v.policy === "yes"}
+            onChange={(e) => f.set("policy", e.target.checked ? "yes" : "")}
+            aria-invalid={!!f.errors.policy}
+            aria-describedby={f.errors.policy ? "policy-error" : undefined}
+          />
+          <span>{cancellationPolicy.agree}</span>
+        </label>
+        {f.errors.policy && (
+          <p id="policy-error" className="field-error mt-2">
+            {f.errors.policy}
+          </p>
+        )}
+      </div>
 
       <div className="space-y-4">
         <button type="submit" className="btn btn-primary w-full sm:w-auto" disabled={submitting}>

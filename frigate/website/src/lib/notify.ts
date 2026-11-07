@@ -3,6 +3,7 @@ import { rates, formatPrice } from "@/content/rates";
 import { experienceOptions } from "@/lib/inquiry";
 import { slotTimes } from "@/content/availability";
 import { slotLabel, type Slot } from "@/lib/availability";
+import { cancellationPolicy } from "@/content/policies";
 
 /**
  * Emails each inquiry to the owner through Resend (resend.com).
@@ -109,7 +110,7 @@ function bookingEmail(b: Booking) {
 
   const reply = `mailto:${b.email}?${new URLSearchParams({
     subject: `Your Frigate trip on ${longDate(b.date)} is confirmed`,
-    body: `Hi ${first},\n\nYou're booked! ${exp}, ${when.toLowerCase()}, on ${longDate(b.date)}, for ${b.guests} angler${b.guests === 1 ? "" : "s"}${rate ? ` (${rate.name}, ${formatPrice(rate.price)})` : ""}.\n\nI'll be in touch the day before with the meeting spot and time.\n\nTight lines,\n${site.name}\n${site.phone}`,
+    body: `Hi ${first},\n\nYou're booked! ${exp}, ${when.toLowerCase()}, on ${longDate(b.date)}, for ${b.guests} angler${b.guests === 1 ? "" : "s"}${rate ? ` (${rate.name}, ${formatPrice(rate.price)})` : ""}.\n\nI'll be in touch the day before with the meeting spot and time.\n\n${cancellationPolicy.title}: ${cancellationPolicy.intro}\n${cancellationPolicy.items.map((i) => `- ${i}`).join("\n")}\n\nTight lines,\n${site.name}\n${site.phone}`,
   })
     .toString()
     .replace(/\+/g, "%20")}`;
@@ -124,6 +125,7 @@ function bookingEmail(b: Booking) {
     ["Phone", b.phone],
     ["Email", b.email],
     ["Notes", b.message || "None"],
+    ["Cancellation policy", "Agreed"],
     ["Reference", b.ref],
   ];
 

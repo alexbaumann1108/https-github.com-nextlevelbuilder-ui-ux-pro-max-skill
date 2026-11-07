@@ -65,6 +65,7 @@ export const bookingSchema = z.object({
   // Half days only: morning or afternoon. Longer trips take the whole day.
   slot: z.enum(["am", "pm", ""]).default(""),
   message: z.string().trim().max(2000, "Keep your message under 2,000 characters.").default(""),
+  policy: z.literal("yes", { error: "Please agree to the cancellation policy to send your request." }),
   website: z.string().max(0).optional(), // honeypot
 }).superRefine((data, ctx) => {
   // Weekly schedule (booked dates are checked on the server).
