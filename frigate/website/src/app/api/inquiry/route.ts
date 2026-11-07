@@ -1,5 +1,6 @@
 import { inquirySchema, toFieldErrors, type InquiryResponse } from "@/lib/inquiry";
-import { getBooked } from "@/lib/booked-dates";
+import { getTaken } from "@/lib/taken";
+import { placeHold, releaseHold, type Hold } from "@/lib/holds";
 import { availabilityProblem } from "@/lib/availability";
 import { emailConfigured, emailOwner, type Inquiry } from "@/lib/notify";
 
@@ -70,7 +71,7 @@ export async function POST(request: Request) {
 
   // A date can be booked between loading the form and sending it.
   if (parsed.data.kind === "booking") {
-    const { booked } = await getBooked();
+    const { booked } = await getTaken();
     const d = parsed.data;
     const problem = availabilityProblem(d.date, Number(d.tripLength), d.slot, booked);
     if (problem) {
@@ -103,8 +104,36 @@ export async function POST(request: Request) {
     return reply({ ok: true, ref, delivered: false });
   }
 
+  // Hold the time right away so nobody else can book it before the captain
+  // confirms. The email has a button to deny the request and reopen it.
+  let hold: Hold | null | undefined;
+  if (data.kind === "booking") {
+    try {
+      hold = await placeHold({
+        ref,
+        date: data.date,
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        experience: data.experience,
+        tripLength: data.tripLength,
+        slot: data.slot,
+        guests: data.guests,
+        message: data.message,
+      });
+    } catch (err) {
+      console.error(`[inquiry] ${ref} could not hold the time:`, err instanceof Error ? err.message : err);
+    }
+    if (hold === null) {
+      return reply(
+        { ok: false, error: "That time has just been booked.", fieldErrors: { date: "That time was just requested by someone else. Choose another date or time." } },
+        409,
+      );
+    }
+  }
+
   try {
-    if (email) await emailOwner({ ref, ...data } as Inquiry);
+    if (email) await emailOwner({ ref, ...data, hold: hold ?? undefined } as Inquiry);
     if (webhook) {
       const res = await fetch(webhook, {
         method: "POST",
@@ -116,6 +145,8 @@ export async function POST(request: Request) {
     }
   } catch (err) {
     console.error(`[inquiry] ${ref} delivery failed:`, err instanceof Error ? err.message : err);
+    // The captain never heard about it, so don't keep the time blocked.
+    if (hold) await releaseHold(hold).catch(() => {});
     return reply(
       {
         ok: false,

@@ -1,9 +1,9 @@
 import { connection } from "next/server";
-import { getBooked } from "@/lib/booked-dates";
+import { getTaken } from "@/lib/taken";
 
-/** Booked half days for the booking calendar. Read fresh on each request. */
+/** Taken half days (calendar trips and held requests). Read fresh on each request. */
 export async function GET() {
   await connection();
-  const { configured, ok, booked } = await getBooked();
+  const { configured, ok, booked } = await getTaken();
   return Response.json({ configured, ok, booked }, { headers: { "Cache-Control": "no-store" } });
 }
