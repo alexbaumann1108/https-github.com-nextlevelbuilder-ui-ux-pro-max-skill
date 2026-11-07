@@ -18,8 +18,10 @@ export const fwc = {
 export const windfinder = {
   forecast: "https://www.windfinder.com/forecast/sanibel_island",
   superforecast: "https://www.windfinder.com/weatherforecast/sanibel_island",
-  tides: "https://www.windfinder.com/tide/sanibel_island",
 };
+
+/** NOAA tide predictions for the station the captain uses. */
+export const noaaTides = "https://tidesandcurrents.noaa.gov/noaatidepredictions.html?id=8725362";
 
 /** SCCF RECON: live readings from its weather stations around Sanibel. */
 export const sccfRecon = {

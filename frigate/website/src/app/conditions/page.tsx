@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { sccfRecon, windfinder } from "@/content/links";
+import { noaaTides, sccfRecon, windfinder } from "@/content/links";
 import { BookingBand, PageHeader, Regulations } from "@/components/ui";
 
 export const metadata: Metadata = {
   title: "Conditions: Sanibel Wind, Weather & Tides",
   description:
-    "Wind, weather and tide forecasts for fishing Sanibel Island from Windfinder, plus live readings from SCCF's RECON weather stations. Check the conditions before your trip.",
+    "Wind and weather forecasts for fishing Sanibel Island from Windfinder, NOAA tide predictions and live readings from SCCF's RECON weather stations. Check the conditions before your trip.",
   alternates: { canonical: "/conditions" },
 };
 
 const sources = [
   { title: "Wind forecast", body: "Hourly wind speed, gusts and direction for the coming days.", href: windfinder.forecast, site: "Windfinder" },
-  { title: "Tides", body: "High and low tide times for Sanibel Island.", href: windfinder.tides, site: "Windfinder" },
+  { title: "Tides", body: "High and low tide predictions from NOAA.", href: noaaTides, site: "NOAA" },
   {
     title: "Live conditions",
     body: "The latest wind, gusts, temperature and pressure from SCCF's RECON weather stations around Sanibel.",
@@ -50,7 +50,7 @@ export default function ConditionsPage() {
               Forecasts and live conditions
             </h2>
             <p className="mt-4 text-ink-soft">
-              Forecasts and tides from Windfinder, and live readings from SCCF&apos;s RECON stations. Each link opens in a new tab.
+              Forecasts from Windfinder, tides from NOAA and live readings from SCCF&apos;s RECON stations. Each link opens in a new tab.
             </p>
           </div>
           <ul className="grid gap-4 sm:grid-cols-2 lg:col-span-8">

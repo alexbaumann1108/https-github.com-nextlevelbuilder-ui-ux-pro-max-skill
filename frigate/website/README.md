@@ -12,7 +12,7 @@ Next.js 16, React 19, TypeScript and Tailwind CSS 4.
 | `/boat` | The 1720 Action Craft Fly Fisher SE, specifications and equipment |
 | `/gallery` | Photo gallery with categories (`/gallery#snook` opens one category) |
 | `/reports` | Fishing reports, and a page for each report |
-| `/conditions` | Windfinder wind, tide and live forecasts for Sanibel, plus regulations |
+| `/conditions` | Windfinder forecasts, NOAA tides and SCCF RECON live readings for Sanibel, plus regulations |
 | `/book` | Booking inquiry form, phone, email, Instagram and map |
 | `/privacy` | Privacy notice |
 
@@ -53,7 +53,7 @@ to touch the page code.
 | Boat description, photos, specifications | `src/content/boat.ts` |
 | Rates | `src/content/rates.ts` |
 | Gallery photos and categories | `src/content/gallery.ts` |
-| FWC and Windfinder links | `src/content/links.ts` |
+| FWC, Windfinder, NOAA and SCCF RECON links | `src/content/links.ts` |
 
 ### Captain
 
