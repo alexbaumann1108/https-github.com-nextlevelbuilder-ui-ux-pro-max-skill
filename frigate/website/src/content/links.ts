@@ -19,5 +19,9 @@ export const windfinder = {
   forecast: "https://www.windfinder.com/forecast/sanibel_island",
   superforecast: "https://www.windfinder.com/weatherforecast/sanibel_island",
   tides: "https://www.windfinder.com/tide/sanibel_island",
-  liveWind: "https://www.windfinder.com/report/sanibel-island-water-association",
+};
+
+/** SCCF RECON: live readings from its weather stations around Sanibel. */
+export const sccfRecon = {
+  latestReadings: "https://recon.sccf.org/weather",
 };

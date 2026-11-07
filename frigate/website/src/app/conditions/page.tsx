@@ -1,20 +1,25 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { windfinder } from "@/content/links";
+import { sccfRecon, windfinder } from "@/content/links";
 import { BookingBand, PageHeader, Regulations } from "@/components/ui";
 
 export const metadata: Metadata = {
   title: "Conditions: Sanibel Wind, Weather & Tides",
   description:
-    "Wind, weather and tide forecasts for fishing Sanibel Island, from Windfinder. Check the conditions before your trip.",
+    "Wind, weather and tide forecasts for fishing Sanibel Island from Windfinder, plus live readings from SCCF's RECON weather stations. Check the conditions before your trip.",
   alternates: { canonical: "/conditions" },
 };
 
 const sources = [
-  { title: "Wind forecast", body: "Hourly wind speed, gusts and direction for the coming days.", href: windfinder.forecast },
-  { title: "Tides", body: "High and low tide times for Sanibel Island.", href: windfinder.tides },
-  { title: "Live wind", body: "What the wind is doing right now at the nearest Sanibel station.", href: windfinder.liveWind },
-  { title: "Superforecast", body: "Windfinder's higher-resolution forecast for the next few days.", href: windfinder.superforecast },
+  { title: "Wind forecast", body: "Hourly wind speed, gusts and direction for the coming days.", href: windfinder.forecast, site: "Windfinder" },
+  { title: "Tides", body: "High and low tide times for Sanibel Island.", href: windfinder.tides, site: "Windfinder" },
+  {
+    title: "Live conditions",
+    body: "The latest wind, gusts, temperature and pressure from SCCF's RECON weather stations around Sanibel.",
+    href: sccfRecon.latestReadings,
+    site: "SCCF RECON",
+  },
+  { title: "Superforecast", body: "Windfinder's higher-resolution forecast for the next few days.", href: windfinder.superforecast, site: "Windfinder" },
 ];
 
 export default function ConditionsPage() {
@@ -42,10 +47,10 @@ export default function ConditionsPage() {
         <div className="shell grid gap-12 lg:grid-cols-12">
           <div className="lg:col-span-4">
             <h2 id="sources-title" className="display-md">
-              Live forecasts
+              Forecasts and live conditions
             </h2>
             <p className="mt-4 text-ink-soft">
-              Each link opens Windfinder&apos;s page for Sanibel Island in a new tab.
+              Forecasts and tides from Windfinder, and live readings from SCCF&apos;s RECON stations. Each link opens in a new tab.
             </p>
           </div>
           <ul className="grid gap-4 sm:grid-cols-2 lg:col-span-8">
@@ -60,7 +65,7 @@ export default function ConditionsPage() {
                   <span className="font-display text-[1.6rem] leading-tight">{s.title}</span>
                   <span className="mt-2 flex-1 text-ink-soft">{s.body}</span>
                   <span className="label mt-6 text-seafoam-deep group-hover:underline">
-                    View on Windfinder<span className="sr-only"> (opens in a new tab)</span>
+                    View on {s.site}<span className="sr-only"> (opens in a new tab)</span>
                   </span>
                 </a>
               </li>
