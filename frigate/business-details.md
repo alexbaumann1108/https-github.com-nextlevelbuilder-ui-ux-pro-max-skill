@@ -21,7 +21,7 @@ The single source of truth for contact details on the website and in print.
 | Full day (8 hours) | $1,200 per trip | Confirmed by owner |
 | Availability | Monday mornings (half day only), Tuesday to Friday; two half days (morning and afternoon) per day | Confirmed by owner |
 | Fishing license | Provided through the captain; guests don't buy their own | Confirmed by owner |
-| Captain | Capt. Alex, from Charlotte, NC; started fly fishing for trout in the NC mountains; six years fishing around Sanibel; specializes in fly fishing and sight fishing | Confirmed by owner |
+| Captain | Capt. Alex Baumann, from Charlotte, NC; started fly fishing for trout in the NC mountains; six years fishing around Sanibel; specializes in fly fishing and sight fishing | Confirmed by owner |
 | Affiliations | Works part-time at Sanibel Fly Outfitters; board member, Sanibel Fly Fishers Club | Confirmed by owner |
 
 ## Older versions
