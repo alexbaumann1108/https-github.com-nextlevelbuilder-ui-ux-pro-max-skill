@@ -4,8 +4,8 @@
  * paragraph.
  */
 export const captain = {
-  /** e.g. "Capt. Jake Smith". Leave null to show "Your captain". */
-  name: null as string | null,
+  /** Shown as the heading. Set to null to show "A captain who knows these waters". */
+  name: "Capt. Alex" as string | null,
   photo: {
     src: "/photos/snook-wading-big-fish-1.jpg",
     alt: "The captain wading in clear water, holding a big snook",

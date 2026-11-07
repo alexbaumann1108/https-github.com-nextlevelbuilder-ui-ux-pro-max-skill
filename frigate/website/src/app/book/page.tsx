@@ -25,7 +25,7 @@ export default function BookPage() {
       <PageHeader
         label="Book a trip"
         title="Send a booking inquiry"
-        lede="Pick an open date and send your request. Your captain will get back to you to confirm and plan the day."
+        lede="Pick an open date and send your request. Capt. Alex will get back to you to confirm and plan the day."
         art="emblem"
       />
 
