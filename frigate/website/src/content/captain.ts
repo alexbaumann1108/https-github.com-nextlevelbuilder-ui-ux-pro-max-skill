@@ -18,14 +18,13 @@ export const captain = {
     position: "50% 40%",
   },
   intro:
-    "A young, local Southwest Florida fisherman who has spent years learning the waters around Sanibel Island: the beaches, the passes, the sound and the backcountry.",
+    "A young fly fisherman from Charlotte, North Carolina, who has spent the last six years fishing the beaches, the passes, Pine Island Sound and the backcountry around Sanibel Island.",
   /** Your story, one string per paragraph. Edit freely. */
   bio: [
-    "I grew up on the water in Southwest Florida, and the fishing here got hold of me early. What started as tossing a line wherever I could reach turned into years spent learning the beaches, the passes, Pine Island Sound and the backcountry around Sanibel.",
-    "The fly rod is what changed everything. There's nothing like wading the beach at first light, watching a snook slide along the trough, and putting a fly in front of it. That's sight fishing at its best: you see the fish, you make the cast, and you find out right away if you got it right.",
-    "From there it was tarpon, rolling off the beaches and in the passes during the migration, and the juvenile tarpon that stay through the year. Then the backcountry: tailing redfish over the flats and along the mangroves, where a quiet approach matters more than anything. I run a 1720 Action Craft Fly Fisher SE because it floats skinny and poles quietly, which is exactly what these fish demand.",
-    "Frigate is how I share it. Every trip is just you, me and one boat, built around the tides, the weather and what you want out of the day. Whether you've never cast a fly or you've been chasing tarpon for years, I'll put you on the best shots the day has to offer.",
-    "I handle every fish carefully and release them quickly. These waters gave me everything I know, and I want them to be just as good for the next angler and the next generation.",
+    "I'm from Charlotte, North Carolina, and I got my start fly fishing for trout in the North Carolina mountains. That's where I fell for the fly rod.",
+    "Then I found the salt, and I've enjoyed it a lot more ever since. For the last six years I've fished the waters around Sanibel: the beaches, the passes, Pine Island Sound and the backcountry.",
+    "Fly fishing is my specialty, and sight fishing is what I really love: seeing the fish, making the cast and watching it eat. A snook cruising the beach, a tarpon rolling off the sand, a redfish pushing along the mangroves. That moment is why I do this.",
+    "When I'm not on the water with clients, I work part-time at Sanibel Fly Outfitters, and I serve on the board of the Sanibel Fly Fishers Club.",
   ] as string[],
   specialties: [
     "Fly fishing for beach snook",

@@ -7,7 +7,7 @@ import { BookingBand, PageHeader, Photo, PlaceholderNote } from "@/components/ui
 export const metadata: Metadata = {
   title: "Meet Your Captain",
   description:
-    "Your Sanibel Island fishing guide: a young local Southwest Florida fisherman specializing in fly fishing for beach snook, tarpon, backcountry sight fishing and light tackle.",
+    "Your Sanibel Island fishing guide: a young fly fisherman from Charlotte, North Carolina, with six years on the waters around Sanibel, specializing in sight fishing for beach snook, tarpon and backcountry redfish.",
   alternates: { canonical: "/captain" },
 };
 
