@@ -15,7 +15,11 @@ export type Experience = {
   /** Leave undefined until there's a real photo; the sketch stands in. */
   photo?: Photo;
   /** For seasonal fisheries: usual first and last month (1 = January). */
-  season?: { from: number; to: number; label: string; note: string };
+  /**
+   * Season info. `from`/`to` (1 = January) are optional: when set, the booking
+   * form flags dates outside them.
+   */
+  season?: { from?: number; to?: number; label: string; note: string };
 };
 
 /** The three fisheries, in the owner's words. */
@@ -54,16 +58,22 @@ export const experiences: Experience[] = [
     name: "Tarpon",
     sketch: "tarpon",
     summary:
-      "One of Florida's most exciting fisheries. Migrating tarpon along the beaches and resident fish throughout Pine Island Sound.",
+      "One of Florida's most exciting fisheries. Big migrating tarpon from late spring through summer, and juvenile tarpon year-round.",
     body: [
-      "Tarpon are the fish people travel to Florida for: big, acrobatic and unforgettable on a fly rod or light tackle.",
-      "We target migrating tarpon along the beaches and resident fish throughout Pine Island Sound and the surrounding waters.",
+      "Tarpon are the fish people travel to Florida for: big, acrobatic and unforgettable on a fly rod or heavier tackle.",
+      "The big tarpon are seasonal. They arrive along the beaches in late April or early May and stay through August, and that's when we chase them on fly or heavier tackle. They're too big to fight on light tackle.",
+      "Juvenile tarpon are here year-round, so there's a tarpon to cast to in every season.",
     ],
     notes: [
       { label: "Where", value: "The beaches and Pine Island Sound" },
-      { label: "How", value: "Fly or light tackle" },
-      { label: "Fish", value: "Migrating and resident tarpon" },
+      { label: "How", value: "Fly or heavier tackle" },
+      { label: "Fish", value: "Big migrating tarpon and juvenile tarpon" },
+      { label: "Season", value: "Big tarpon late April or early May to August; juveniles year-round" },
     ],
+    season: {
+      label: "Big tarpon: late April to August. Juveniles: year-round",
+      note: "Big tarpon are seasonal, from late April or early May through August. Juvenile tarpon are here year-round.",
+    },
   },
   {
     slug: "backcountry",

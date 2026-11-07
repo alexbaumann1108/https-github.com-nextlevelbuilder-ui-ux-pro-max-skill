@@ -104,7 +104,7 @@ export function BookingForm() {
   const month = v.date ? Number(v.date.slice(5, 7)) : 0;
   const seasonNote = !season
     ? null
-    : month && (month < season.from || month > season.to)
+    : month && season.from && season.to && (month < season.from || month > season.to)
       ? `${season.note} Your date is outside the usual season, so we'll let you know how the beaches look or suggest another fishery.`
       : season.note;
 
