@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <>
-      <PageHeader label="Privacy" title="Privacy notice" />
+      <PageHeader label="Privacy" title="Privacy notice" book={false} />
       <section className="py-16 md:py-24">
         <div className="shell max-w-3xl space-y-6 text-ink-soft [&_h2]:mt-10 [&_h2]:text-[1.5rem] [&_h2]:text-ink">
           <PlaceholderNote>

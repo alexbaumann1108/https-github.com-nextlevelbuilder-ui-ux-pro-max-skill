@@ -5,7 +5,7 @@ import { Illustration } from "./illustration";
 
 export function SiteFooter() {
   return (
-    <footer className="bg-seafoam-night pb-28 text-parchment sm:pb-12">
+    <footer className="bg-seafoam-night pb-12 text-parchment">
       <div className="shell pt-16 md:pt-20">
         <div className="grid gap-12 md:grid-cols-12">
           <div className="md:col-span-5">
@@ -27,6 +27,11 @@ export function SiteFooter() {
               <h2 className="label text-seafoam">Explore</h2>
               <ul className="mt-4 space-y-2.5">
                 <li>
+                  <Link href="/book" className="font-bold text-orange hover:text-parchment">
+                    Book a trip
+                  </Link>
+                </li>
+                <li>
                   <Link href="/" className="hover:text-orange">
                     Home
                   </Link>
@@ -38,11 +43,6 @@ export function SiteFooter() {
                     </Link>
                   </li>
                 ))}
-                <li>
-                  <Link href="/book" className="hover:text-orange">
-                    Book a trip
-                  </Link>
-                </li>
               </ul>
             </div>
             <div>

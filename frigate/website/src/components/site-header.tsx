@@ -92,7 +92,7 @@ export function SiteHeader() {
         <div className="flex items-center gap-3">
           <Link
             href="/book"
-            className={`btn hidden !min-h-11 !px-5 sm:inline-flex ${clear ? "btn-sun" : "btn-primary"}`}
+            className={`btn !min-h-10 !px-4 !text-[0.875rem] sm:!min-h-11 sm:!px-5 sm:!text-[0.9375rem] ${clear ? "btn-sun" : "btn-primary"}`}
           >
             Book a trip
           </Link>
@@ -128,6 +128,9 @@ export function SiteHeader() {
         className="fixed inset-0 z-40 overflow-y-auto bg-seafoam-night text-parchment xl:hidden"
       >
         <div className="shell flex min-h-full flex-col pb-10 pt-28">
+          <Link href="/book" className="btn btn-sun mb-8 w-full">
+            Book a trip
+          </Link>
           <nav aria-label="Mobile">
             <ul className="space-y-1">
               {[{ href: "/", label: "Home" }, ...nav].map((item) => (
@@ -144,10 +147,7 @@ export function SiteHeader() {
             </ul>
           </nav>
           <div className="rule my-8 opacity-60" />
-          <Link href="/book" className="btn btn-sun w-full">
-            Book a trip
-          </Link>
-          <div className="mt-6 space-y-2 text-parchment/85">
+          <div className="space-y-2 text-parchment/85">
             <a className="block" href={site.phoneHref}>
               {site.phone}
             </a>

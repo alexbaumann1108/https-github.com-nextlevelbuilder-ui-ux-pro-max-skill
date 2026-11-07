@@ -3,7 +3,6 @@ import { Libre_Caslon_Text, Nunito_Sans, Special_Elite } from "next/font/google"
 import { site, siteUrl } from "@/content/site";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { MobileBookBar } from "@/components/mobile-book-bar";
 import { LocalBusinessJsonLd } from "@/components/json-ld";
 import "./globals.css";
 
@@ -79,7 +78,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           {children}
         </main>
         <SiteFooter />
-        <MobileBookBar />
         <LocalBusinessJsonLd />
       </body>
     </html>

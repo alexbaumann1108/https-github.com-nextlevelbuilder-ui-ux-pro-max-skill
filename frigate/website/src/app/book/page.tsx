@@ -27,6 +27,7 @@ export default function BookPage() {
         title="Send a booking inquiry"
         lede="Pick an open date and send your request. Capt. Alex will get back to you to confirm and plan the day."
         art="emblem"
+        book={false}
       />
 
       <section className="py-14 md:py-20">

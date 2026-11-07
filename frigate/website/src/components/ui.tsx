@@ -39,6 +39,7 @@ export function PageHeader({
   lede,
   sketch,
   art,
+  book = true,
   children,
 }: {
   label: string;
@@ -46,6 +47,8 @@ export function PageHeader({
   lede?: string;
   sketch?: Species;
   art?: ArtName;
+  /** Show a "Book a trip" button under the intro. */
+  book?: boolean;
   children?: React.ReactNode;
 }) {
   return (
@@ -60,6 +63,11 @@ export function PageHeader({
             <p className="lede rise mt-5 max-w-2xl text-ink-soft" style={{ animationDelay: "0.16s" }}>
               {lede}
             </p>
+          )}
+          {book && (
+            <Link href="/book" className="btn btn-primary rise mt-7" style={{ animationDelay: "0.2s" }}>
+              Book a trip
+            </Link>
           )}
           {children}
         </div>
