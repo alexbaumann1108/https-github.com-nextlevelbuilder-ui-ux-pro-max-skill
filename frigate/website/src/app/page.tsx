@@ -146,6 +146,7 @@ export default function Home() {
                   )}
                 </Link>
                 <h3 className="mt-10 text-[1.9rem] uppercase tracking-[0.02em]">{e.name}</h3>
+                {e.season && <p className="label mt-2 text-orange-ink">{e.season.label}</p>}
                 <p className="mt-3 flex-1 text-ink-soft">{e.summary}</p>
                 <Link href={`/fishery#${e.slug}`} className="link mt-5 self-start font-bold">
                   Learn more<span className="sr-only"> about {e.name}</span>

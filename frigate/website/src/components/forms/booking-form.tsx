@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { site, showPlaceholders } from "@/content/site";
 import { rates, formatPrice } from "@/content/rates";
 import { bookingSchema, experienceOptions } from "@/lib/inquiry";
+import { experiences } from "@/content/fishery";
 import { dayStatus, slotLabel, type Booked, type Slot } from "@/lib/availability";
 import { scheduleSummary } from "@/content/availability";
 import { DateCalendar } from "./date-calendar";
@@ -98,6 +99,15 @@ export function BookingForm() {
   const submitting = f.status.state === "submitting";
   const chosen = v.date ? dayStatus(v.date, booked) : null;
   const allowedHours = chosen && chosen.open && !chosen.fullDay ? chosen.hours : null;
+  // Seasonal fisheries (beach snook): note the season, and flag dates outside it.
+  const season = experiences.find((e) => e.slug === v.experience)?.season;
+  const month = v.date ? Number(v.date.slice(5, 7)) : 0;
+  const seasonNote = !season
+    ? null
+    : month && (month < season.from || month > season.to)
+      ? `${season.note} Your date is outside the usual season, so we'll let you know how the beaches look or suggest another fishery.`
+      : season.note;
+
   const halfDayNote = chosen && chosen.open && !chosen.fullDay
     ? chosen.freeSlots.length === 1 && chosen.freeSlots[0] === "am" && !booked[v.date]?.length
       ? "Monday trips are morning half days (4 hours)."
@@ -149,18 +159,21 @@ export function BookingForm() {
 
       <fieldset className="space-y-6">
         <legend className="mb-6 font-display text-[1.6rem]">Your trip</legend>
-        <Field label="Type of fishing" error={f.errors.experience}>
-          <select name="experience" className="field" value={v.experience} onChange={set("experience")} onBlur={blur("experience")}>
-            <option value="" disabled>
-              Choose a fishery
-            </option>
-            {experienceOptions.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
+        <div>
+          <Field label="Type of fishing" error={f.errors.experience}>
+            <select name="experience" className="field" value={v.experience} onChange={set("experience")} onBlur={blur("experience")}>
+              <option value="" disabled>
+                Choose a fishery
               </option>
-            ))}
-          </select>
-        </Field>
+              {experienceOptions.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </Field>
+          {seasonNote && <p className="mt-2 text-sm text-orange-ink">{seasonNote}</p>}
+        </div>
         <Field label="Trip length" error={f.errors.tripLength}>
           <select name="tripLength" className="field" value={v.tripLength} onChange={(e) => fit({ tripLength: e.target.value })} onBlur={blur("tripLength")}>
             <option value="" disabled>

@@ -68,7 +68,7 @@ export default function FisheryPage() {
                   </div>
                 ))}
               </dl>
-              <Link href={`/book?trip=${e.slug}`} className="btn btn-primary mt-8">
+              <Link href={`/book?trip=${e.slug}`} data-book className="btn btn-primary mt-8">
                 Book a {e.name.toLowerCase()} trip
               </Link>
             </div>

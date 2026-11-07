@@ -14,6 +14,8 @@ export type Experience = {
   notes: { label: string; value: string }[];
   /** Leave undefined until there's a real photo; the sketch stands in. */
   photo?: Photo;
+  /** For seasonal fisheries: usual first and last month (1 = January). */
+  season?: { from: number; to: number; label: string; note: string };
 };
 
 /** The three fisheries, in the owner's words. */
@@ -27,12 +29,20 @@ export const experiences: Experience[] = [
     body: [
       "Snook cruise the beaches of Sanibel and Captiva in clear, shallow water, close enough to the sand to see every fish before you cast.",
       "It's visual fishing at its best: spot the fish, lead it with the fly or lure, and watch it eat. On foot along the beach or from the boat, depending on the day.",
+      "Beach snook is a seasonal fishery. The fish move onto the beaches as the water warms, typically from April through August, but the exact start and end depend on water temperature each year. Ask when you book and we'll tell you how the beaches are fishing.",
     ],
     notes: [
       { label: "Where", value: "Sanibel and Captiva beaches" },
       { label: "How", value: "Fly or light tackle, wading or from the boat" },
       { label: "Style", value: "Sight fishing to cruising fish" },
+      { label: "Season", value: "Typically April to August, depending on water temperature" },
     ],
+    season: {
+      from: 4,
+      to: 8,
+      label: "Seasonal: April to August",
+      note: "Beach snook is seasonal, typically April through August. The exact window depends on water temperature.",
+    },
     photo: {
       src: "/photos/snook-wading-turquoise-water.jpg",
       alt: "An angler wading in turquoise water holding a large snook",
