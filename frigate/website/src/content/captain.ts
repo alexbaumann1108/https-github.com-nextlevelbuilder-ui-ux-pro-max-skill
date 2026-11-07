@@ -18,7 +18,7 @@ export const captain = {
     position: "50% 40%",
   },
   intro:
-    "A young fly fisherman from Charlotte, North Carolina who has spent the last six years fishing the waters around Sanibel Island.",
+    "A young fly fisherman who has spent the last six years spending more time on the water than in his own bed.",
   /** Your story, one string per paragraph. Edit freely. */
   bio: [
     "I'm from Charlotte, North Carolina and got my start fly fishing for trout in the North Carolina mountains. That's where I fell for the fly rod and learned how much a good cast matters.",
