@@ -135,9 +135,6 @@ export function GalleryGrid({ photos }: { photos: GalleryPhoto[] }) {
                   sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw"
                   className="h-auto w-full transition-transform duration-700 ease-[var(--ease-tide)] group-hover:scale-[1.035]"
                 />
-                <span className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 bg-gradient-to-t from-ink/75 to-transparent p-4 pt-12 text-left text-sm text-paper opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100">
-                  {p.alt}
-                </span>
               </button>
             </li>
           ))}
@@ -178,7 +175,6 @@ export function GalleryGrid({ photos }: { photos: GalleryPhoto[] }) {
             <figure key={current.src} className="relative mx-2 min-h-0 flex-1 rise sm:mx-16">
               <Image src={current.src} alt={current.alt} fill sizes="100vw" className="object-contain" />
             </figure>
-            <p className="px-4 pt-3 text-center text-parchment/85">{current.alt}</p>
             <div className="flex justify-center gap-3 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3">
               <button type="button" onClick={() => go(-1)} className="btn btn-ghost flex-1 sm:flex-none">
                 Previous
