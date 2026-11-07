@@ -45,6 +45,26 @@ export function SiteHeader() {
     };
   }, [open]);
 
+  // Hide the header's "Book a trip" while another one is on screen, so only
+  // one shows at a time. Page buttons are marked with data-book.
+  const [bookSeen, setBookSeen] = useState({ path: pathname, inView: false });
+  useEffect(() => {
+    const els = Array.from(document.querySelectorAll("[data-book]"));
+    const seen = new Set<Element>();
+    if (!els.length) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => (e.isIntersecting ? seen.add(e.target) : seen.delete(e.target)));
+        setBookSeen({ path: pathname, inView: seen.size > 0 });
+      },
+      { rootMargin: "-80px 0px 0px 0px" },
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, [pathname]);
+  const bookInView = bookSeen.path === pathname && bookSeen.inView;
+  const showBook = !open && !bookInView && pathname !== "/book";
+
   const clear = overPhoto && !scrolled && !open;
 
   return (
@@ -92,7 +112,9 @@ export function SiteHeader() {
         <div className="flex items-center gap-3">
           <Link
             href="/book"
-            className={`btn !min-h-10 !px-4 !text-[0.875rem] sm:!min-h-11 sm:!px-5 sm:!text-[0.9375rem] ${clear ? "btn-sun" : "btn-primary"}`}
+            className={`btn !min-h-10 !px-4 !text-[0.875rem] transition-opacity duration-300 sm:!min-h-11 sm:!px-5 sm:!text-[0.9375rem] ${clear ? "btn-sun" : "btn-primary"} ${showBook ? "" : "pointer-events-none opacity-0"}`}
+            aria-hidden={!showBook}
+            tabIndex={showBook ? undefined : -1}
           >
             Book a trip
           </Link>

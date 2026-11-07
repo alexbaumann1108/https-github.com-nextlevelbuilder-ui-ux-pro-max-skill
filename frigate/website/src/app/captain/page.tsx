@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { captain } from "@/content/captain";
 import { site } from "@/content/site";
 import { Illustration } from "@/components/illustration";
@@ -80,9 +79,6 @@ export default function CaptainPage() {
             </div>
 
             <div className="mt-14 flex flex-col gap-3 sm:flex-row">
-              <Link href="/book" className="btn btn-primary">
-                Book a trip
-              </Link>
               <a href={site.instagram.url} target="_blank" rel="noopener" className="btn btn-ink">
                 Follow {site.instagram.handle}
               </a>

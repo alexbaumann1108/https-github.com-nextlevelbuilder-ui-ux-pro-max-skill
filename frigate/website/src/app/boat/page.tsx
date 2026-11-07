@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { boat } from "@/content/boat";
 import { showPlaceholders } from "@/content/site";
 import { Illustration } from "@/components/illustration";
@@ -63,9 +62,6 @@ export default function BoatPage() {
               <div className="mt-4">
                 <RatesLedger />
               </div>
-              <Link href="/book" className="btn btn-primary mt-8">
-                Book a trip
-              </Link>
             </div>
           </div>
         </div>

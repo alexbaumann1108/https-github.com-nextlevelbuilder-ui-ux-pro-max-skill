@@ -65,7 +65,7 @@ export function PageHeader({
             </p>
           )}
           {book && (
-            <Link href="/book" className="btn btn-primary rise mt-7" style={{ animationDelay: "0.2s" }}>
+            <Link href="/book" data-book className="btn btn-primary rise mt-7" style={{ animationDelay: "0.2s" }}>
               Book a trip
             </Link>
           )}
@@ -213,7 +213,7 @@ export function BookingBand({
             check the tides and get back to you to plan the day.
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <Link href="/book" className="btn btn-sun">
+            <Link href="/book" data-book className="btn btn-sun">
               Book a trip
             </Link>
             <a href={site.phoneHref} className="btn btn-ghost">

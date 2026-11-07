@@ -17,9 +17,6 @@ export function SiteFooter() {
               <br />
               {site.geo.label}
             </p>
-            <Link href="/book" className="btn btn-sun mt-8">
-              Send a booking inquiry
-            </Link>
           </div>
 
           <div className="grid gap-10 sm:grid-cols-2 md:col-span-7">

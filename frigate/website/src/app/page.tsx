@@ -67,7 +67,7 @@ export default function Home() {
               surrounding islands with Frigate Fly &amp; Light Tackle Charters.
             </p>
             <div className="rise mt-9 flex flex-col gap-3 sm:flex-row" style={{ animationDelay: "0.45s" }}>
-              <Link href="/book" className="btn btn-sun">
+              <Link href="/book" data-book className="btn btn-sun">
                 Book a trip
               </Link>
               <Link href="/fishery" className="btn btn-ghost">
@@ -231,7 +231,7 @@ export default function Home() {
           </div>
           <div className="md:col-span-7">
             <RatesLedger />
-            <Link href="/book" className="btn btn-primary mt-8">
+            <Link href="/book" data-book className="btn btn-primary mt-8">
               Book a trip
             </Link>
           </div>
