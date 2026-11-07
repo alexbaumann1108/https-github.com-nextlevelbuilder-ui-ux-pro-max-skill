@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { noaaTides, sccfRecon, windfinder } from "@/content/links";
 import { BookingBand, PageHeader, Regulations } from "@/components/ui";
 
@@ -79,11 +78,7 @@ export default function ConditionsPage() {
           <h2 className="display-md">If the weather turns</h2>
           <p className="mt-4 text-ink-soft">
             Strong wind or storms can make the flats unfishable or unsafe. If the
-            forecast looks doubtful for your date,{" "}
-            <Link href="/book" className="link font-bold text-ink">
-              get in touch
-            </Link>
-            .
+            forecast looks doubtful for your date, I&apos;ll be in touch.
           </p>
         </div>
       </section>
