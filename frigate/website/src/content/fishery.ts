@@ -84,13 +84,18 @@ export const experiences: Experience[] = [
     body: [
       "Behind the islands, the backcountry opens into mangrove shorelines, grass flats and quiet creeks.",
       "Redfish push along the mangrove edges and cruise the flats, with snook, trout and other inshore species mixed in. It's sight fishing in skinny water.",
-      "And if we're lucky, we'll find tailing reds: fish feeding head-down in inches of water with their tails waving above the surface. Sneaking up on a tailing redfish and laying a fly or bait in front of it is one of the best shots in the backcountry.",
+      "And if we're lucky, we'll find tailing reds: fish feeding head-down in inches of water with their tails waving above the surface. Sneaking up on a tailing redfish and laying a fly or bait in front of it is one of the best shots in the backcountry. Our best chances come in the fall and winter, when the tides run lower.",
     ],
     notes: [
       { label: "Where", value: "Mangroves, grass flats and backcountry creeks" },
       { label: "How", value: "Fly or light tackle" },
       { label: "Fish", value: "Redfish, snook, trout and more" },
+      { label: "Season", value: "Year-round; tailing reds are best in fall and winter, on the lower tides" },
     ],
+    season: {
+      label: "Tailing reds: best in fall and winter",
+      note: "The backcountry fishes year-round. Tailing redfish are best in the fall and winter, when the tides are lower.",
+    },
     photo: {
       src: "/photos/redfish-on-the-fly-backcountry.jpg",
       alt: "An angler holding a big redfish caught on a fly rod, calm water behind",
