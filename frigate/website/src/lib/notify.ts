@@ -1,5 +1,4 @@
-import { site, siteUrl } from "@/content/site";
-import type { Hold } from "@/lib/holds";
+import { site } from "@/content/site";
 import { rates, formatPrice } from "@/content/rates";
 import { experienceOptions } from "@/lib/inquiry";
 import { slotTimes } from "@/content/availability";
@@ -20,7 +19,7 @@ import { cancellationPolicy } from "@/content/policies";
  * calendar is what blocks the time on the website.
  */
 
-export type Booking = {
+type Booking = {
   ref: string;
   kind: "booking";
   name: string;
@@ -32,8 +31,6 @@ export type Booking = {
   tripLength: string;
   slot: "am" | "pm" | "";
   message: string;
-  /** Set when the request's time is being held on the website. */
-  hold?: Hold;
 };
 type Contact = { ref: string; kind: "contact"; name: string; email: string; phone: string; message: string };
 export type Inquiry = Booking | Contact;
@@ -103,12 +100,6 @@ function bookingsCalendarId() {
   return m ? decodeURIComponent(m[1]) : null;
 }
 
-/** Link to the hold page (deny), or straight to confirm. */
-export function holdLink(hold: Hold, action?: "confirm") {
-  const q = new URLSearchParams({ id: hold.id, t: hold.token, ...(action ? { do: action } : {}) });
-  return `${siteUrl}/api/hold?${q}`;
-}
-
 function bookingEmail(b: Booking) {
   const exp = experienceOptions.find((o) => o.value === b.experience)?.label ?? b.experience;
   const rate = rates.find((r) => String(r.hours) === b.tripLength);
@@ -160,19 +151,10 @@ function bookingEmail(b: Booking) {
     )
     .join("")}</table>
 <div style="margin:22px 0 6px">
-${button(b.hold ? holdLink(b.hold, "confirm") : calendarLink(b), "Confirm & add to my calendar", true)}
-${b.hold ? button(holdLink(b.hold), "Deny & reopen the date", false) : ""}
+${button(calendarLink(b), "Confirm & add to my calendar", true)}
 ${button(reply, `Reply to ${first} to confirm`, false)}
 </div>
-<p style="margin:10px 0 0;font-size:13px;line-height:1.5;color:#5c574c">${
-    b.hold
-      ? "This time is already held on your website so nobody else can book it. "
-      : ""
-  }"Confirm &amp; add to my calendar" opens Google Calendar with the trip filled in: check the calendar is set to <b>Frigate Fly Bookings</b>, adjust the times if needed, and save.${
-    b.hold
-      ? " Can't take the trip? \"Deny &amp; reopen the date\" frees the time on your website straight away."
-      : " The website blocks that time within about 5 minutes."
-  }</p>
+<p style="margin:10px 0 0;font-size:13px;line-height:1.5;color:#5c574c">The trip is not booked until you confirm. "Confirm &amp; add to my calendar" opens Google Calendar with the trip filled in: check the calendar is set to <b>Frigate Fly Bookings</b>, adjust the times if needed, and save. The website blocks that time within about 5 minutes.</p>
 </div></body></html>`;
 
   const text = [
@@ -180,13 +162,10 @@ ${button(reply, `Reply to ${first} to confirm`, false)}
     "",
     ...rows.map(([k, v]) => `${k}: ${v}`),
     "",
-    `Confirm & add to my calendar: ${b.hold ? holdLink(b.hold, "confirm") : calendarLink(b)}`,
-    ...(b.hold ? [`Deny & reopen the date: ${holdLink(b.hold)}`] : []),
+    `Confirm & add to my calendar: ${calendarLink(b)}`,
     `Reply to ${first}: ${b.email}`,
     "",
-    b.hold
-      ? "This time is already held on your website so nobody else can book it. Deny the request to reopen it."
-      : "The trip is not booked until you confirm. Save the event to your Frigate Fly Bookings calendar to block the time on the website.",
+    "The trip is not booked until you confirm. Save the event to your Frigate Fly Bookings calendar to block the time on the website.",
   ].join("\n");
 
   return { subject, html, text };

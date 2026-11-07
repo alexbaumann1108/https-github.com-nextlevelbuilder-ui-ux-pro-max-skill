@@ -142,28 +142,6 @@ and go to CaptainAlex@frigatefly.com. Setup: make a Resend API key (API Keys →
 Create) and set `RESEND_API_KEY` in your host. Keep the Resend DNS records in
 Namecheap (`resend._domainkey`, `send`, `rsend`), or sending stops.
 
-## Holds: requests block their time right away
-
-As soon as someone sends a booking request, its time (a morning, an
-afternoon, or the whole day for longer trips) is **held** on the website,
-so nobody else can request it while you decide. Your email then has:
-
-- **Confirm & add to my calendar:** marks the request confirmed and opens
-  Google Calendar with the trip filled in. Save it to Frigate Fly Bookings.
-- **Deny & reopen the date:** opens a page with the request and a button
-  that frees the time on the website straight away, plus a ready-written
-  "Let them know" email. The same page can reopen a confirmed trip if the
-  customer cancels later.
-
-A hold stays until you deny it or the trip date passes.
-
-**Switch it on (live site):** in Vercel open the project's **Storage** tab,
-choose **Upstash Redis** (free plan), create it and connect it to the
-project. That adds `KV_REST_API_URL` and `KV_REST_API_TOKEN`; redeploy.
-Without it, requests still work, but times are only blocked once you save
-the trip to your calendar. While developing, holds are kept in
-`.data/holds.json`.
-
 ## Booking calendar (blocks booked dates)
 
 The booking form shows a calendar. Customers can only pick days you run
@@ -223,7 +201,6 @@ its half-day slots (`"am"`, `"pm"`) and whether longer trips run
 | `OWNER_EMAIL` | Optional: where requests go (defaults to CaptainAlex@frigatefly.com) |
 | `EMAIL_FROM` | Optional: sender (defaults to `Frigate Fly Charters <bookings@frigatefly.com>`) |
 | `BOOKING_CALENDAR_ICS_URL` | Secret iCal address of your bookings calendar; its events block dates |
-| `KV_REST_API_URL`, `KV_REST_API_TOKEN` | Upstash Redis, added by Vercel's Storage tab: holds requested times until you confirm or deny |
 | `NEXT_PUBLIC_SHOW_PLACEHOLDERS` | `false` at launch hides the dashed "To fill in" notes |
 
 ## Deploy (Vercel, free tier works)
