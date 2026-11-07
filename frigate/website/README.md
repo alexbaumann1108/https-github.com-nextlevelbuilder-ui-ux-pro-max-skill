@@ -142,6 +142,25 @@ and go to CaptainAlex@frigatefly.com. Setup: make a Resend API key (API Keys →
 Create) and set `RESEND_API_KEY` in your host. Keep the Resend DNS records in
 Namecheap (`resend._domainkey`, `send`, `rsend`), or sending stops.
 
+## Adding a trip booked directly with you
+
+Booked someone by phone, text or in person? Open **/add-booking** on your
+site (for example `https://www.frigatefly.com/add-booking`; it's not in the
+menu and search engines are told to skip it). Tip: on your phone, use
+Share → **Add to Home Screen** so it's one tap away.
+
+1. Fill in the date, trip length, morning or afternoon, fishery and the
+   customer's name (phone and email optional).
+2. **Add to my calendar** opens Google Calendar with the trip filled in.
+   Check it says Frigate Fly Bookings and save. The website blocks that time
+   within about 5 minutes.
+3. **Text the confirmation** or **Email the confirmation** opens a ready
+   message with the trip details and your cancellation policy.
+
+The page warns you if that time already has a trip, or if it's a day you
+don't usually run. It never changes anything by itself, so it's safe if
+someone else finds it.
+
 ## Booking calendar (blocks booked dates)
 
 The booking form shows a calendar. Customers can only pick days you run

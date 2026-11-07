@@ -1,9 +1,10 @@
 import { site } from "@/content/site";
 import { rates, formatPrice } from "@/content/rates";
 import { experienceOptions } from "@/lib/inquiry";
-import { slotTimes } from "@/content/availability";
 import { slotLabel, type Slot } from "@/lib/availability";
-import { cancellationPolicy } from "@/content/policies";
+import { calendarIdFromIcs, calendarLink, clock, confirmationMailto, longDate, tripTimes } from "@/lib/booking-links";
+
+const calendarId = () => calendarIdFromIcs(process.env.BOOKING_CALENDAR_ICS_URL);
 
 /**
  * Emails each inquiry to the owner through Resend (resend.com).
@@ -44,62 +45,6 @@ const ownerInbox = () => process.env.OWNER_EMAIL || site.email;
 const esc = (s: string) =>
   s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 
-function longDate(iso: string) {
-  const [y, m, d] = iso.split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-}
-
-const clock = (hhmm: string) => {
-  const [h, m] = hhmm.split(":").map(Number);
-  return `${((h + 11) % 12) + 1}${m ? `:${String(m).padStart(2, "0")}` : ""}${h < 12 ? "am" : "pm"}`;
-};
-
-/** Suggested start and end for the calendar event (editable before saving). */
-export function tripTimes(b: Pick<Booking, "tripLength" | "slot">) {
-  const key = b.tripLength === "4" ? (b.slot || "am") : `${b.tripLength}h`;
-  return slotTimes[key] ?? slotTimes.am;
-}
-
-/** Google Calendar link that opens a new event with the trip filled in. */
-export function calendarLink(b: Booking) {
-  const exp = experienceOptions.find((o) => o.value === b.experience)?.label ?? b.experience;
-  const { start, end } = tripTimes(b);
-  const stamp = (t: string) => `${b.date.replace(/-/g, "")}T${t.replace(":", "")}00`;
-  const details = [
-    `${b.name}, ${b.guests} angler${b.guests === 1 ? "" : "s"}`,
-    `Phone: ${b.phone}`,
-    `Email: ${b.email}`,
-    `Fishing: ${exp}`,
-    b.message ? `Notes: ${b.message}` : "",
-    `Website request ${b.ref}`,
-  ]
-    .filter(Boolean)
-    .join("\n");
-  const params = new URLSearchParams({
-    action: "TEMPLATE",
-    text: `Frigate trip: ${b.name} (${exp})`,
-    dates: `${stamp(start)}/${stamp(end)}`,
-    ctz: "America/New_York",
-    details,
-    location: site.location,
-  });
-  const calId = bookingsCalendarId();
-  if (calId) params.set("src", calId);
-  return `https://calendar.google.com/calendar/render?${params}`;
-}
-
-/** The bookings calendar's ID, read from its iCal address. */
-function bookingsCalendarId() {
-  const m = process.env.BOOKING_CALENDAR_ICS_URL?.match(/\/ical\/([^/]+)\//);
-  return m ? decodeURIComponent(m[1]) : null;
-}
-
 function bookingEmail(b: Booking) {
   const exp = experienceOptions.find((o) => o.value === b.experience)?.label ?? b.experience;
   const rate = rates.find((r) => String(r.hours) === b.tripLength);
@@ -108,12 +53,7 @@ function bookingEmail(b: Booking) {
   const first = b.name.split(" ")[0];
   const subject = `Booking request: ${exp}, ${longDate(b.date)} (${when.toLowerCase()}) from ${b.name}`;
 
-  const reply = `mailto:${b.email}?${new URLSearchParams({
-    subject: `Your Frigate trip on ${longDate(b.date)} is confirmed`,
-    body: `Hi ${first},\n\nYou're booked! ${exp}, ${when.toLowerCase()}, on ${longDate(b.date)}, for ${b.guests} angler${b.guests === 1 ? "" : "s"}${rate ? ` (${rate.name}, ${formatPrice(rate.price)})` : ""}.\n\nI'll be in touch the day before with the meeting spot and time.\n\n${cancellationPolicy.title}: ${cancellationPolicy.intro}\n${cancellationPolicy.items.map((i) => `- ${i}`).join("\n")}\n\nTight lines,\n${site.name}\n${site.phone}`,
-  })
-    .toString()
-    .replace(/\+/g, "%20")}`;
+  const reply = confirmationMailto(b);
 
   const rows: [string, string][] = [
     ["Date", longDate(b.date)],
@@ -151,7 +91,7 @@ function bookingEmail(b: Booking) {
     )
     .join("")}</table>
 <div style="margin:22px 0 6px">
-${button(calendarLink(b), "Confirm & add to my calendar", true)}
+${button(calendarLink(b, calendarId()), "Confirm & add to my calendar", true)}
 ${button(reply, `Reply to ${first} to confirm`, false)}
 </div>
 <p style="margin:10px 0 0;font-size:13px;line-height:1.5;color:#5c574c">The trip is not booked until you confirm. "Confirm &amp; add to my calendar" opens Google Calendar with the trip filled in: check the calendar is set to <b>Frigate Fly Bookings</b>, adjust the times if needed, and save. The website blocks that time within about 5 minutes.</p>
@@ -162,7 +102,7 @@ ${button(reply, `Reply to ${first} to confirm`, false)}
     "",
     ...rows.map(([k, v]) => `${k}: ${v}`),
     "",
-    `Confirm & add to my calendar: ${calendarLink(b)}`,
+    `Confirm & add to my calendar: ${calendarLink(b, calendarId())}`,
     `Reply to ${first}: ${b.email}`,
     "",
     "The trip is not booked until you confirm. Save the event to your Frigate Fly Bookings calendar to block the time on the website.",
