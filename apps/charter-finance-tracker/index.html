@@ -3,7 +3,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
 <style>
-/* Layout: a captain's logbook — sticky header with tabs, one column on phones, two-up cards on wide screens. Teal = money in, buoy orange = money out. */
+/* Layout: a captain's office in one page — sticky header with scrolling tabs, one column on phones, two-up cards on wide screens. Teal = money in, buoy orange = money out. */
 :root {
   --bg: #eef3f4; --surface: #ffffff; --surface-2: #f6f9f9; --ink: #102530; --muted: #5a6e77; --line: #d6e0e3;
   --accent: #0d6b70; --accent-ink: #ffffff; --out: #d9622a; --good: #2b8a4b; --bad: #bf432b; --warn: #a8740b;
@@ -24,10 +24,12 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .wrap { max-width: 980px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 .num { font-variant-numeric: tabular-nums; }
 h1, h2, h3 { font-family: var(--display); font-weight: 700; letter-spacing: .01em; margin: 0; text-wrap: balance; }
-h2 { font-size: 1.35rem; }
+h2 { font-size: 1.35rem; } h3 { font-size: 1.1rem; }
 .label { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
+button:disabled { opacity: .55; cursor: default; }
+a { color: var(--accent); }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--line); }
@@ -35,12 +37,14 @@ header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; b
 .brand { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
 .brand h1 { font-size: 1.6rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .brand .sub { color: var(--muted); font-size: .85rem; white-space: nowrap; }
+@media (max-width: 420px) { .brand .sub { display: none; } }
 .tabs { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
-.tab { border: 0; background: none; padding: 7px 12px; border-radius: 999px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.tab { border: 0; background: none; padding: 7px 12px; border-radius: 999px; font-weight: 600; color: var(--muted); white-space: nowrap; position: relative; }
 .tab[aria-selected="true"] { background: var(--ink); color: var(--surface); }
+.tab .badge { display: inline-block; min-width: 1.2em; padding: 0 5px; margin-left: 5px; border-radius: 999px; background: var(--out); color: #fff; font-size: .72rem; line-height: 1.4; }
 
-.add-row { display: flex; gap: 8px; }
-.btn { border: 1px solid var(--line); background: var(--surface); padding: 8px 14px; border-radius: 8px; font-weight: 600; }
+.add-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { border: 1px solid var(--line); background: var(--surface); padding: 8px 14px; border-radius: 8px; font-weight: 600; text-decoration: none; color: var(--ink); display: inline-block; }
 .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 .btn.out { background: var(--out); color: #fff; border-color: var(--out); }
 .btn.ghost { background: none; }
@@ -75,6 +79,7 @@ main { padding-block: 16px 48px; display: grid; gap: 16px; }
 table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
 th, td { padding: 8px 6px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
 th:first-child, td:first-child { text-align: left; }
+td.wrap-cell { white-space: normal; }
 thead th { font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 600; }
 tr.total td { font-weight: 700; border-bottom: 0; }
 .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
@@ -83,10 +88,10 @@ tr.total td { font-weight: 700; border-bottom: 0; }
 .bar-row { display: grid; grid-template-columns: minmax(0, 9.5rem) 1fr auto; gap: 10px; align-items: center; font-size: .9rem; }
 .bar-row .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bar-track { height: 10px; background: var(--surface-2); border-radius: 5px; overflow: hidden; }
-.bar-fill { height: 100%; background: var(--out); border-radius: 5px; }
+.bar-fill { display: block; height: 100%; background: var(--out); border-radius: 5px; }
 .bar-row .amt { font-variant-numeric: tabular-nums; font-weight: 600; min-width: 4.5rem; text-align: right; }
 
-.insights { display: grid; gap: 0; }
+.insights { display: grid; }
 .ins { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: .93rem; }
 .ins:last-child { border-bottom: 0; }
 .ins .k { color: var(--muted); }
@@ -96,27 +101,57 @@ tr.total td { font-weight: 700; border-bottom: 0; }
 .legend { display: flex; gap: 14px; font-size: .82rem; color: var(--muted); }
 
 .list { display: grid; }
-.row { display: grid; grid-template-columns: 3.2rem 1fr auto; gap: 12px; align-items: center; padding: 10px 4px; border-bottom: 1px solid var(--line); background: none; border-left: 0; border-right: 0; border-top: 0; text-align: left; width: 100%; }
-.row:hover { background: var(--surface-2); }
+.row { display: grid; grid-template-columns: 3.2rem 1fr auto; gap: 12px; align-items: center; padding: 10px 4px; border: 0; border-bottom: 1px solid var(--line); background: none; text-align: left; width: 100%; }
+button.row:hover { background: var(--surface-2); }
 .row .date { font-family: var(--display); font-weight: 700; line-height: 1.05; text-align: center; color: var(--muted); }
 .row .date b { display: block; font-size: 1.3rem; color: var(--ink); }
 .row .main { min-width: 0; }
-.row .t1 { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.row .t2 { font-size: .84rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row .t1 { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+.row .t2 { font-size: .84rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
 .row .amt { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
-.pill { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 1px 7px; border-radius: 999px; border: 1px solid currentColor; margin-left: 6px; vertical-align: 1px; }
+.row.unread .t1 { color: var(--ink); } .row.unread .date b::after { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); margin-left: 3px; vertical-align: 4px; }
+.pill { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 1px 7px; border-radius: 999px; border: 1px solid currentColor; margin-left: 6px; vertical-align: 1px; white-space: nowrap; }
 .pill.half { color: var(--accent); } .pill.full { color: var(--ink); } .pill.other { color: var(--muted); }
-.pill.booked { color: var(--warn); } .pill.cancelled { color: var(--bad); } .pill.ex { color: var(--warn); border-style: dashed; }
+.pill.booked, .pill.soon { color: var(--warn); } .pill.cancelled, .pill.overdue { color: var(--bad); } .pill.ok, .pill.paid { color: var(--good); }
+.pill.ex { color: var(--warn); border-style: dashed; } .pill.gcal { color: var(--muted); } .pill.req { color: var(--out); } .pill.unknown { color: var(--muted); }
+
+.alerts { display: grid; gap: 8px; }
+.alert { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 8px; background: var(--surface-2); border-left: 4px solid var(--warn); font-size: .93rem; flex-wrap: wrap; }
+.alert.bad { border-left-color: var(--bad); } .alert.info { border-left-color: var(--accent); }
+.alert .a-txt { min-width: 0; flex: 1 1 14rem; }
+
+.cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
+.cal .wd { text-align: center; font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); padding: 2px 0 4px; }
+.cal .day { min-height: 3.1rem; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); padding: 3px 4px; text-align: left; display: flex; flex-direction: column; gap: 2px; font-size: .82rem; }
+.cal .day.out-m { opacity: .4; }
+.cal .day.today { border-color: var(--accent); }
+.cal .day[aria-pressed="true"] { background: var(--surface-2); border-color: var(--ink); }
+.cal .day .dn { font-weight: 600; font-variant-numeric: tabular-nums; }
+.cal .marks { display: flex; gap: 2px; flex-wrap: wrap; }
+.cal .mk { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.cal .mk.full { background: var(--ink); } .cal .mk.booked { background: var(--warn); } .cal .mk.gcal { background: var(--muted); } .cal .mk.cancelled { background: var(--bad); }
+
+.ask { display: grid; gap: 10px; }
+.ask textarea { width: 100%; min-height: 3.2rem; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-2); resize: vertical; }
+.ask .suggest { display: flex; gap: 6px; flex-wrap: wrap; }
+.answer { white-space: pre-wrap; background: var(--surface-2); border-radius: 8px; padding: 12px; font-size: .95rem; max-width: 70ch; }
+
+.msg { border-bottom: 1px solid var(--line); padding: 12px 0; display: grid; gap: 6px; }
+.msg:last-child { border-bottom: 0; }
+.msg .mh { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: .88rem; color: var(--muted); }
+.msg .mh b { color: var(--ink); }
+.msg .body { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .93rem; max-height: 26rem; overflow-y: auto; }
 
 .empty { text-align: center; padding: 28px 12px; color: var(--muted); }
 .empty h3 { color: var(--ink); font-size: 1.3rem; margin-bottom: 6px; }
 .note { font-size: .88rem; color: var(--muted); }
-.status-line { font-size: .85rem; color: var(--muted); }
+.status-line { font-size: .85rem; color: var(--muted); margin: 0; }
+.links { display: flex; gap: 8px; flex-wrap: wrap; }
 
 dialog { border: 1px solid var(--line); border-radius: 14px; padding: 0; width: min(560px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); background: var(--surface); color: var(--ink); }
 dialog::backdrop { background: rgb(5 15 20 / .55); }
 .dlg-in { padding: 18px; display: grid; gap: 14px; }
-.dlg-head { display: flex; justify-content: space-between; align-items: center; }
+.dlg-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .fgrid { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
 .fgrid .full { grid-column: 1 / -1; }
 .field { display: grid; gap: 4px; min-width: 0; }
@@ -128,9 +163,9 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
 .seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
 .dlg-foot { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
 .dlg-foot .right { display: flex; gap: 8px; margin-left: auto; }
-.err { color: var(--bad); font-size: .88rem; }
+.err { color: var(--bad); font-size: .88rem; margin: 0; }
 
-.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--surface); padding: 9px 16px; border-radius: 999px; font-weight: 600; font-size: .9rem; z-index: 20; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--surface); padding: 9px 16px; border-radius: 999px; font-weight: 600; font-size: .9rem; z-index: 20; max-width: calc(100vw - 32px); text-align: center; }
 @media (prefers-reduced-motion: no-preference) { .toast { animation: rise .2s ease-out; } @keyframes rise { from { transform: translate(-50%, 8px); opacity: 0 } } }
 </style>
 
@@ -143,18 +178,13 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
         <button class="btn out" id="addExpBtn" type="button">+ Expense</button>
       </div>
     </div>
-    <nav class="tabs" role="tablist">
-      <button class="tab" role="tab" data-tab="overview" aria-selected="true" type="button">Overview</button>
-      <button class="tab" role="tab" data-tab="trips" aria-selected="false" type="button">Trips</button>
-      <button class="tab" role="tab" data-tab="ledger" aria-selected="false" type="button">Ledger</button>
-      <button class="tab" role="tab" data-tab="settings" aria-selected="false" type="button">Settings</button>
-    </nav>
+    <nav class="tabs" role="tablist" id="tabs"></nav>
   </div>
 </header>
 
 <div class="wrap">
   <main id="app">
-    <div class="card empty"><h3>Loading your logbook…</h3><p>Trips, fuel, bait, insurance and every other cost will show up here. Tap <b>+ Trip</b> or <b>+ Expense</b> to log your first entry.</p></div>
+    <div class="card empty"><h3>Loading your logbook…</h3><p>Your trips, money, taxes, boat upkeep, customers and email will show up here. Tap <b>+ Trip</b> or <b>+ Expense</b> to log your first entry.</p></div>
   </main>
 </div>
 
@@ -162,7 +192,7 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
 
 <script>
 (() => {
-  // ---------- constants ----------
+  // ================= constants =================
   const EXP_CATS = [
     { id: "fuel", name: "Fuel", fixed: false },
     { id: "bait", name: "Bait & ice", fixed: false },
@@ -172,7 +202,8 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
     { id: "supplies", name: "Food, drinks & supplies", fixed: false },
     { id: "insurance", name: "Insurance", fixed: true },
     { id: "dockage", name: "Dockage & slip", fixed: true },
-    { id: "boatpay", name: "Boat loan payment", fixed: true },
+    { id: "loaninterest", name: "Boat loan interest", fixed: true },
+    { id: "boatpay", name: "Boat loan principal", fixed: true },
     { id: "licenses", name: "Licenses & permits", fixed: true },
     { id: "marketing", name: "Marketing & booking fees", fixed: true },
     { id: "equipment", name: "Electronics & safety gear", fixed: true },
@@ -184,44 +215,65 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
     { id: "giftcert", name: "Gift certificate" },
     { id: "otherinc", name: "Other income" },
   ];
+  // IRS Schedule C line for each expense category (a starting point for your accountant).
+  const SCHED_C = {
+    fuel: "Line 27a · Other expenses (fuel)", bait: "Line 22 · Supplies", gear: "Line 22 · Supplies", supplies: "Line 22 · Supplies",
+    maintenance: "Line 21 · Repairs & maintenance", crew: "Line 11 · Contract labor", insurance: "Line 15 · Insurance",
+    dockage: "Line 20b · Rent, other business property", loaninterest: "Line 16b · Interest", licenses: "Line 23 · Taxes & licenses",
+    marketing: "Line 8 · Advertising", equipment: "Line 13 · Depreciation / Section 179", other: "Line 27a · Other expenses", boatpay: null,
+  };
   const TRIP_TYPES = { half: "Half day", full: "Full day", other: "Other" };
   const PAY = ["Cash", "Card", "Venmo / Zelle", "Check", "Booking site"];
+  const TABS = [["home", "Home"], ["trips", "Trips"], ["money", "Money"], ["inbox", "Inbox"], ["taxes", "Taxes"], ["boat", "Boat"], ["customers", "Customers"], ["settings", "Settings"]];
   const catName = id => (EXP_CATS.find(c => c.id === id) || INC_CATS.find(c => c.id === id) || { name: id }).name;
   const DAY = 864e5;
+  const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const WD = ["Sundays","Mondays","Tuesdays","Wednesdays","Thursdays","Fridays","Saturdays"];
 
-  // ---------- state ----------
-  let db = null, canWrite = true;
-  let trips = [], ledger = [], settings = { name: "", halfPrice: 600, fullPrice: 1100, taxRate: 25 };
-  let loaded = { trips: false, ledger: false };
-  let tab = "overview", period = "year", ledgerFilter = "all", tripFilter = "all";
-  let note = "";
+  // ================= state =================
+  let db = null, mcp = null, sample = null, assets = null, canWrite = true;
+  let trips = [], ledger = [], taxes = [], miles = [], service = [], renewals = [];
+  let settings = { name: "", halfPrice: 600, fullPrice: 1100, incomeRate: 12, stateRate: 0, mileRate: 0.70, homePort: "", engineHours: "", engineHoursDate: "" };
+  const loaded = { trips: false, ledger: false };
+  let tab = "home", period = "year", ledgerFilter = "all", tripFilter = "all", taxYear = new Date().getFullYear();
+  let calMonth = (() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); })();
+  let calSel = null, custSel = null, note = "";
+  const mail = { state: "idle", threads: [], code: null, filter: "all", open: null };
+  const gcal = { state: "idle", events: [], code: null };
+  const askS = { q: "", a: "", busy: false, err: "" };
+  let pendingRender = false;
 
-  // ---------- helpers ----------
+  // ================= helpers =================
   const $ = s => document.querySelector(s);
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  const money = (n, d = 0) => (n < 0 ? "−$" : "$") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+  const decode = s => { const t = document.createElement("textarea"); t.innerHTML = String(s || ""); return t.value; };
+  const money = (n, d = 0) => (n < 0 ? "−$" : "$") + Math.abs(n || 0).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
   const num = (n, d = 1) => (isFinite(n) ? n : 0).toLocaleString("en-US", { maximumFractionDigits: d, minimumFractionDigits: d });
   const pd = s => { const [y, m, d] = String(s).split("-").map(Number); return new Date(y, (m || 1) - 1, d || 1); };
   const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   const today = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; };
-  const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  const WD = ["Sundays","Mondays","Tuesdays","Wednesdays","Thursdays","Fridays","Saturdays"];
+  const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+  const daysUntil = s => Math.round((pd(s) - today()) / DAY);
+  const fmtDate = s => { const d = pd(s); return `${MON[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`; };
+  const fmtTime = t => { if (!t) return ""; const [h, m] = t.split(":").map(Number); return `${(h % 12) || 12}${m ? ":" + String(m).padStart(2, "0") : ""}${h < 12 ? "am" : "pm"}`; };
   const tripIncome = t => t.status === "completed" ? (+t.fee || 0) + (+t.tips || 0) : t.status === "cancelled" ? (+t.deposit || 0) : 0;
-  function toast(msg) { const el = document.createElement("div"); el.className = "toast"; el.textContent = msg; document.body.appendChild(el); setTimeout(() => el.remove(), 2200); }
+  function toast(msg) { const el = document.createElement("div"); el.className = "toast"; el.textContent = msg; document.body.appendChild(el); setTimeout(() => el.remove(), 2600); }
+  function dateCell(d) { const x = pd(d); return `<span class="date">${MON[x.getMonth()]}<b>${x.getDate()}</b></span>`; }
 
   function periodRange(p) {
     const t = today();
-    if (p === "week") { const s = new Date(t); s.setDate(t.getDate() - ((t.getDay() + 6) % 7)); return { start: s, end: t, label: "This week" }; }
-    if (p === "month") return { start: new Date(t.getFullYear(), t.getMonth(), 1), end: t, label: MON[t.getMonth()] + " " + t.getFullYear() };
-    if (p === "year") return { start: new Date(t.getFullYear(), 0, 1), end: t, label: String(t.getFullYear()) + " so far" };
+    if (p === "week") return { start: addDays(t, -((t.getDay() + 6) % 7)), end: t, label: "This week" };
+    if (p === "month") return { start: new Date(t.getFullYear(), t.getMonth(), 1), end: t, label: MONTHS[t.getMonth()] + " " + t.getFullYear() };
+    if (p === "year") return { start: new Date(t.getFullYear(), 0, 1), end: t, label: t.getFullYear() + " so far" };
     if (p === "lastyear") return { start: new Date(t.getFullYear() - 1, 0, 1), end: new Date(t.getFullYear() - 1, 11, 31), label: String(t.getFullYear() - 1) };
     const dates = [...trips.map(x => x.date), ...ledger.map(x => x.date)].filter(Boolean).sort();
     const s = dates.length ? pd(dates[0]) : t;
     return { start: s < t ? s : t, end: t, label: "All time" };
   }
-  const inRange = (d, r) => { const x = pd(d); return x >= r.start && x <= r.end; };
+  const inRange = (d, r) => { if (!d) return false; const x = pd(d); return x >= r.start && x <= r.end; };
 
-  // ---------- computations ----------
+  // ================= computations =================
   function compute(r) {
     const days = Math.max(1, Math.round((r.end - r.start) / DAY) + 1);
     const T = trips.filter(t => inRange(t.date, r));
@@ -237,10 +289,7 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
     const byCat = {};
     exp.forEach(e => byCat[e.cat] = (byCat[e.cat] || 0) + (+e.amount || 0));
     const types = {};
-    for (const k of Object.keys(TRIP_TYPES)) {
-      const ts = done.filter(t => t.type === k);
-      types[k] = { n: ts.length, rev: ts.reduce((a, t) => a + tripIncome(t), 0) };
-    }
+    for (const k of Object.keys(TRIP_TYPES)) { const ts = done.filter(t => t.type === k); types[k] = { n: ts.length, rev: ts.reduce((a, t) => a + tripIncome(t), 0) }; }
     const fuel = exp.filter(e => e.cat === "fuel");
     const fuelCost = fuel.reduce((a, e) => a + (+e.amount || 0), 0);
     const gallons = fuel.reduce((a, e) => a + (+e.gallons || 0), 0);
@@ -257,59 +306,235 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
       net: income - expTotal, byCat, types, fuelCost, gallons, fuelPricedCost, variable, fixed, hours, party, wd, months };
   }
 
-  // ---------- rendering ----------
-  function render() {
+  function taxCalc(year) {
+    const t = today(), cur = t.getFullYear();
+    const r = { start: new Date(year, 0, 1), end: year < cur ? new Date(year, 11, 31) : t };
+    const c = compute(r);
+    const nonDeduct = c.byCat.boatpay || 0;
+    const deductible = c.expTotal - nonDeduct;
+    const mi = miles.filter(m => inRange(m.date, r)).reduce((a, m) => a + (+m.miles || 0), 0);
+    const mileDed = mi * (+settings.mileRate || 0);
+    const net = c.income - deductible - mileDed;
+    const se = Math.max(0, net) * 0.9235 * 0.153;
+    const inc = Math.max(0, net - se / 2) * (+settings.incomeRate || 0) / 100;
+    const st = Math.max(0, net) * (+settings.stateRate || 0) / 100;
+    const total = se + inc + st;
+    const frac = year < cur ? 1 : Math.max(c.days, 30) / 365;
+    const projected = total / frac;
+    const dues = [`${year}-04-15`, `${year}-06-15`, `${year}-09-15`, `${year + 1}-01-15`];
+    const quarters = dues.map((due, i) => {
+      const paid = taxes.filter(p => +p.year === year && +p.q === i + 1).reduce((a, p) => a + (+p.amount || 0), 0);
+      const suggested = projected / 4;
+      const d = daysUntil(due);
+      const status = paid >= suggested * 0.98 && suggested > 0 ? "paid" : d < 0 ? (suggested > 0 ? "overdue" : "ok") : d <= 30 ? "soon" : "upcoming";
+      return { q: i + 1, due, paid, suggested, status, d };
+    });
+    const paidTotal = quarters.reduce((a, q) => a + q.paid, 0);
+    return { year, r, c, deductible, nonDeduct, mi, mileDed, net, se, inc, st, total, projected, quarters, paidTotal };
+  }
+
+  function engineNow() {
+    if (settings.engineHours === "" || settings.engineHours == null) return null;
+    const since = settings.engineHoursDate || "0000-00-00";
+    const add = trips.filter(t => t.status === "completed" && t.date > since && t.date <= iso(today())).reduce((a, t) => a + (+t.hours || 0), 0);
+    return +settings.engineHours + add;
+  }
+  function serviceStatus(s) {
+    const now = engineNow();
+    let hoursLeft = null, daysLeft = null;
+    if (+s.everyHours > 0 && s.lastHours !== "" && s.lastHours != null && now != null) hoursLeft = +s.lastHours + +s.everyHours - now;
+    if (+s.everyMonths > 0 && s.lastDate) { const d = pd(s.lastDate); d.setMonth(d.getMonth() + +s.everyMonths); daysLeft = Math.round((d - today()) / DAY); }
+    let status = "unknown";
+    if (hoursLeft != null || daysLeft != null) {
+      status = (hoursLeft != null && hoursLeft < 0) || (daysLeft != null && daysLeft < 0) ? "overdue"
+        : (hoursLeft != null && hoursLeft <= 15) || (daysLeft != null && daysLeft <= 21) ? "soon" : "ok";
+    }
+    return { hoursLeft, daysLeft, status };
+  }
+  function renewalStatus(r) {
+    if (!r.due) return { status: "unknown", d: null };
+    const d = daysUntil(r.due);
+    return { status: d < 0 ? "overdue" : d <= 45 ? "soon" : "ok", d };
+  }
+
+  // ================= booking email parsing =================
+  function parseBooking(subject, body, senderEmail, ownEmails) {
+    const text = `${subject}\n${body}`;
+    const out = { type: "half", date: "", time: "", fee: "", customer: "", email: "", phone: "", party: "" };
+    const dm = text.match(/(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2}),?\s+(\d{4})/i);
+    if (dm) out.date = iso(new Date(+dm[3], MONTHS.findIndex(m => m.toLowerCase() === dm[1].toLowerCase()), +dm[2]));
+    if (/full[\s-]?day/i.test(text)) out.type = "full"; else if (/half[\s-]?day/i.test(text)) out.type = "half";
+    const tm = text.match(/\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b/i);
+    if (tm) { let h = +tm[1] % 12; if (/pm/i.test(tm[3])) h += 12; out.time = `${String(h).padStart(2, "0")}:${tm[2] || "00"}`; }
+    else if (/afternoon/i.test(text)) out.time = "13:00"; else if (/morning/i.test(text)) out.time = "07:00";
+    const fm = text.match(/\$\s?([\d,]+(?:\.\d{2})?)/); if (fm) out.fee = +fm[1].replace(/,/g, "");
+    const cm = subject.match(/\bfrom\s+(.+?)\s*$/i); if (cm) out.customer = cm[1];
+    const skip = new Set([String(senderEmail || "").toLowerCase(), ...(ownEmails || []).map(e => String(e).toLowerCase())]);
+    const em = (body.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi) || []).find(e => !skip.has(e.toLowerCase()) && !/resend\.dev|noreply|no-reply/i.test(e));
+    if (em) out.email = em;
+    const ph = body.match(/(\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}/); if (ph) out.phone = ph[0].trim();
+    const pm = text.match(/(\d{1,2})\s+(?:people|anglers|guests|persons|adults)/i) || text.match(/party(?: size)?[:\s]+(\d{1,2})/i); if (pm) out.party = +pm[1];
+    return out;
+  }
+
+  // ================= render =================
+  function render(force) {
+    const ae = document.activeElement;
+    if (!force && ae && $("#app").contains(ae) && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) { pendingRender = true; return; }
+    pendingRender = false;
     $("#bizName").textContent = settings.name || "Charter Logbook";
     $("#todayLbl").textContent = today().toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
-    document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === tab)));
+    const reqCount = newRequests().length;
+    $("#tabs").innerHTML = TABS.map(([k, l]) => `<button class="tab" role="tab" type="button" data-tab="${k}" aria-selected="${tab === k}">${l}${k === "inbox" && reqCount ? `<span class="badge">${reqCount}</span>` : ""}</button>`).join("");
     $("#addTripBtn").hidden = $("#addExpBtn").hidden = !canWrite || !db;
     const app = $("#app");
     if (!db) { app.innerHTML = `<div class="card empty"><h3>Can't reach your logbook</h3><p>${esc(note || "Open this page while signed in to claude.ai to save and see entries.")}</p></div>`; return; }
     if (!loaded.trips || !loaded.ledger) { app.innerHTML = `<div class="card empty"><h3>Loading your logbook…</h3><p>${esc(note || "Fetching trips and expenses.")}</p></div>`; return; }
     const ex = trips.some(t => t.example) || ledger.some(e => e.example);
-    const banner = ex ? `<div class="banner"><span><strong>Example data.</strong> These sample trips and expenses show how the logbook works. Clear them before you log your own.</span>${canWrite ? `<button class="btn small" type="button" data-act="clear-ex">Clear examples</button>` : ""}</div>` : "";
+    const banner = ex ? `<div class="banner"><span><strong>Example data.</strong> The sample trips and expenses show how the logbook works. Clear them before you log your own.</span>${canWrite ? `<button class="btn small" type="button" data-act="clear-ex">Clear examples</button>` : ""}</div>` : "";
     const stat = note ? `<p class="status-line">${esc(note)}</p>` : "";
-    app.innerHTML = banner + stat + ({ overview: viewOverview, trips: viewTrips, ledger: viewLedger, settings: viewSettings }[tab])();
-    if (tab === "overview") drawChart();
+    const views = { home: viewHome, trips: viewTrips, money: viewMoney, inbox: viewInbox, taxes: viewTaxes, boat: viewBoat, customers: viewCustomers, settings: viewSettings };
+    app.innerHTML = banner + stat + views[tab]();
+    if (tab === "money") drawChart();
   }
+  document.addEventListener("focusout", () => setTimeout(() => { if (pendingRender) render(); }, 0));
 
   function periodChips() {
     const opts = [["week", "Week"], ["month", "Month"], ["year", "Year"], ["lastyear", "Last year"], ["all", "All time"]];
     return `<div class="periods">${opts.map(([k, l]) => `<button class="chip" type="button" data-period="${k}" aria-pressed="${period === k}">${l}</button>`).join("")}</div>`;
   }
 
-  function viewOverview() {
+  // ---------- HOME ----------
+  function newRequests() {
+    const added = new Set(trips.map(t => t.emailThreadId).filter(Boolean));
+    return mail.threads.filter(t => t.booking && !added.has(t.id));
+  }
+  function alertsList() {
+    const a = [];
+    newRequests().forEach(t => a.push({ lvl: "info", txt: `New booking request: ${t.subject}`, act: `<button class="btn small primary" type="button" data-open-thread="${esc(t.id)}">Review</button>` }));
+    renewals.forEach(r => { const s = renewalStatus(r); if (s.status === "overdue") a.push({ lvl: "bad", txt: `${r.name} expired ${fmtDate(r.due)}`, act: `<button class="btn small" type="button" data-edit-renewal="${esc(r.id)}">Update</button>` }); else if (s.status === "soon") a.push({ lvl: "warn", txt: `${r.name} renews in ${s.d} day${s.d === 1 ? "" : "s"} (${fmtDate(r.due)})`, act: `<button class="btn small" type="button" data-edit-renewal="${esc(r.id)}">Update</button>` }); });
+    service.forEach(s => { const st = serviceStatus(s); if (st.status === "overdue" || st.status === "soon") a.push({ lvl: st.status === "overdue" ? "bad" : "warn", txt: `${s.name}: ${st.status === "overdue" ? "overdue" : "due soon"}${st.hoursLeft != null ? ` (${num(Math.abs(st.hoursLeft), 0)} hrs ${st.hoursLeft < 0 ? "over" : "left"})` : ""}${st.daysLeft != null && st.hoursLeft == null ? ` (${Math.abs(st.daysLeft)} days ${st.daysLeft < 0 ? "over" : "left"})` : ""}`, act: canWrite ? `<button class="btn small" type="button" data-service-done="${esc(s.id)}">Mark done</button>` : "" }); });
+    const tc = taxCalc(today().getFullYear());
+    const prev = taxCalc(today().getFullYear() - 1);
+    [...prev.quarters.filter(q => q.q === 4), ...tc.quarters].forEach(q => {
+      if ((q.status === "soon" || q.status === "overdue") && q.suggested - q.paid > 1) a.push({ lvl: q.status === "overdue" ? "bad" : "warn", txt: `Estimated tax payment ${q.status === "overdue" ? "was due" : "due"} ${fmtDate(q.due)}: about ${money(q.suggested - q.paid)}`, act: `<button class="btn small" type="button" data-tab="taxes">See taxes</button>` });
+    });
+    if (engineNow() == null && service.length) a.push({ lvl: "info", txt: "Enter your engine hours so the app can tell you when service is due.", act: `<button class="btn small" type="button" data-act="engine">Set hours</button>` });
+    return a;
+  }
+  function upcomingItems(days) {
+    const t0 = iso(today()), t1 = iso(addDays(today(), days));
+    const items = trips.filter(t => t.status === "booked" && t.date >= t0 && t.date <= t1).map(t => ({ kind: "trip", date: t.date, time: t.time || "", t }));
+    const tripEv = new Set(trips.map(t => t.calEventId).filter(Boolean));
+    gcal.events.filter(e => e.date >= t0 && e.date <= t1 && !tripEv.has(e.id)).forEach(e => items.push({ kind: "gcal", date: e.date, time: e.time || "", e }));
+    return items.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+  }
+  function gcalRow(e) {
+    return `<div class="row">${dateCell(e.date)}<span class="main"><span class="t1">${esc(e.title)}<span class="pill gcal">calendar</span></span><span class="t2">${esc([e.allDay ? "All day" : fmtTime(e.time), e.location].filter(Boolean).join(" · ")) || "&nbsp;"}</span></span>${e.url ? `<a class="btn small ghost" href="${esc(e.url)}" target="_blank" rel="noopener">Open</a>` : "<span></span>"}</div>`;
+  }
+  function viewHome() {
+    const t = today();
+    const greet = new Date().getHours() < 12 ? "Good morning" : new Date().getHours() < 17 ? "Good afternoon" : "Good evening";
+    const al = alertsList();
+    const alertsHtml = al.length ? `<div class="alerts">${al.map(x => `<div class="alert ${x.lvl === "bad" ? "bad" : x.lvl === "info" ? "info" : ""}"><span class="a-txt">${esc(x.txt)}</span>${x.act || ""}</div>`).join("")}</div>` : `<p class="note" style="margin:0">Nothing needs your attention right now.</p>`;
+    const up = upcomingItems(14);
+    const upHtml = up.length ? `<div class="list">${up.map(x => x.kind === "trip" ? tripRow(x.t) : gcalRow(x.e)).join("")}</div>` : `<p class="note">No bookings in the next two weeks.${gcal.state === "ok" ? " Your Google Calendar is clear too." : ""}</p>`;
+    const m = compute({ start: new Date(t.getFullYear(), t.getMonth(), 1), end: t });
+    const y = taxCalc(t.getFullYear());
+    const gcalNote = gcal.state === "error" ? `<p class="note">${esc(connMsg("Google Calendar", gcal.code))} ${needsConsent(gcal.code) ? `<button class="btn small" type="button" data-act="connect-cal">Connect Google Calendar</button>` : ""}</p>` : "";
+    const sug = ["How did this month compare to last month?", "Which trips make me the most money?", "How much should I set aside for taxes this quarter?", "Where can I cut costs?"];
+    const askHtml = sample ? `<div class="card ask"><div class="card-head" style="margin:0"><h2>Ask Claude about your business</h2></div>
+      <textarea id="askQ" placeholder="e.g. What was my best month and why?">${esc(askS.q)}</textarea>
+      <div class="suggest">${sug.map(s => `<button class="chip" type="button" data-ask="${esc(s)}">${esc(s)}</button>`).join("")}</div>
+      <div class="add-row"><button class="btn primary" type="button" data-act="ask" ${askS.busy ? "disabled" : ""}>${askS.busy ? "Thinking…" : "Ask"}</button></div>
+      ${askS.err ? `<p class="err">${esc(askS.err)}</p>` : ""}
+      ${askS.a || askS.busy ? `<div class="answer" id="askOut">${esc(askS.a || "Thinking…")}</div>` : ""}
+      <p class="note" style="margin:0">Claude sees your logbook numbers to answer. It can make mistakes, so double-check anything important.</p></div>` : "";
+    return `
+    <div class="card"><div class="card-head"><h2>${greet}${settings.name ? ", " + esc(settings.name.split(" ")[0]) : ""}</h2><span class="note">${t.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</span></div>
+      <div class="tiles" style="margin-top:0;padding-top:0;border-top:0">
+        <div class="tile"><div class="label">${MON[t.getMonth()]} profit</div><div class="v num ${m.net >= 0 ? "pos" : "neg"}">${money(m.net)}</div></div>
+        <div class="tile"><div class="label">${MON[t.getMonth()]} trips</div><div class="v num">${m.done.length}</div></div>
+        <div class="tile"><div class="label">${t.getFullYear()} profit</div><div class="v num ${y.c.net >= 0 ? "pos" : "neg"}">${money(y.c.net)}</div></div>
+        <div class="tile"><div class="label">Tax set-aside</div><div class="v num">${money(Math.max(0, y.total - y.paidTotal))}</div></div>
+      </div></div>
+    <div class="card"><div class="card-head"><h2>Needs attention</h2><span class="note">${al.length ? al.length + " item" + (al.length === 1 ? "" : "s") : ""}</span></div>${alertsHtml}</div>
+    <div class="card"><div class="card-head"><h2>Next 14 days</h2><button class="btn small" type="button" data-tab="trips">Calendar</button></div>${upHtml}${gcalNote}</div>
+    ${askHtml}
+    <div class="card"><div class="card-head"><h2>Before you head out</h2></div>
+      <div class="links">
+        <a class="btn small" href="https://www.weather.gov/marine/" target="_blank" rel="noopener">Marine forecast</a>
+        <a class="btn small" href="https://tidesandcurrents.noaa.gov/" target="_blank" rel="noopener">Tides</a>
+        <a class="btn small" href="https://www.windy.com/" target="_blank" rel="noopener">Wind map</a>
+        <a class="btn small" href="https://www.ndbc.noaa.gov/" target="_blank" rel="noopener">Buoy reports</a>
+        <a class="btn small" href="https://www.fisheries.noaa.gov/rules-and-regulations" target="_blank" rel="noopener">Fishing regulations</a>
+      </div></div>`;
+  }
+
+  // ---------- TRIPS ----------
+  function tripRow(t) {
+    const st = t.status !== "completed" ? `<span class="pill ${t.status}">${t.status}</span>` : "";
+    const sub = [t.time && t.status === "booked" ? fmtTime(t.time) : "", t.customer, t.party ? t.party + " anglers" : "", t.hours ? t.hours + " hrs" : "", t.status !== "booked" ? t.pay : ""].filter(Boolean).map(esc).join(" · ");
+    const amt = t.status === "booked" ? `<span class="amt" style="color:var(--muted)">${money(+t.fee || 0)}</span>` : `<span class="amt in">${money(tripIncome(t))}</span>`;
+    return `<button class="row" type="button" data-edit-trip="${esc(t.id)}">${dateCell(t.date)}<span class="main"><span class="t1">${TRIP_TYPES[t.type] || "Trip"} charter<span class="pill ${t.type}">${t.type === "half" ? "½ day" : t.type === "full" ? "Full" : "Other"}</span>${st}${t.example ? `<span class="pill ex">example</span>` : ""}</span><span class="t2">${sub || "&nbsp;"}</span></span>${amt}</button>`;
+  }
+  function viewTrips() {
+    const first = calMonth, y = first.getFullYear(), mo = first.getMonth();
+    const start = addDays(first, -first.getDay());
+    const byDay = {};
+    trips.forEach(t => (byDay[t.date] ||= []).push({ k: t.status === "completed" ? (t.type === "full" ? "full" : "") : t.status }));
+    gcal.events.forEach(e => (byDay[e.date] ||= []).push({ k: "gcal" }));
+    let cells = ["S","M","T","W","T","F","S"].map(d => `<div class="wd">${d}</div>`).join("");
+    const t0 = iso(today());
+    for (let i = 0; i < 42; i++) {
+      const d = addDays(start, i), k = iso(d);
+      if (i >= 35 && d.getMonth() !== mo) break;
+      const marks = (byDay[k] || []).slice(0, 6).map(m => `<span class="mk ${m.k}"></span>`).join("");
+      cells += `<button type="button" class="day ${d.getMonth() !== mo ? "out-m" : ""} ${k === t0 ? "today" : ""}" data-day="${k}" aria-pressed="${calSel === k}" aria-label="${fmtDate(k)}"><span class="dn">${d.getDate()}</span><span class="marks">${marks}</span></button>`;
+    }
+    let dayHtml = "";
+    if (calSel) {
+      const dt = trips.filter(t => t.date === calSel), de = gcal.events.filter(e => e.date === calSel);
+      dayHtml = `<div style="margin-top:12px"><div class="card-head" style="margin-bottom:4px"><h3>${new Date(pd(calSel)).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</h3>${canWrite ? `<button class="btn small primary" type="button" data-new-trip-on="${calSel}">+ Trip this day</button>` : ""}</div>
+        ${dt.length || de.length ? `<div class="list">${dt.map(tripRow).join("")}${de.map(gcalRow).join("")}</div>` : `<p class="note">Nothing on this day.</p>`}</div>`;
+    }
+    let list = trips.slice();
+    if (tripFilter !== "all") list = list.filter(t => tripFilter === t.type || tripFilter === t.status);
+    list.sort((a, b) => b.date.localeCompare(a.date));
+    const f = [["all", "All"], ["booked", "Booked"], ["half", "Half day"], ["full", "Full day"], ["cancelled", "Cancelled"]];
+    return `<div class="card"><div class="card-head"><h2>${MONTHS[mo]} ${y}</h2><div class="add-row"><button class="btn small" type="button" data-cal="-1" aria-label="Previous month">‹ Prev</button><button class="btn small" type="button" data-cal="0">Today</button><button class="btn small" type="button" data-cal="1" aria-label="Next month">Next ›</button></div></div>
+      <div class="cal">${cells}</div>
+      <div class="legend" style="margin-top:8px;flex-wrap:wrap"><span><span class="dot" style="background:var(--accent)"></span>Half day</span><span><span class="dot" style="background:var(--ink)"></span>Full day</span><span><span class="dot" style="background:var(--warn)"></span>Booked</span><span><span class="dot" style="background:var(--bad)"></span>Cancelled</span><span><span class="dot" style="background:var(--muted)"></span>Google Calendar</span></div>
+      ${dayHtml}</div>
+    <div class="card"><div class="card-head"><h2>All trips</h2><span class="note">${list.length}</span></div>
+      <div class="periods" style="margin-bottom:8px">${f.map(([k, l]) => `<button class="chip" type="button" data-tripfilter="${k}" aria-pressed="${tripFilter === k}">${l}</button>`).join("")}</div>
+      ${list.length ? `<div class="list">${list.map(tripRow).join("")}</div>` : `<div class="empty"><h3>No trips here yet</h3><p>Tap <b>+ Trip</b> after each charter. Log future bookings too, with status “Booked”.</p></div>`}</div>`;
+  }
+
+  // ---------- MONEY ----------
+  function viewMoney() {
     const r = periodRange(period), c = compute(r);
     const nTrips = c.done.length;
     const margin = c.income > 0 ? c.net / c.income * 100 : 0;
-    const tax = Math.max(0, c.net) * (+settings.taxRate || 0) / 100;
-
-    // trip averages table
     const rows = Object.entries(TRIP_TYPES).filter(([k]) => k !== "other" || c.types.other.n > 0).map(([k, name]) => {
       const t = c.types[k];
-      return `<tr><td><span class="pill ${k}" style="margin:0 6px 0 0">${k === "half" ? "½" : k === "full" ? "1" : "·"}</span>${name}</td><td>${t.n}</td><td>${num(t.n / c.weeks)}</td><td>${num(t.n / c.monthsN)}</td><td>${num(t.n / c.yearsN, 0)}</td><td>${money(t.rev)}</td><td>${t.n ? money(t.rev / t.n) : "—"}</td></tr>`;
+      return `<tr><td>${name}</td><td>${t.n}</td><td>${num(t.n / c.weeks)}</td><td>${num(t.n / c.monthsN)}</td><td>${num(t.n / c.yearsN, 0)}</td><td>${money(t.rev)}</td><td>${t.n ? money(t.rev / t.n) : "—"}</td></tr>`;
     }).join("");
     const allRev = Object.values(c.types).reduce((a, t) => a + t.rev, 0);
     const table = `<div class="tbl-wrap"><table><thead><tr><th>Trip type</th><th>Trips</th><th>/ week</th><th>/ month</th><th>/ year</th><th>Revenue</th><th>Avg</th></tr></thead><tbody>${rows}
       <tr class="total"><td>All trips</td><td>${nTrips}</td><td>${num(nTrips / c.weeks)}</td><td>${num(nTrips / c.monthsN)}</td><td>${num(nTrips / c.yearsN, 0)}</td><td>${money(allRev)}</td><td>${nTrips ? money(allRev / nTrips) : "—"}</td></tr></tbody></table></div>`;
-
-    // expense breakdown
     const cats = Object.entries(c.byCat).sort((a, b) => b[1] - a[1]);
     const maxCat = cats.length ? cats[0][1] : 1;
-    const bars = cats.length ? `<div class="bars">${cats.map(([k, v]) => `<div class="bar-row"><span class="nm">${esc(catName(k))}</span><span class="bar-track"><span class="bar-fill" style="display:block;width:${Math.max(2, v / maxCat * 100)}%"></span></span><span class="amt">${money(v)}</span></div>`).join("")}</div>`
-      : `<p class="note">No expenses logged in this period.</p>`;
-
-    // insights
+    const bars = cats.length ? `<div class="bars">${cats.map(([k, v]) => `<div class="bar-row"><span class="nm">${esc(catName(k))}</span><span class="bar-track"><span class="bar-fill" style="width:${Math.max(2, v / maxCat * 100)}%"></span></span><span class="amt">${money(v)}</span></div>`).join("")}</div>` : `<p class="note">No expenses logged in this period.</p>`;
     const busiest = c.wd.some(x => x) ? WD[c.wd.indexOf(Math.max(...c.wd))] : "—";
     const fixedPerMonth = c.fixed / Math.max(1, c.monthsN);
     const avgRev = nTrips ? c.tripInc / nTrips : 0;
-    const varPerTrip = nTrips ? c.variable / nTrips : 0;
-    const contrib = avgRev - varPerTrip;
+    const contrib = avgRev - (nTrips ? c.variable / nTrips : 0);
     const breakEven = contrib > 0 && c.fixed > 0 ? Math.ceil(fixedPerMonth / contrib) : null;
     const cancRate = (c.done.length + c.canc.length) ? c.canc.length / (c.done.length + c.canc.length) * 100 : 0;
     const ppg = c.gallons > 0 ? c.fuelPricedCost / c.gallons : 0;
-    const monthsSorted = Object.entries(c.months).sort((a, b) => (b[1].inc - b[1].exp) - (a[1].inc - a[1].exp));
-    const best = monthsSorted.length ? `${MON[+monthsSorted[0][0].slice(5) - 1]} ${monthsSorted[0][0].slice(0, 4)} (${money(monthsSorted[0][1].inc - monthsSorted[0][1].exp)})` : "—";
+    const ms = Object.entries(c.months).sort((a, b) => (b[1].inc - b[1].exp) - (a[1].inc - a[1].exp));
+    const best = ms.length ? `${MON[+ms[0][0].slice(5) - 1]} ${ms[0][0].slice(0, 4)} (${money(ms[0][1].inc - ms[0][1].exp)})` : "—";
     const ins = [
       ["Fuel per trip", nTrips ? money(c.fuelCost / nTrips) : "—"],
       ["Gallons burned · avg price", c.gallons ? `${num(c.gallons, 0)} gal · ${money(ppg, 2)}/gal` : "—"],
@@ -324,17 +549,22 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
       ["Best month", best],
     ].map(([k, v]) => `<div class="ins"><span class="k">${k}</span><span class="v">${v}</span></div>`).join("");
 
-    // upcoming
-    const t0 = iso(today());
-    const up = trips.filter(t => t.status === "booked" && t.date >= t0).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 6);
-    const upHtml = up.length ? `<div class="list">${up.map(tripRow).join("")}</div>` : `<p class="note">No upcoming bookings. Log a trip with status “Booked” to see it here.</p>`;
-    const booked = trips.filter(t => t.status === "booked" && t.date >= t0).reduce((a, t) => a + (+t.fee || 0), 0);
+    // ledger
+    let lr = [...trips.filter(t => inRange(t.date, r) && t.status !== "booked").map(t => ({ ...t, _t: "trip" })), ...ledger.filter(e => inRange(e.date, r)).map(e => ({ ...e, _t: "ledger" }))];
+    if (ledgerFilter === "expense") lr = lr.filter(x => x._t === "ledger" && x.kind === "expense");
+    else if (ledgerFilter === "income") lr = lr.filter(x => x._t === "trip" || x.kind === "income");
+    else if (ledgerFilter === "noreceipt") lr = lr.filter(x => x._t === "ledger" && x.kind === "expense" && !x.receiptId);
+    else if (ledgerFilter !== "all") lr = lr.filter(x => x._t === "ledger" && x.cat === ledgerFilter);
+    lr.sort((a, b) => b.date.localeCompare(a.date) || (b.created || 0) - (a.created || 0));
+    const sumIn = lr.reduce((a, x) => a + (x._t === "trip" ? tripIncome(x) : x.kind === "income" ? +x.amount || 0 : 0), 0);
+    const sumOut = lr.reduce((a, x) => a + (x._t === "ledger" && x.kind === "expense" ? +x.amount || 0 : 0), 0);
+    const lf = [["all", "Everything"], ["income", "Money in"], ["expense", "Money out"], ["fuel", "Fuel"], ["bait", "Bait"], ["gear", "Gear"], ["maintenance", "Maintenance"], ["insurance", "Insurance"], ["noreceipt", "Missing receipt"]];
 
     return `
     <div class="card">
       <div class="card-head"><h2>${esc(r.label)}</h2>${periodChips()}</div>
       <div class="hero">
-        <div class="stat"><span class="label">Net profit</span><span class="big num ${c.net >= 0 ? "pos" : "neg"}">${money(c.net)}</span><span class="hint">${c.income > 0 ? num(margin, 0) + "% margin" : "No income yet"} · set aside ${money(tax)} for taxes</span></div>
+        <div class="stat"><span class="label">Net profit</span><span class="big num ${c.net >= 0 ? "pos" : "neg"}">${money(c.net)}</span><span class="hint">${c.income > 0 ? num(margin, 0) + "% margin" : "No income yet"}</span></div>
         <div class="stat"><span class="label">Money in</span><span class="mid num in">${money(c.income)}</span><span class="hint">${money(c.tripInc)} trips · ${money(c.tips)} tips${c.otherInc ? " · " + money(c.otherInc) + " other" : ""}</span></div>
         <div class="stat"><span class="label">Money out</span><span class="mid num outc">${money(c.expTotal)}</span><span class="hint">${money(c.fixed)} fixed · ${money(c.variable)} per-trip</span></div>
       </div>
@@ -352,9 +582,16 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
       <div class="card"><div class="card-head"><h2>Where the money goes</h2><span class="note">${money(c.expTotal)}</span></div>${bars}</div>
       <div class="card"><div class="card-head"><h2>By the numbers</h2></div><div class="insights">${ins}</div></div>
     </div>
-    <div class="card"><div class="card-head"><h2>Upcoming bookings</h2><span class="note">${up.length ? money(booked) + " on the books" : ""}</span></div>${upHtml}</div>`;
+    <div class="card"><div class="card-head"><h2>Ledger</h2><div class="add-row">${canWrite ? `<button class="btn small" type="button" data-act="add-income">+ Other income</button>` : ""}</div></div>
+      <div class="periods" style="margin-bottom:8px">${lf.map(([k, l]) => `<button class="chip" type="button" data-ledgerfilter="${k}" aria-pressed="${ledgerFilter === k}">${l}</button>`).join("")}</div>
+      <p class="note num" style="margin:4px 0 8px">In <b class="in">${money(sumIn, 2)}</b> · Out <b class="outc">${money(sumOut, 2)}</b> · ${lr.length} entries</p>
+      ${lr.length ? `<div class="list">${lr.map(x => x._t === "trip" ? tripRow(x) : ledgerRow(x)).join("")}</div>` : `<div class="empty"><h3>Nothing logged here</h3><p>Tap <b>+ Expense</b> for fuel, bait, insurance, repairs and anything else you spend.</p></div>`}</div>`;
   }
-
+  function ledgerRow(e) {
+    const sub = [e.vendor, e.gallons ? num(+e.gallons, 1) + " gal" : "", e.notes].filter(Boolean).map(esc).join(" · ");
+    const isInc = e.kind === "income";
+    return `<button class="row" type="button" data-edit-ledger="${esc(e.id)}">${dateCell(e.date)}<span class="main"><span class="t1">${esc(catName(e.cat))}${e.receiptId ? `<span class="pill ok">receipt</span>` : ""}${e.example ? `<span class="pill ex">example</span>` : ""}</span><span class="t2">${sub || "&nbsp;"}</span></span><span class="amt ${isInc ? "in" : "outc"}">${isInc ? "+" : "−"}${money(+e.amount || 0, 2)}</span></button>`;
+  }
   function drawChart() {
     const el = $("#chart"); if (!el) return;
     const t = today(); const ms = [];
@@ -379,77 +616,225 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
   function niceStep(x) { const p = Math.pow(10, Math.floor(Math.log10(Math.max(x, 1)))); const f = x / p; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p; }
   function short(v) { return v >= 1000 ? "$" + (v / 1000).toFixed(v % 1000 ? 1 : 0) + "k" : "$" + v; }
 
-  function dateCell(d) { const x = pd(d); return `<span class="date">${MON[x.getMonth()]}<b>${x.getDate()}</b></span>`; }
-  function tripRow(t) {
-    const st = t.status !== "completed" ? `<span class="pill ${t.status}">${t.status}</span>` : "";
-    const sub = [t.customer, t.party ? t.party + " anglers" : "", t.hours ? t.hours + " hrs" : "", t.pay].filter(Boolean).map(esc).join(" · ");
-    const amt = t.status === "booked" ? `<span class="amt" style="color:var(--muted)">${money(+t.fee || 0)}</span>` : `<span class="amt in">${money(tripIncome(t))}</span>`;
-    return `<button class="row" type="button" data-edit-trip="${esc(t.id)}">${dateCell(t.date)}<span class="main"><span class="t1">${TRIP_TYPES[t.type] || "Trip"} charter<span class="pill ${t.type}">${t.type === "half" ? "½ day" : t.type === "full" ? "Full" : "Other"}</span>${st}${t.example ? `<span class="pill ex">example</span>` : ""}</span><span class="t2">${sub || "&nbsp;"}</span></span>${amt}</button>`;
+  // ---------- INBOX ----------
+  const needsConsent = c => c === "approval_required" || c === "not_in_manifest" || c === "consent_required";
+  function connMsg(server, code) {
+    switch (code) {
+      case "needs_reauth": return `${server} needs reconnecting. Reconnect it in claude.ai Settings → Connectors.`;
+      case "server_not_connected": return `${server} isn't connected. Add it in claude.ai Settings → Connectors.`;
+      case "selection_required": return `You have more than one ${server} account connected. Choose one when claude.ai asks.`;
+      case "approval_required": case "not_in_manifest": case "consent_required": return `This app needs your OK to use ${server}.`;
+      case "blocked_by_policy": return `${server} is blocked here by your organization's settings.`;
+      case "server_unavailable": case "rate_limited": return `${server} isn't answering right now. It will try again in a few minutes.`;
+      case "not_granted": case "capability_disabled": case "capability_removed": return `${server} isn't available in this view. Open the app on claude.ai.`;
+      default: return `Couldn't load ${server} right now.`;
+    }
   }
-  function ledgerRow(e) {
-    const sub = [e.vendor, e.gallons ? num(+e.gallons, 1) + " gal" : "", e.notes].filter(Boolean).map(esc).join(" · ");
-    const isInc = e.kind === "income";
-    return `<button class="row" type="button" data-edit-ledger="${esc(e.id)}">${dateCell(e.date)}<span class="main"><span class="t1">${esc(catName(e.cat))}${e.example ? `<span class="pill ex">example</span>` : ""}</span><span class="t2">${sub || "&nbsp;"}</span></span><span class="amt ${isInc ? "in" : "outc"}">${isInc ? "+" : "−"}${money(+e.amount || 0, 2).replace("−", "")}</span></button>`;
+  function viewInbox() {
+    if (!mcp) return `<div class="card empty"><h3>Email isn't available here</h3><p>Open this page on claude.ai, signed in, to see your Gmail.</p></div>`;
+    if (mail.open) return viewThread();
+    const errBox = mail.state === "error" ? `<div class="alert ${needsConsent(mail.code) ? "info" : "bad"}"><span class="a-txt">${esc(connMsg("Gmail", mail.code))}</span>${needsConsent(mail.code) || mail.code === "selection_required" ? `<button class="btn small primary" type="button" data-act="connect-mail">Connect Gmail</button>` : ""}</div>` : "";
+    let list = mail.threads;
+    if (mail.filter === "booking") list = list.filter(t => t.booking);
+    if (mail.filter === "unread") list = list.filter(t => t.unread);
+    const f = [["all", "Inbox"], ["booking", "Booking requests"], ["unread", "Unread"]];
+    const added = new Map(trips.filter(t => t.emailThreadId).map(t => [t.emailThreadId, t]));
+    const rows = list.map(t => `<button class="row ${t.unread ? "unread" : ""}" type="button" data-open-thread="${esc(t.id)}">${t.date ? dateCell(t.date) : "<span></span>"}<span class="main"><span class="t1">${esc(t.subject)}${t.booking ? (added.has(t.id) ? `<span class="pill ok">on schedule</span>` : `<span class="pill req">booking</span>`) : ""}</span><span class="t2">${esc(t.from)} · ${esc(t.snippet)}</span></span><span class="note">${t.count > 1 ? t.count : ""}</span></button>`).join("");
+    return `<div class="card"><div class="card-head"><h2>Inbox</h2><div class="add-row"><button class="btn small" type="button" data-act="refresh-mail">Refresh</button><a class="btn small" href="https://mail.google.com/" target="_blank" rel="noopener">Open Gmail</a></div></div>
+      <div class="periods" style="margin-bottom:8px">${f.map(([k, l]) => `<button class="chip" type="button" data-mailfilter="${k}" aria-pressed="${mail.filter === k}">${l}</button>`).join("")}</div>
+      ${errBox}
+      ${mail.state === "loading" && !mail.threads.length ? `<p class="note">Loading your email…</p>` : list.length ? `<div class="list">${rows}</div>` : mail.state === "ok" ? `<div class="empty"><h3>${mail.filter === "booking" ? "No booking requests" : "All caught up"}</h3><p>Showing the last 60 days of your inbox.</p></div>` : ""}
+      <p class="note" style="margin-bottom:0">Booking requests from your website get a “booking” tag. Open one to add it to your schedule or draft a reply. Replies are saved to your Gmail drafts so you can check them before sending.</p></div>`;
+  }
+  function viewThread() {
+    const o = mail.open;
+    const th = mail.threads.find(t => t.id === o.id) || {};
+    const head = `<div class="card-head"><button class="btn small" type="button" data-act="close-thread">‹ Inbox</button>${th.url ? `<a class="btn small" href="${esc(th.url)}" target="_blank" rel="noopener">Open in Gmail</a>` : ""}</div>`;
+    if (o.state === "loading") return `<div class="card">${head}<p class="note">Opening email…</p></div>`;
+    if (o.state === "error") return `<div class="card">${head}<p class="err">${esc(o.err)}</p></div>`;
+    const msgs = o.msgs;
+    const last = msgs[msgs.length - 1] || {};
+    const isBooking = /booking request/i.test(last.subject || msgs[0]?.subject || "");
+    const tripFor = trips.find(t => t.emailThreadId === o.id);
+    const bookingBox = isBooking ? `<div class="alert info"><span class="a-txt">${tripFor ? `On your schedule for ${fmtDate(tripFor.date)}.` : "This is a booking request."}</span>${tripFor ? `<button class="btn small" type="button" data-edit-trip="${esc(tripFor.id)}">View trip</button>` : canWrite ? `<button class="btn small primary" type="button" data-act="book-from-mail">Add to schedule</button>` : ""}</div>` : "";
+    const msgHtml = msgs.map(m => `<div class="msg"><div class="mh"><span><b>${esc(m.fromName || m.sender)}</b>${m.fromName ? " · " + esc(m.sender) : ""}</span><span>${m.date ? new Date(m.date).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : ""}</span></div><div class="body">${esc(m.body || m.snippet || "")}</div></div>`).join("");
+    const draft = o.draft;
+    const draftBox = `<div class="card ask"><div class="card-head" style="margin:0"><h2>Reply</h2></div>
+      ${draft ? `<div class="fgrid"><div class="field full"><label for="d-to">To</label><input id="d-to" value="${esc(draft.to)}"></div>
+        <div class="field full"><label for="d-body">Message</label><textarea id="d-body" style="min-height:12rem">${esc(draft.body)}</textarea></div></div>
+        ${draft.err ? `<p class="err">${esc(draft.err)}</p>` : ""}${draft.saved ? `<p class="note">Saved to your Gmail drafts. <a href="https://mail.google.com/mail/#drafts" target="_blank" rel="noopener">Open drafts</a> to check it and send.</p>` : ""}
+        <div class="add-row"><button class="btn primary" type="button" data-act="save-draft" ${draft.busy ? "disabled" : ""}>${draft.busy ? "Saving…" : "Save to Gmail drafts"}</button>${sample ? `<button class="btn" type="button" data-act="ai-draft" ${o.aiBusy ? "disabled" : ""}>${o.aiBusy ? "Writing…" : "Rewrite with Claude"}</button>` : ""}</div>`
+      : `<div class="add-row">${sample ? `<button class="btn primary" type="button" data-act="ai-draft" ${o.aiBusy ? "disabled" : ""}>${o.aiBusy ? "Writing…" : "Draft a reply with Claude"}</button>` : ""}<button class="btn" type="button" data-act="blank-draft">Write my own</button></div>`}
+      ${o.aiErr ? `<p class="err">${esc(o.aiErr)}</p>` : ""}
+      <p class="note" style="margin:0">Nothing is sent from here. Your reply goes to Gmail drafts, and you send it from Gmail.</p></div>`;
+    return `<div class="card">${head}<h2 style="margin-bottom:8px">${esc(last.subject || th.subject || "(no subject)")}</h2>${bookingBox}${msgHtml}</div>${draftBox}`;
   }
 
-  function viewTrips() {
-    const r = periodRange(period);
-    let list = trips.filter(t => period === "all" || inRange(t.date, r) || (t.status === "booked" && pd(t.date) > r.end && period !== "lastyear"));
-    if (tripFilter !== "all") list = list.filter(t => tripFilter === t.type || tripFilter === t.status);
-    list.sort((a, b) => b.date.localeCompare(a.date));
-    const f = [["all", "All"], ["half", "Half day"], ["full", "Full day"], ["booked", "Booked"], ["cancelled", "Cancelled"]];
-    return `<div class="card"><div class="card-head"><h2>Trips · ${esc(r.label)}</h2>${periodChips()}</div>
-      <div class="periods" style="margin-bottom:8px">${f.map(([k, l]) => `<button class="chip" type="button" data-tripfilter="${k}" aria-pressed="${tripFilter === k}">${l}</button>`).join("")}</div>
-      ${list.length ? `<div class="list">${list.map(tripRow).join("")}</div>` : `<div class="empty"><h3>No trips here yet</h3><p>Tap <b>+ Trip</b> after each charter. Log future bookings too, with status “Booked”.</p></div>`}</div>`;
+  // ---------- TAXES ----------
+  function viewTaxes() {
+    const tc = taxCalc(taxYear), cur = today().getFullYear();
+    const years = [cur, cur - 1];
+    const qRows = tc.quarters.map(q => `<tr><td>Q${q.q}</td><td>${fmtDate(q.due)}</td><td>${money(q.suggested)}</td><td>${money(q.paid)}</td><td><span class="pill ${q.status === "upcoming" ? "unknown" : q.status}" style="margin:0">${q.status}</span></td><td>${canWrite ? `<button class="btn small" type="button" data-pay-q="${q.q}">Record</button>` : ""}</td></tr>`).join("");
+    const groups = {};
+    Object.entries(tc.c.byCat).forEach(([k, v]) => { const line = SCHED_C[k] === undefined ? "Line 27a · Other expenses" : SCHED_C[k]; if (line) groups[line] = (groups[line] || 0) + v; });
+    if (tc.mileDed) groups["Line 9 · Car & truck (mileage)"] = tc.mileDed;
+    const sc = Object.entries(groups).sort((a, b) => a[0].localeCompare(b[0], undefined, { numeric: true }));
+    const mlist = miles.filter(m => inRange(m.date, tc.r)).sort((a, b) => b.date.localeCompare(a.date));
+    const missing = ledger.filter(e => e.kind === "expense" && inRange(e.date, tc.r) && !e.receiptId).length;
+    return `
+    <div class="card"><div class="card-head"><h2>Taxes ${taxYear}</h2><div class="periods">${years.map(y => `<button class="chip" type="button" data-taxyear="${y}" aria-pressed="${taxYear === y}">${y}</button>`).join("")}</div></div>
+      <div class="hero">
+        <div class="stat"><span class="label">Estimated tax ${taxYear === cur ? "so far" : ""}</span><span class="big num">${money(tc.total)}</span><span class="hint">${taxYear === cur ? `About ${money(tc.projected)} for the full year at your current pace` : "For the full year"}</span></div>
+        <div class="stat"><span class="label">Paid so far</span><span class="mid num pos">${money(tc.paidTotal)}</span><span class="hint">Estimated payments you've recorded</span></div>
+        <div class="stat"><span class="label">Still to set aside</span><span class="mid num outc">${money(Math.max(0, tc.total - tc.paidTotal))}</span><span class="hint">Keep this in a separate account</span></div>
+      </div>
+      <div class="insights" style="margin-top:14px">
+        <div class="ins"><span class="k">Business income</span><span class="v">${money(tc.c.income)}</span></div>
+        <div class="ins"><span class="k">Deductible expenses</span><span class="v">−${money(tc.deductible)}</span></div>
+        ${tc.mileDed ? `<div class="ins"><span class="k">Mileage deduction (${num(tc.mi, 0)} mi × ${money(+settings.mileRate, 2)})</span><span class="v">−${money(tc.mileDed)}</span></div>` : ""}
+        <div class="ins"><span class="k">Net profit (Schedule C)</span><span class="v">${money(tc.net)}</span></div>
+        <div class="ins"><span class="k">Self-employment tax (15.3% of 92.35%)</span><span class="v">${money(tc.se)}</span></div>
+        <div class="ins"><span class="k">Federal income tax (at ${num(+settings.incomeRate, 0)}%)</span><span class="v">${money(tc.inc)}</span></div>
+        ${+settings.stateRate ? `<div class="ins"><span class="k">State income tax (at ${num(+settings.stateRate, 1)}%)</span><span class="v">${money(tc.st)}</span></div>` : ""}
+        ${tc.nonDeduct ? `<div class="ins"><span class="k">Boat loan principal (not deductible)</span><span class="v">${money(tc.nonDeduct)}</span></div>` : ""}
+      </div>
+      <p class="note">A rough estimate to plan with, not tax advice. Change your tax rates in Settings, and have your accountant confirm the numbers before you file.</p></div>
+    <div class="card"><div class="card-head"><h2>Quarterly estimated payments</h2><span class="note">IRS Form 1040-ES</span></div>
+      <div class="tbl-wrap"><table><thead><tr><th>Quarter</th><th>Due</th><th>Suggested</th><th>Paid</th><th>Status</th><th></th></tr></thead><tbody>${qRows}</tbody></table></div>
+      <p class="note" style="margin-bottom:0">Suggested amounts split your projected yearly tax into four. If a due date falls on a weekend or holiday, it moves to the next business day. Pay at <a href="https://www.irs.gov/payments/direct-pay" target="_blank" rel="noopener">IRS Direct Pay</a>.</p></div>
+    <div class="grid2">
+      <div class="card"><div class="card-head"><h2>Schedule C summary</h2></div>
+        ${sc.length ? `<div class="tbl-wrap"><table><thead><tr><th>Line</th><th>Amount</th></tr></thead><tbody>${sc.map(([l, v]) => `<tr><td class="wrap-cell">${esc(l)}</td><td>${money(v)}</td></tr>`).join("")}<tr class="total"><td>Total deductions</td><td>${money(tc.deductible + tc.mileDed)}</td></tr></tbody></table></div>` : `<p class="note">No expenses logged for ${taxYear} yet.</p>`}
+        <p class="note" style="margin-bottom:0">${missing ? `<b>${missing}</b> expense${missing === 1 ? " is" : "s are"} missing a receipt photo. ` : ""}Big purchases like the boat, motor or electronics are usually depreciated over several years. Ask your accountant.</p></div>
+      <div class="card"><div class="card-head"><h2>Business mileage</h2>${canWrite ? `<button class="btn small primary" type="button" data-act="add-miles">+ Miles</button>` : ""}</div>
+        <p class="note" style="margin-top:0">${num(tc.mi, 0)} miles in ${taxYear} · ${money(tc.mileDed)} deduction at ${money(+settings.mileRate, 2)}/mile. Log drives for bait, parts, the bank and trips to the boat (not your regular commute).</p>
+        ${mlist.length ? `<div class="list">${mlist.slice(0, 12).map(m => `<button class="row" type="button" data-edit-miles="${esc(m.id)}">${dateCell(m.date)}<span class="main"><span class="t1">${esc(m.purpose || "Business drive")}</span></span><span class="amt">${num(+m.miles, 1)} mi</span></button>`).join("")}</div>` : ""}</div>
+    </div>
+    <div class="card"><div class="card-head"><h2>For your accountant</h2></div>
+      <p class="note" style="margin-top:0">Download every trip, expense, mileage entry and tax payment as a spreadsheet, with Schedule C lines already filled in.</p>
+      <div class="add-row"><button class="btn" type="button" data-act="export">Download CSV</button></div>
+      <p class="note" style="margin-bottom:0">If you take cards through Square, Stripe or a booking site, you may get a Form 1099-K. Make sure its total matches your trip income here.</p></div>`;
   }
 
-  function viewLedger() {
-    const r = periodRange(period);
-    let rows = [...trips.filter(t => inRange(t.date, r) && t.status !== "booked").map(t => ({ ...t, _t: "trip" })), ...ledger.filter(e => inRange(e.date, r)).map(e => ({ ...e, _t: "ledger" }))];
-    if (ledgerFilter === "expense") rows = rows.filter(x => x._t === "ledger" && x.kind === "expense");
-    else if (ledgerFilter === "income") rows = rows.filter(x => x._t === "trip" || x.kind === "income");
-    else if (ledgerFilter !== "all") rows = rows.filter(x => x._t === "ledger" && x.cat === ledgerFilter);
-    rows.sort((a, b) => b.date.localeCompare(a.date) || (b.created || 0) - (a.created || 0));
-    const sumIn = rows.reduce((a, x) => a + (x._t === "trip" ? tripIncome(x) : x.kind === "income" ? +x.amount || 0 : 0), 0);
-    const sumOut = rows.reduce((a, x) => a + (x._t === "ledger" && x.kind === "expense" ? +x.amount || 0 : 0), 0);
-    const f = [["all", "Everything"], ["income", "Money in"], ["expense", "Money out"], ["fuel", "Fuel"], ["bait", "Bait"], ["gear", "Gear"], ["maintenance", "Maintenance"], ["insurance", "Insurance"]];
-    return `<div class="card"><div class="card-head"><h2>Ledger · ${esc(r.label)}</h2>${periodChips()}</div>
-      <div class="periods" style="margin-bottom:8px">${f.map(([k, l]) => `<button class="chip" type="button" data-ledgerfilter="${k}" aria-pressed="${ledgerFilter === k}">${l}</button>`).join("")}</div>
-      <p class="note num" style="margin:4px 0 8px">In <b class="in">${money(sumIn, 2)}</b> · Out <b class="outc">${money(sumOut, 2)}</b> · ${rows.length} entries</p>
-      ${rows.length ? `<div class="list">${rows.map(x => x._t === "trip" ? tripRow(x) : ledgerRow(x)).join("")}</div>` : `<div class="empty"><h3>Nothing logged here</h3><p>Tap <b>+ Expense</b> for fuel, bait, insurance, repairs and anything else you spend.</p></div>`}</div>`;
+  // ---------- BOAT ----------
+  function viewBoat() {
+    const now = engineNow();
+    const svc = service.slice().sort((a, b) => ["overdue", "soon", "unknown", "ok"].indexOf(serviceStatus(a).status) - ["overdue", "soon", "unknown", "ok"].indexOf(serviceStatus(b).status));
+    const svcRows = svc.map(s => {
+      const st = serviceStatus(s);
+      const bits = [];
+      if (+s.everyHours) bits.push(`every ${s.everyHours} hrs`);
+      if (+s.everyMonths) bits.push(`every ${s.everyMonths} mo`);
+      const last = s.lastDate ? `last done ${fmtDate(s.lastDate)}${s.lastHours !== "" && s.lastHours != null ? ` at ${num(+s.lastHours, 0)} hrs` : ""}` : "not logged yet";
+      const left = st.hoursLeft != null ? `${num(Math.abs(st.hoursLeft), 0)} hrs ${st.hoursLeft < 0 ? "over" : "left"}` : st.daysLeft != null ? `${Math.abs(st.daysLeft)} days ${st.daysLeft < 0 ? "over" : "left"}` : "";
+      return `<div class="row" style="grid-template-columns:1fr auto"><span class="main"><span class="t1">${esc(s.name)}<span class="pill ${st.status}">${st.status === "unknown" ? "no record" : st.status === "ok" ? "ok" : st.status === "soon" ? "due soon" : "overdue"}</span></span><span class="t2">${esc(bits.join(", "))} · ${esc(last)}${left ? " · " + left : ""}</span></span>
+        <span class="add-row">${canWrite ? `<button class="btn small" type="button" data-service-done="${esc(s.id)}">Done</button><button class="btn small ghost" type="button" data-edit-service="${esc(s.id)}">Edit</button>` : ""}</span></div>`;
+    }).join("");
+    const rn = renewals.slice().sort((a, b) => (a.due || "9999").localeCompare(b.due || "9999"));
+    const rnRows = rn.map(r => {
+      const s = renewalStatus(r);
+      return `<button class="row" type="button" data-edit-renewal="${esc(r.id)}" style="grid-template-columns:1fr auto"><span class="main"><span class="t1">${esc(r.name)}<span class="pill ${s.status}">${s.status === "unknown" ? "add date" : s.status === "ok" ? "ok" : s.status === "soon" ? "renew soon" : "expired"}</span></span><span class="t2">${r.due ? (s.d < 0 ? `Expired ${fmtDate(r.due)}` : `Due ${fmtDate(r.due)} · ${s.d} days`) : "No date set"}${r.notes ? " · " + esc(r.notes) : ""}</span></span><span class="note">›</span></button>`;
+    }).join("");
+    const maint = ledger.filter(e => e.kind === "expense" && e.cat === "maintenance").sort((a, b) => b.date.localeCompare(a.date)).slice(0, 8);
+    return `
+    <div class="card"><div class="card-head"><h2>Engine hours</h2>${canWrite ? `<button class="btn small" type="button" data-act="engine">Update</button>` : ""}</div>
+      ${now != null ? `<div class="big num">${num(now, 0)} <span class="label">hrs</span></div><p class="note" style="margin-bottom:0">You entered ${num(+settings.engineHours, 0)} hrs on ${settings.engineHoursDate ? fmtDate(settings.engineHoursDate) : "—"}, plus hours from completed trips since then. Update it from the meter now and then to stay accurate.</p>`
+        : `<p class="note" style="margin:0">Enter the hour meter reading from your engine. The app adds the hours from each trip you log so it can warn you before service is due.</p>`}</div>
+    <div class="card"><div class="card-head"><h2>Service schedule</h2>${canWrite ? `<button class="btn small primary" type="button" data-act="add-service">+ Item</button>` : ""}</div>
+      ${svc.length ? `<div class="list">${svcRows}</div>` : `<p class="note">No service items yet. Add oil changes, impellers, bottom cleaning and anything else on a schedule.</p>`}
+      <p class="note" style="margin-bottom:0">Intervals are common defaults. Check your engine's manual and adjust them.</p></div>
+    <div class="card"><div class="card-head"><h2>Licenses, documents & renewals</h2>${canWrite ? `<button class="btn small primary" type="button" data-act="add-renewal">+ Item</button>` : ""}</div>
+      ${rn.length ? `<div class="list">${rnRows}</div>` : `<p class="note">Add your captain's license, insurance, registration and safety gear dates.</p>`}</div>
+    <div class="card"><div class="card-head"><h2>Recent repairs</h2><button class="btn small" type="button" data-act="add-maint">+ Repair cost</button></div>
+      ${maint.length ? `<div class="list">${maint.map(ledgerRow).join("")}</div>` : `<p class="note">Repairs you log as Maintenance expenses show up here.</p>`}</div>`;
   }
 
+  // ---------- CUSTOMERS ----------
+  function customerList() {
+    const map = new Map();
+    trips.forEach(t => {
+      const name = (t.customer || "").trim(); if (!name) return;
+      const k = name.toLowerCase();
+      const c = map.get(k) || { key: k, name, trips: [], spent: 0, email: "", phone: "", last: "", next: "" };
+      c.trips.push(t); c.spent += tripIncome(t);
+      if (t.email) c.email = t.email; if (t.phone) c.phone = t.phone;
+      if (t.status === "completed" && t.date > c.last) c.last = t.date;
+      if (t.status === "booked" && t.date >= iso(today()) && (!c.next || t.date < c.next)) c.next = t.date;
+      map.set(k, c);
+    });
+    return [...map.values()].sort((a, b) => b.spent - a.spent);
+  }
+  function viewCustomers() {
+    const cs = customerList();
+    if (custSel) {
+      const c = cs.find(x => x.key === custSel);
+      if (c) {
+        return `<div class="card"><div class="card-head"><button class="btn small" type="button" data-cust="">‹ All customers</button></div>
+          <h2>${esc(c.name)}</h2>
+          <div class="insights" style="margin-top:8px">
+            <div class="ins"><span class="k">Email</span><span class="v">${c.email ? `${esc(c.email)} <button class="btn small ghost" type="button" data-copy="${esc(c.email)}">Copy</button>` : "—"}</span></div>
+            <div class="ins"><span class="k">Phone</span><span class="v">${c.phone ? `${esc(c.phone)} <button class="btn small ghost" type="button" data-copy="${esc(c.phone)}">Copy</button>` : "—"}</span></div>
+            <div class="ins"><span class="k">Trips</span><span class="v">${c.trips.filter(t => t.status === "completed").length} completed${c.next ? ` · next ${fmtDate(c.next)}` : ""}</span></div>
+            <div class="ins"><span class="k">Total spent</span><span class="v">${money(c.spent)}</span></div>
+          </div>
+          <h3 style="margin:14px 0 4px">Trip history</h3>
+          <div class="list">${c.trips.slice().sort((a, b) => b.date.localeCompare(a.date)).map(tripRow).join("")}</div>
+          <p class="note">Contact details come from the trips you log. Edit a trip to add or fix an email or phone number.</p></div>`;
+      }
+    }
+    const repeat = cs.filter(c => c.trips.filter(t => t.status === "completed").length > 1).length;
+    const lapsed = cs.filter(c => c.last && !c.next && daysUntil(c.last) < -300);
+    return `<div class="card"><div class="card-head"><h2>Customers</h2><span class="note">${cs.length} total · ${repeat} repeat</span></div>
+      ${cs.length ? `<div class="list">${cs.map(c => `<button class="row" type="button" data-cust="${esc(c.key)}" style="grid-template-columns:1fr auto"><span class="main"><span class="t1">${esc(c.name)}${c.trips.filter(t => t.status === "completed").length > 1 ? `<span class="pill ok">repeat</span>` : ""}${c.next ? `<span class="pill booked">booked</span>` : ""}</span><span class="t2">${c.trips.length} trip${c.trips.length === 1 ? "" : "s"}${c.last ? " · last " + fmtDate(c.last) : ""}${c.phone ? " · " + esc(c.phone) : ""}</span></span><span class="amt in">${money(c.spent)}</span></button>`).join("")}</div>`
+        : `<div class="empty"><h3>No customers yet</h3><p>Customers are built from the names you add to trips.</p></div>`}</div>
+      ${lapsed.length ? `<div class="card"><div class="card-head"><h2>Worth a hello</h2></div><p class="note" style="margin-top:0">These customers fished with you about a year ago and haven't booked again. A quick note before the season can bring them back.</p><div class="list">${lapsed.map(c => `<button class="row" type="button" data-cust="${esc(c.key)}" style="grid-template-columns:1fr auto"><span class="main"><span class="t1">${esc(c.name)}</span><span class="t2">Last trip ${fmtDate(c.last)}</span></span><span class="note">›</span></button>`).join("")}</div></div>` : ""}`;
+  }
+
+  // ---------- SETTINGS ----------
   function viewSettings() {
+    const dis = canWrite ? "" : "disabled";
     return `<div class="card"><div class="card-head"><h2>Business settings</h2></div>
       <form id="setForm" class="fgrid">
-        <div class="field full"><label for="s-name">Business or boat name</label><input id="s-name" name="name" value="${esc(settings.name)}" placeholder="e.g. Reel Time Charters" ${canWrite ? "" : "disabled"}></div>
-        <div class="field"><label for="s-half">Half-day price ($)</label><input id="s-half" name="halfPrice" type="number" step="1" min="0" inputmode="decimal" value="${esc(settings.halfPrice)}" ${canWrite ? "" : "disabled"}></div>
-        <div class="field"><label for="s-full">Full-day price ($)</label><input id="s-full" name="fullPrice" type="number" step="1" min="0" inputmode="decimal" value="${esc(settings.fullPrice)}" ${canWrite ? "" : "disabled"}></div>
-        <div class="field"><label for="s-tax">Tax set-aside (% of profit)</label><input id="s-tax" name="taxRate" type="number" step="1" min="0" max="60" inputmode="decimal" value="${esc(settings.taxRate)}" ${canWrite ? "" : "disabled"}></div>
+        <div class="field full"><label for="s-name">Business or boat name</label><input id="s-name" name="name" value="${esc(settings.name)}" placeholder="e.g. Reel Time Charters" ${dis}></div>
+        <div class="field"><label for="s-half">Half-day price ($)</label><input id="s-half" name="halfPrice" type="number" step="1" min="0" inputmode="decimal" value="${esc(settings.halfPrice)}" ${dis}></div>
+        <div class="field"><label for="s-full">Full-day price ($)</label><input id="s-full" name="fullPrice" type="number" step="1" min="0" inputmode="decimal" value="${esc(settings.fullPrice)}" ${dis}></div>
+        <div class="field full"><label for="s-port">Home port / marina</label><input id="s-port" name="homePort" value="${esc(settings.homePort)}" placeholder="Used as the location on calendar events" ${dis}></div>
+        <div class="field"><label for="s-inc">Federal income tax rate (%)</label><input id="s-inc" name="incomeRate" type="number" step="1" min="0" max="40" inputmode="decimal" value="${esc(settings.incomeRate)}" ${dis}></div>
+        <div class="field"><label for="s-state">State income tax rate (%)</label><input id="s-state" name="stateRate" type="number" step="0.1" min="0" max="15" inputmode="decimal" value="${esc(settings.stateRate)}" ${dis}></div>
+        <div class="field"><label for="s-mile">Mileage rate ($/mile)</label><input id="s-mile" name="mileRate" type="number" step="0.005" min="0" inputmode="decimal" value="${esc(settings.mileRate)}" ${dis}></div>
         <div class="field" style="align-self:end">${canWrite ? `<button class="btn primary" type="submit">Save settings</button>` : ""}</div>
       </form>
-      <p class="note">Prices fill in automatically when you log a new trip. The tax set-aside is a rough reserve, not tax advice. Ask your accountant what rate fits you.</p></div>
+      <p class="note">Prices fill in automatically when you log a trip. For the income tax rate, use your expected federal bracket (10%, 12%, 22%…). Check the IRS standard mileage rate each January and update it here. Florida, Texas and some other states have no state income tax, so leave that at 0 if yours doesn't.</p></div>
+    <div class="card"><div class="card-head"><h2>Connected accounts</h2></div>
+      <div class="insights">
+        <div class="ins"><span class="k">Gmail</span><span class="v">${mail.state === "ok" ? "Connected" : mail.state === "error" ? esc(connMsg("Gmail", mail.code)) : mcp ? "Connecting…" : "Not available here"}</span></div>
+        <div class="ins"><span class="k">Google Calendar</span><span class="v">${gcal.state === "ok" ? "Connected" : gcal.state === "error" ? esc(connMsg("Google Calendar", gcal.code)) : mcp ? "Connecting…" : "Not available here"}</span></div>
+      </div>
+      <p class="note" style="margin-bottom:0">The app reads your inbox and calendar through your claude.ai connectors. It never sends email. Replies go to your Gmail drafts.</p></div>
     <div class="card"><div class="card-head"><h2>Export</h2></div>
-      <p class="note" style="margin-top:0">Download every trip and expense as a spreadsheet (CSV) for your accountant or for tax time.</p>
+      <p class="note" style="margin-top:0">Download everything as a spreadsheet (CSV) for your accountant or your own records.</p>
       <div class="add-row"><button class="btn" type="button" data-act="export">Download CSV</button></div></div>
     <div class="card"><div class="card-head"><h2>Expense categories</h2></div>
       <p class="note" style="margin-top:0"><b>Fixed</b> costs you pay whether or not you fish: ${EXP_CATS.filter(c => c.fixed).map(c => c.name).join(", ")}.</p>
       <p class="note"><b>Per-trip</b> costs go up the more you run: ${EXP_CATS.filter(c => !c.fixed).map(c => c.name).join(", ")}.</p>
-      <p class="note">The split drives “Trips a month to cover fixed costs” on the Overview.</p></div>`;
+      <p class="note" style="margin-bottom:0">Log your boat loan as two parts: interest is deductible, principal is not.</p></div>`;
   }
 
-  // ---------- forms ----------
+  // ================= forms =================
   const dlg = $("#dlg"), form = $("#dlgForm");
-  function field(id, label, input, cls = "") { return `<div class="field ${cls}"><label for="${id}">${label}</label>${input}</div>`; }
+  const field = (id, label, input, cls = "") => `<div class="field ${cls}"><label for="${id}">${label}</label>${input}</div>`;
+  const foot = (isNew, delKind, saveLabel) => `<p class="err" id="f-err" hidden></p><div class="dlg-foot">${!isNew && delKind ? `<button class="btn danger" type="button" data-del="${delKind}">Delete</button>` : ""}<div class="right"><button class="btn" type="button" data-act="close">Cancel</button><button class="btn primary" type="submit">${saveLabel}</button></div></div>`;
+  const headH = t => `<div class="dlg-head"><h2>${t}</h2><button class="btn ghost small" type="button" data-act="close">Close</button></div>`;
+  function openForm(kind, id, html) { form.dataset.kind = kind; form.dataset.id = id || ""; form.innerHTML = html; if (!dlg.open) dlg.showModal(); }
 
-  function openTrip(t) {
+  function openTrip(t, preset) {
     const isNew = !t;
-    t = t || { date: iso(today()), type: "half", status: "completed", fee: settings.halfPrice, tips: "", deposit: "", party: "", hours: 4, pay: "Cash", customer: "", notes: "" };
-    form.innerHTML = `
-      <div class="dlg-head"><h2>${isNew ? "Log a trip" : "Edit trip"}</h2><button class="btn ghost small" type="button" data-act="close">Close</button></div>
+    t = t || Object.assign({ date: iso(today()), time: "07:00", type: "half", status: "completed", fee: settings.halfPrice, tips: "", deposit: "", party: "", hours: 4, pay: "Cash", customer: "", email: "", phone: "", notes: "" }, preset || {});
+    openForm("trip", isNew ? "" : t.id, `${headH(isNew ? (preset?.status === "booked" ? "Add booking" : "Log a trip") : "Edit trip")}
       <div class="seg" role="group" aria-label="Trip type">${Object.entries(TRIP_TYPES).map(([k, l]) => `<button type="button" data-type="${k}" aria-pressed="${t.type === k}">${l}</button>`).join("")}</div>
       <div class="fgrid">
         ${field("f-date", "Date", `<input id="f-date" type="date" required value="${esc(t.date)}">`)}
+        ${field("f-time", "Start time", `<input id="f-time" type="time" value="${esc(t.time || "")}">`)}
         ${field("f-status", "Status", `<select id="f-status">${["completed", "booked", "cancelled"].map(s => `<option value="${s}" ${t.status === s ? "selected" : ""}>${s[0].toUpperCase() + s.slice(1)}</option>`).join("")}</select>`)}
         ${field("f-fee", "Charter fee ($)", `<input id="f-fee" type="number" step="0.01" min="0" inputmode="decimal" value="${esc(t.fee)}">`)}
         ${field("f-tips", "Tips ($)", `<input id="f-tips" type="number" step="0.01" min="0" inputmode="decimal" value="${esc(t.tips)}" placeholder="0">`)}
@@ -458,13 +843,14 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
         ${field("f-party", "Party size", `<input id="f-party" type="number" step="1" min="0" inputmode="numeric" value="${esc(t.party)}" placeholder="e.g. 4">`)}
         ${field("f-hours", "Hours on the water", `<input id="f-hours" type="number" step="0.5" min="0" inputmode="decimal" value="${esc(t.hours)}">`)}
         ${field("f-customer", "Customer", `<input id="f-customer" value="${esc(t.customer)}" placeholder="Name or group">`, "full")}
+        ${field("f-email", "Customer email", `<input id="f-email" type="email" value="${esc(t.email || "")}" placeholder="optional">`)}
+        ${field("f-phone", "Customer phone", `<input id="f-phone" type="tel" value="${esc(t.phone || "")}" placeholder="optional">`)}
         ${field("f-notes", "Notes", `<textarea id="f-notes" placeholder="Species, spot, conditions…">${esc(t.notes)}</textarea>`, "full")}
       </div>
-      <p class="note" style="margin:0">Completed trips count the fee plus tips. Cancelled trips count only the deposit you kept. Booked trips show under Upcoming.</p>
-      <p class="err" id="f-err" hidden></p>
-      <div class="dlg-foot">${isNew ? "" : `<button class="btn danger" type="button" data-del="trip">Delete</button>`}<div class="right"><button class="btn" type="button" data-act="close">Cancel</button><button class="btn primary" type="submit" data-save="trip">${isNew ? "Save trip" : "Save changes"}</button></div></div>`;
-    form.dataset.id = isNew ? "" : t.id;
-    form.dataset.type = t.type;
+      ${!isNew && mcp ? `<div class="add-row">${t.calEventId ? `<span class="note">On your Google Calendar.</span>` : `<button class="btn small" type="button" data-act="trip-to-cal">Add to Google Calendar</button>`}</div>` : ""}
+      <p class="note" style="margin:0">Completed trips count the fee plus tips. Cancelled trips count only the deposit you kept. Booked trips show on Home and the calendar.</p>
+      ${foot(isNew, "trip", isNew ? "Save trip" : "Save changes")}`);
+    form.dataset.type = t.type; form.dataset.thread = t.emailThreadId || preset?.emailThreadId || "";
     form.querySelectorAll("[data-type]").forEach(b => b.onclick = () => {
       const prev = form.dataset.type; form.dataset.type = b.dataset.type;
       form.querySelectorAll("[data-type]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
@@ -473,15 +859,13 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
       if (isNew && (fee.value === "" || +fee.value === +defFee[prev])) fee.value = defFee[b.dataset.type] ?? "";
       if (isNew && (hrs.value === "" || +hrs.value === defH[prev])) hrs.value = defH[b.dataset.type] ?? "";
     });
-    dlg.showModal();
   }
 
-  function openLedger(e, kind) {
+  function openLedger(e, kind, presetCat) {
     const isNew = !e;
-    e = e || { kind: kind || "expense", date: iso(today()), cat: kind === "income" ? "fishcleaning" : "fuel", amount: "", vendor: "", gallons: "", notes: "" };
+    e = e || { kind: kind || "expense", date: iso(today()), cat: presetCat || (kind === "income" ? "fishcleaning" : "fuel"), amount: "", vendor: "", gallons: "", notes: "" };
     const cats = e.kind === "income" ? INC_CATS : EXP_CATS;
-    form.innerHTML = `
-      <div class="dlg-head"><h2>${isNew ? (e.kind === "income" ? "Log other income" : "Log an expense") : "Edit entry"}</h2><button class="btn ghost small" type="button" data-act="close">Close</button></div>
+    openForm("ledger", isNew ? "" : e.id, `${headH(isNew ? (e.kind === "income" ? "Log other income" : "Log an expense") : "Edit entry")}
       ${isNew ? `<div class="seg" role="group" aria-label="Entry kind"><button type="button" data-kind="expense" aria-pressed="${e.kind === "expense"}">Expense</button><button type="button" data-kind="income" aria-pressed="${e.kind === "income"}">Other income</button></div>` : ""}
       <div class="fgrid">
         ${field("l-date", "Date", `<input id="l-date" type="date" required value="${esc(e.date)}">`)}
@@ -490,60 +874,138 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
         ${field("l-gallons", "Gallons (fuel only)", `<input id="l-gallons" type="number" step="0.1" min="0" inputmode="decimal" value="${esc(e.gallons)}" placeholder="e.g. 42">`)}
         ${field("l-vendor", e.kind === "income" ? "From" : "Vendor / paid to", `<input id="l-vendor" value="${esc(e.vendor)}" placeholder="${e.kind === "income" ? "Customer" : "e.g. Marina fuel dock"}">`)}
         ${field("l-notes", "Notes", `<textarea id="l-notes" placeholder="Policy number, part replaced, receipt #…">${esc(e.notes)}</textarea>`, "full")}
+        ${e.kind === "expense" && assets ? field("l-receipt", "Receipt photo", `<input id="l-receipt" type="file" accept="image/*,application/pdf">${e.receiptUrl ? `<a href="${esc(e.receiptUrl)}" target="_blank" rel="noopener" class="note">View saved receipt</a>` : ""}`, "full") : ""}
       </div>
-      <p class="err" id="f-err" hidden></p>
-      <div class="dlg-foot">${isNew ? "" : `<button class="btn danger" type="button" data-del="ledger">Delete</button>`}<div class="right"><button class="btn" type="button" data-act="close">Cancel</button><button class="btn primary" type="submit" data-save="ledger">${isNew ? "Save" : "Save changes"}</button></div></div>`;
-    form.dataset.id = isNew ? "" : e.id;
-    form.dataset.kind = e.kind;
+      ${foot(isNew, "ledger", isNew ? "Save" : "Save changes")}`);
+    form.dataset.lkind = e.kind; form.dataset.receiptId = e.receiptId || ""; form.dataset.receiptUrl = e.receiptUrl || "";
     const syncGal = () => { const g = $("#l-gallons").closest(".field"); g.hidden = $("#l-cat").value !== "fuel"; };
     $("#l-cat").onchange = syncGal; syncGal();
     form.querySelectorAll("[data-kind]").forEach(b => b.onclick = () => {
       const keep = { date: $("#l-date").value, amount: $("#l-amount").value, vendor: $("#l-vendor").value, notes: $("#l-notes").value };
-      dlg.close(); openLedger(null, b.dataset.kind);
+      openLedger(null, b.dataset.kind);
       $("#l-date").value = keep.date; $("#l-amount").value = keep.amount; $("#l-vendor").value = keep.vendor; $("#l-notes").value = keep.notes;
     });
-    if (!dlg.open) dlg.showModal();
   }
 
-  function showErr(m) { const el = $("#f-err"); if (el) { el.textContent = m; el.hidden = false; } }
+  function openRenewal(r) {
+    const isNew = !r; r = r || { name: "", due: "", notes: "" };
+    openForm("renewal", isNew ? "" : r.id, `${headH(isNew ? "Add a renewal" : esc(r.name))}
+      <div class="fgrid">
+        ${field("r-name", "What", `<input id="r-name" value="${esc(r.name)}" placeholder="e.g. Captain's license">`, "full")}
+        ${field("r-due", "Expires / due", `<input id="r-due" type="date" value="${esc(r.due)}">`)}
+        ${field("r-notes", "Notes", `<input id="r-notes" value="${esc(r.notes)}" placeholder="License #, policy #…">`)}
+      </div>${foot(isNew, "renewal", "Save")}`);
+  }
+  function openService(s) {
+    const isNew = !s; s = s || { name: "", everyHours: "", everyMonths: "", lastHours: "", lastDate: "" };
+    openForm("service", isNew ? "" : s.id, `${headH(isNew ? "Add a service item" : "Edit service item")}
+      <div class="fgrid">
+        ${field("v-name", "Service", `<input id="v-name" value="${esc(s.name)}" placeholder="e.g. Engine oil & filter">`, "full")}
+        ${field("v-eh", "Every (engine hours)", `<input id="v-eh" type="number" min="0" step="1" inputmode="numeric" value="${esc(s.everyHours)}" placeholder="e.g. 100">`)}
+        ${field("v-em", "Or every (months)", `<input id="v-em" type="number" min="0" step="1" inputmode="numeric" value="${esc(s.everyMonths)}" placeholder="e.g. 12">`)}
+        ${field("v-lh", "Last done at (hours)", `<input id="v-lh" type="number" min="0" step="0.1" inputmode="decimal" value="${esc(s.lastHours ?? "")}">`)}
+        ${field("v-ld", "Last done on", `<input id="v-ld" type="date" value="${esc(s.lastDate || "")}">`)}
+      </div>${foot(isNew, "service", "Save")}`);
+  }
+  function openEngine() {
+    openForm("engine", "", `${headH("Engine hours")}
+      <div class="fgrid">
+        ${field("e-h", "Hour meter reading", `<input id="e-h" type="number" min="0" step="0.1" inputmode="decimal" value="${esc(engineNow() != null ? Math.round(engineNow() * 10) / 10 : "")}">`)}
+        ${field("e-d", "Read on", `<input id="e-d" type="date" value="${iso(today())}">`)}
+      </div>${foot(true, "", "Save")}`);
+  }
+  function openTaxPay(q, p) {
+    const isNew = !p; p = p || { year: taxYear, q, amount: "", date: iso(today()), note: "" };
+    const tc = taxCalc(+p.year); const sug = tc.quarters[(+p.q || 1) - 1];
+    openForm("taxpay", isNew ? "" : p.id, `${headH(`${p.year} Q${p.q} estimated payment`)}
+      <div class="fgrid">
+        ${field("t-amt", "Amount paid ($)", `<input id="t-amt" type="number" min="0" step="0.01" inputmode="decimal" value="${esc(p.amount || (isNew ? Math.max(0, Math.round(sug.suggested - sug.paid)) : ""))}">`)}
+        ${field("t-date", "Paid on", `<input id="t-date" type="date" value="${esc(p.date)}">`)}
+        ${field("t-note", "Confirmation # or note", `<input id="t-note" value="${esc(p.note)}">`, "full")}
+      </div>
+      ${taxes.filter(x => +x.year === +p.year && +x.q === +p.q).length && isNew ? `<p class="note" style="margin:0">Payments already recorded for this quarter: ${taxes.filter(x => +x.year === +p.year && +x.q === +p.q).map(x => money(+x.amount) + " on " + fmtDate(x.date)).join(", ")}.</p>` : ""}
+      ${foot(isNew, "taxpay", "Save payment")}`);
+    form.dataset.year = p.year; form.dataset.q = p.q;
+  }
+  function openMiles(m) {
+    const isNew = !m; m = m || { date: iso(today()), miles: "", purpose: "" };
+    openForm("miles", isNew ? "" : m.id, `${headH(isNew ? "Log business miles" : "Edit miles")}
+      <div class="fgrid">
+        ${field("m-date", "Date", `<input id="m-date" type="date" value="${esc(m.date)}">`)}
+        ${field("m-mi", "Miles (round trip)", `<input id="m-mi" type="number" min="0" step="0.1" inputmode="decimal" value="${esc(m.miles)}">`)}
+        ${field("m-p", "Purpose", `<input id="m-p" value="${esc(m.purpose)}" placeholder="e.g. Bait shop and marine supply">`, "full")}
+      </div>${foot(isNew, "miles", "Save")}`);
+  }
+
+  const showErr = m => { const el = $("#f-err"); if (el) { el.textContent = m; el.hidden = false; } };
   function writeErr(e) {
     if (e?.code === "invalid_argument") { canWrite = false; return "You have view-only access to this logbook, so changes can't be saved."; }
-    if (e?.code === "quota_exceeded") return "The logbook is full. Export to CSV and delete old example or test entries to make room.";
+    if (e?.code === "quota_exceeded") return "The logbook is full. Export to CSV and delete old entries to make room.";
     return "Couldn't save. Check your connection and try again.";
   }
+  const v = id => ($(id)?.value ?? "").trim();
+  const okDate = d => /^\d{4}-\d{2}-\d{2}$/.test(d);
+  async function put(coll, id, body) { const ref = id ? db.collection(coll).doc(id) : db.collection(coll).doc(); await ref.set(body); return ref.id; }
 
-  async function saveTrip() {
-    const v = id => $(id).value.trim();
-    const date = v("#f-date");
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return showErr("Pick a date for the trip.");
-    const body = { date, type: form.dataset.type || "half", status: v("#f-status"), fee: +v("#f-fee") || 0, tips: +v("#f-tips") || 0, deposit: +v("#f-deposit") || 0,
-      pay: v("#f-pay"), party: +v("#f-party") || 0, hours: +v("#f-hours") || 0, customer: v("#f-customer"), notes: v("#f-notes") };
-    const id = form.dataset.id;
-    const prev = id ? trips.find(t => t.id === id) : null;
-    body.created = prev?.created || Date.now();
-    body.example = false;
-    try { await (id ? db.collection("trips").doc(id) : db.collection("trips").doc()).set(body); dlg.close(); toast(id ? "Trip updated" : "Trip logged"); }
-    catch (e) { showErr(writeErr(e)); }
+  async function submitForm() {
+    const kind = form.dataset.kind, id = form.dataset.id;
+    const btn = form.querySelector('button[type="submit"]'); if (btn) btn.disabled = true;
+    try {
+      if (kind === "trip") {
+        const date = v("#f-date"); if (!okDate(date)) throw { msg: "Pick a date for the trip." };
+        const prev = id ? trips.find(t => t.id === id) : null;
+        const body = { date, time: v("#f-time"), type: form.dataset.type || "half", status: v("#f-status"), fee: +v("#f-fee") || 0, tips: +v("#f-tips") || 0, deposit: +v("#f-deposit") || 0,
+          pay: v("#f-pay"), party: +v("#f-party") || 0, hours: +v("#f-hours") || 0, customer: v("#f-customer"), email: v("#f-email"), phone: v("#f-phone"), notes: v("#f-notes"),
+          emailThreadId: form.dataset.thread || prev?.emailThreadId || "", calEventId: prev?.calEventId || "", created: prev?.created || Date.now(), example: false };
+        await put("trips", id, body); dlg.close(); toast(id ? "Trip updated" : body.status === "booked" ? "Booking added" : "Trip logged");
+      } else if (kind === "ledger") {
+        const date = v("#l-date"), amount = +v("#l-amount");
+        if (!okDate(date)) throw { msg: "Pick a date." };
+        if (!(amount > 0)) throw { msg: "Enter an amount greater than $0." };
+        const cat = v("#l-cat");
+        const prev = id ? ledger.find(t => t.id === id) : null;
+        let receiptId = form.dataset.receiptId || "", receiptUrl = form.dataset.receiptUrl || "";
+        const file = $("#l-receipt")?.files?.[0];
+        if (file && assets) {
+          if (file.size > 20 * 1024 * 1024) throw { msg: "That file is over 20 MB. Try a smaller photo." };
+          try { const up = await assets.upload(file); receiptId = up.id; receiptUrl = up.url; } catch { throw { msg: "Couldn't upload the receipt. Try again, or save without it." }; }
+        }
+        const body = { kind: form.dataset.lkind, date, amount, cat, vendor: v("#l-vendor"), gallons: cat === "fuel" ? (+v("#l-gallons") || 0) : 0, notes: v("#l-notes"), receiptId, receiptUrl, created: prev?.created || Date.now(), example: false };
+        await put("ledger", id, body); dlg.close(); toast(id ? "Entry updated" : body.kind === "income" ? "Income logged" : "Expense logged");
+      } else if (kind === "renewal") {
+        const name = v("#r-name"); if (!name) throw { msg: "Give it a name." };
+        await put("renewals", id, { name, due: v("#r-due"), notes: v("#r-notes") }); dlg.close(); toast("Saved");
+      } else if (kind === "service") {
+        const name = v("#v-name"); if (!name) throw { msg: "Give it a name." };
+        if (!(+v("#v-eh") > 0) && !(+v("#v-em") > 0)) throw { msg: "Set an interval in hours, months or both." };
+        await put("service", id, { name, everyHours: +v("#v-eh") || 0, everyMonths: +v("#v-em") || 0, lastHours: v("#v-lh") === "" ? "" : +v("#v-lh"), lastDate: v("#v-ld") }); dlg.close(); toast("Saved");
+      } else if (kind === "engine") {
+        const h = v("#e-h"), d = v("#e-d"); if (h === "" || !okDate(d)) throw { msg: "Enter the meter reading and the date." };
+        await db.doc("settings/main").set({ ...settings, engineHours: +h, engineHoursDate: d }); dlg.close(); toast("Engine hours updated");
+      } else if (kind === "taxpay") {
+        const amount = +v("#t-amt"); if (!(amount > 0)) throw { msg: "Enter the amount you paid." };
+        await put("taxes", id, { year: +form.dataset.year, q: +form.dataset.q, amount, date: v("#t-date"), note: v("#t-note") }); dlg.close(); toast("Payment recorded");
+      } else if (kind === "miles") {
+        const mi = +v("#m-mi"); if (!(mi > 0)) throw { msg: "Enter the miles driven." };
+        if (!okDate(v("#m-date"))) throw { msg: "Pick a date." };
+        await put("miles", id, { date: v("#m-date"), miles: mi, purpose: v("#m-p") }); dlg.close(); toast("Miles logged");
+      }
+    } catch (e) { showErr(e?.msg || writeErr(e)); }
+    if (btn) btn.disabled = false;
   }
-  async function saveLedger() {
-    const v = id => $(id).value.trim();
-    const date = v("#l-date"), amount = +v("#l-amount");
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return showErr("Pick a date.");
-    if (!(amount > 0)) return showErr("Enter an amount greater than $0.");
-    const cat = v("#l-cat");
-    const body = { kind: form.dataset.kind, date, amount, cat, vendor: v("#l-vendor"), gallons: cat === "fuel" ? (+v("#l-gallons") || 0) : 0, notes: v("#l-notes") };
-    const id = form.dataset.id;
-    const prev = id ? ledger.find(t => t.id === id) : null;
-    body.created = prev?.created || Date.now();
-    body.example = false;
-    try { await (id ? db.collection("ledger").doc(id) : db.collection("ledger").doc()).set(body); dlg.close(); toast(id ? "Entry updated" : (body.kind === "income" ? "Income logged" : "Expense logged")); }
-    catch (e) { showErr(writeErr(e)); }
-  }
-  async function del(kind) {
+
+  async function delEntry(kind) {
     const btn = form.querySelector("[data-del]");
     if (btn.dataset.armed !== "1") { btn.dataset.armed = "1"; btn.textContent = "Tap again to delete"; return; }
-    try { await db.collection(kind === "trip" ? "trips" : "ledger").doc(form.dataset.id).delete(); dlg.close(); toast("Deleted"); }
-    catch (e) { showErr(writeErr(e)); }
+    const coll = { trip: "trips", ledger: "ledger", renewal: "renewals", service: "service", taxpay: "taxes", miles: "miles" }[kind];
+    try { await db.collection(coll).doc(form.dataset.id).delete(); dlg.close(); toast("Deleted"); } catch (e) { showErr(writeErr(e)); }
+  }
+
+  async function serviceDone(id) {
+    const s = service.find(x => x.id === id); if (!s) return;
+    const now = engineNow();
+    try { await db.collection("service").doc(id).update({ lastDate: iso(today()), lastHours: now != null ? Math.round(now * 10) / 10 : (s.lastHours ?? "") }); toast(`${s.name} marked done`); }
+    catch (e) { toast(writeErr(e)); }
   }
 
   let clearArmed = false;
@@ -560,53 +1022,249 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
 
   async function exportCsv() {
     const q = s => `"${String(s ?? "").replace(/"/g, '""')}"`;
-    const lines = [["Date", "Kind", "Category / trip type", "Status", "Amount", "Tips", "Deposit", "Gallons", "Party", "Hours", "Customer / vendor", "Payment", "Notes"].join(",")];
-    trips.slice().sort((a, b) => a.date.localeCompare(b.date)).forEach(t => lines.push([t.date, "Trip", TRIP_TYPES[t.type], t.status, t.fee, t.tips, t.deposit, "", t.party, t.hours, q(t.customer), q(t.pay), q(t.notes)].join(",")));
-    ledger.slice().sort((a, b) => a.date.localeCompare(b.date)).forEach(e => lines.push([e.date, e.kind === "income" ? "Income" : "Expense", q(catName(e.cat)), "", e.amount, "", "", e.gallons || "", "", "", q(e.vendor), "", q(e.notes)].join(",")));
+    const lines = [["Date", "Kind", "Category / trip type", "Schedule C line", "Status", "Amount", "Tips", "Deposit", "Gallons", "Miles", "Party", "Hours", "Customer / vendor", "Payment", "Receipt", "Notes"].join(",")];
+    trips.slice().sort((a, b) => a.date.localeCompare(b.date)).forEach(t => lines.push([t.date, "Trip", TRIP_TYPES[t.type], "Line 1 · Gross receipts", t.status, t.fee, t.tips, t.deposit, "", "", t.party, t.hours, q(t.customer), q(t.pay), "", q(t.notes)].join(",")));
+    ledger.slice().sort((a, b) => a.date.localeCompare(b.date)).forEach(e => lines.push([e.date, e.kind === "income" ? "Income" : "Expense", q(catName(e.cat)), q(e.kind === "income" ? "Line 6 · Other income" : SCHED_C[e.cat] ?? "Not deductible"), "", e.amount, "", "", e.gallons || "", "", "", "", q(e.vendor), "", e.receiptId ? "yes" : "", q(e.notes)].join(",")));
+    miles.slice().sort((a, b) => a.date.localeCompare(b.date)).forEach(m => lines.push([m.date, "Mileage", "Business miles", q("Line 9 · Car & truck"), "", "", "", "", "", m.miles, "", "", "", "", "", q(m.purpose)].join(",")));
+    taxes.slice().sort((a, b) => (a.date || "").localeCompare(b.date || "")).forEach(p => lines.push([p.date, "Tax payment", `${p.year} Q${p.q} estimated`, "", "", p.amount, "", "", "", "", "", "", "", "", "", q(p.note)].join(",")));
     const dl = await window.claude?.use?.("downloads");
     if (!dl) { toast("Downloads aren't available in this view"); return; }
     try { await dl.save({ filename: `charter-logbook-${iso(today())}.csv`, data: lines.join("\n") }); } catch (e) { if (e?.code !== "cancelled") toast("Download didn't go through"); }
   }
 
-  // ---------- events ----------
+  // ================= Gmail / Calendar =================
+  function normThread(t) {
+    const ms = t.messages || []; const m = ms[ms.length - 1] || {}; const f = ms[0] || m;
+    const subj = m.subject || f.subject || "(no subject)";
+    return { id: t.id, subject: decode(subj), from: m.addressDisplayNames?.[0]?.displayName || m.sender || "", sender: m.sender || "", date: (m.date || "").slice(0, 10) ? iso(new Date(m.date)) : "",
+      snippet: decode(m.snippet), unread: (m.labelIds || []).includes("UNREAD"), count: t.messageCount || ms.length || 1, url: t.viewUrl || m.viewUrl || "", booking: /booking request/i.test(subj), to: m.toRecipients || [] };
+  }
+  const MAIL_INPUT = { query: "in:inbox newer_than:60d", pageSize: 30, view: "THREAD_VIEW_SUMMARY" };
+  function calInput() { const t = today(); return { startTime: `${iso(t)}T00:00:00`, endTime: `${iso(addDays(t, 45))}T23:59:00`, orderBy: "startTime", pageSize: 50 }; }
+  const DENY = ["needs_reauth", "server_not_connected", "blocked_by_policy", "approval_required", "not_in_manifest", "selection_required", "consent_required"];
+  function setMail(payload) { mail.threads = (payload?.threads || []).map(normThread); mail.state = "ok"; mail.code = null; }
+  function normEvent(e) {
+    const s = e.start || {}; const st = s.dateTime || e.startTime || s.date || "";
+    const allDay = !s.dateTime && !!(s.date || /^\d{4}-\d{2}-\d{2}$/.test(st));
+    const d = st.slice(0, 10);
+    return { id: e.id || e.eventId || "", title: e.summary || e.title || "(busy)", date: d, time: allDay ? "" : st.slice(11, 16), allDay, location: e.location || "", url: e.htmlLink || e.viewUrl || "" };
+  }
+  function setCal(payload) { const list = payload?.events || payload?.items || []; gcal.events = list.map(normEvent).filter(e => /^\d{4}-\d{2}-\d{2}$/.test(e.date)); gcal.state = "ok"; gcal.code = null; }
+  function startWatches() {
+    mail.state = "loading";
+    mcp.watchTool("Gmail", "search_threads", MAIL_INPUT, ev => {
+      if (ev.type === "data") setMail(ev.result.payload);
+      else { const c = ev.error?.code; if (DENY.includes(c) || !mail.threads.length) { if (DENY.includes(c)) mail.threads = []; mail.state = "error"; mail.code = c; } }
+      render();
+    }, { cache: { staleTime: 60000, gcTime: 3600000 }, refetchInterval: 300000 });
+    gcal.state = "loading";
+    mcp.watchTool("Google Calendar", "list_events", calInput(), ev => {
+      if (ev.type === "data") setCal(ev.result.payload);
+      else { const c = ev.error?.code; if (DENY.includes(c) || !gcal.events.length) { if (DENY.includes(c)) gcal.events = []; gcal.state = "error"; gcal.code = c; } }
+      render();
+    }, { cache: { staleTime: 120000, gcTime: 3600000 }, refetchInterval: 600000 });
+  }
+  async function connect(which) {
+    try {
+      if (which === "mail") { mail.state = "loading"; render(true); const r = await mcp.callTool("Gmail", "search_threads", MAIL_INPUT, { cache: { refresh: true, staleTime: 60000, gcTime: 3600000 } }); setMail(r.payload); }
+      else { gcal.state = "loading"; render(true); const r = await mcp.callTool("Google Calendar", "list_events", calInput(), { cache: { refresh: true, staleTime: 120000, gcTime: 3600000 } }); setCal(r.payload); }
+      mcp.invalidate(which === "mail" ? "Gmail" : "Google Calendar").catch(() => {});
+    } catch (e) { const st = which === "mail" ? mail : gcal; st.state = "error"; st.code = e?.code; }
+    render(true);
+  }
+  async function openThread(id) {
+    tab = "inbox";
+    mail.open = { id, state: "loading", msgs: [], draft: null };
+    render(true); window.scrollTo(0, 0);
+    try {
+      const r = await mcp.callTool("Gmail", "get_thread", { threadId: id, messageFormat: "PLAIN_TEXT" }, { cache: { staleTime: 300000, gcTime: 3600000 } });
+      const p = r.payload || {};
+      if (mail.open?.id !== id) return;
+      mail.open.msgs = (p.messages || []).map(m => ({ id: m.id, sender: m.sender || "", fromName: m.addressDisplayNames?.find(a => a.emailAddress === m.sender)?.displayName || m.addressDisplayNames?.[0]?.displayName || "", date: m.date, subject: decode(m.subject || ""), body: m.plaintextBody || decode(m.snippet), snippet: decode(m.snippet), to: m.toRecipients || [] }));
+      mail.open.state = "ok";
+    } catch (e) {
+      if (mail.open?.id !== id) return;
+      mail.open.state = "error"; mail.open.err = e?.code === "tool_error" ? "Gmail couldn't open this email." : connMsg("Gmail", e?.code);
+    }
+    render(true);
+  }
+  function bookingFromOpen() {
+    const o = mail.open; const msgs = o.msgs; const first = msgs[0] || {};
+    const own = [...new Set(msgs.flatMap(m => m.to))];
+    const p = parseBooking(first.subject || "", msgs.map(m => m.body).join("\n"), first.sender, own);
+    return p;
+  }
+  function replyTarget() {
+    const o = mail.open; const last = o.msgs[o.msgs.length - 1] || {};
+    const p = bookingFromOpen();
+    const sender = last.sender || "";
+    const useParsed = p.email && /resend\.dev|noreply|no-reply|notifications?@/i.test(sender);
+    return useParsed ? p.email : sender;
+  }
+  async function aiDraft() {
+    const o = mail.open; if (!sample || !o) return;
+    o.aiBusy = true; o.aiErr = ""; render(true);
+    const p = bookingFromOpen();
+    const sameDay = p.date ? trips.filter(t => t.date === p.date && t.status !== "cancelled").map(t => `${TRIP_TYPES[t.type]}${t.time ? " at " + fmtTime(t.time) : ""}`) : [];
+    const calSame = p.date ? gcal.events.filter(e => e.date === p.date).map(e => e.title) : [];
+    const thread = o.msgs.map(m => `From: ${m.fromName || m.sender}\nDate: ${m.date}\nSubject: ${m.subject}\n\n${(m.body || "").slice(0, 4000)}`).join("\n\n---\n\n");
+    const prompt = `You write short, friendly, professional email replies for a fishing charter captain.
+Business: ${settings.name || "a fishing charter"}${settings.homePort ? `, departing from ${settings.homePort}` : ""}.
+Prices: half day (4 hours) $${settings.halfPrice}, full day (8 hours) $${settings.fullPrice}.
+${p.date ? `The requested date is ${fmtDate(p.date)}. Already on the captain's schedule that day: ${sameDay.length ? sameDay.join(", ") : "nothing"}. Google Calendar that day: ${calSame.length ? calSame.join(", ") : "nothing"}.` : ""}
+Write the body of a reply to the latest message in this email thread. If it's a booking request and the day looks open, confirm warmly, restate the date, trip and price, and say what to bring (sunscreen, hat, snacks, drinks) and that licenses and gear are included. If the day already has a trip, politely offer to find another time. Keep it under 150 words. Plain text only, no markdown, no subject line. Sign off with "Captain" and the business name. Use placeholders like [deposit link] for anything you don't know instead of making it up.
+
+Email thread:
+${thread}`;
+    try {
+      const r = await sample(prompt, { onText: ({ text }) => { const el = $("#d-body"); if (el) el.value = text; } });
+      o.draft = { to: o.draft?.to || replyTarget(), body: (r.text || "").trim(), busy: false, err: "", saved: false };
+    } catch (e) { o.aiErr = e?.code === "not_granted" ? "Claude drafting isn't allowed in this view." : e?.code === "rate_limited" ? "Too many requests just now. Try again in a minute." : "Couldn't write a draft. Try again, or write your own."; }
+    o.aiBusy = false; render(true);
+  }
+  async function saveDraft() {
+    const o = mail.open; if (!o?.draft) return;
+    o.draft.to = v("#d-to"); o.draft.body = $("#d-body")?.value || "";
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(o.draft.to)) { o.draft.err = "Enter a valid email address in To."; render(true); return; }
+    if (!o.draft.body.trim()) { o.draft.err = "Write a message first."; render(true); return; }
+    o.draft.busy = true; o.draft.err = ""; render(true);
+    const last = o.msgs[o.msgs.length - 1] || {};
+    const subj = last.subject || o.msgs[0]?.subject || "";
+    try {
+      await mcp.callTool("Gmail", "create_draft", { to: [o.draft.to], subject: /^re:/i.test(subj) ? subj : `Re: ${subj}`, body: o.draft.body, replyToMessageId: last.id, includeSignature: true }, { cache: false });
+      o.draft.saved = true; toast("Saved to Gmail drafts");
+    } catch (e) { o.draft.err = e?.code === "tool_error" ? "Gmail couldn't save the draft." : connMsg("Gmail", e?.code); }
+    o.draft.busy = false; render(true);
+  }
+  async function tripToCalendar() {
+    const id = form.dataset.id; const t = trips.find(x => x.id === id); if (!t || !mcp) return;
+    const btn = form.querySelector('[data-act="trip-to-cal"]'); if (btn) { btn.disabled = true; btn.textContent = "Adding…"; }
+    const time = t.time || (t.type === "full" ? "07:00" : "07:00");
+    const start = new Date(`${t.date}T${time}:00`); const end = new Date(start.getTime() + (+t.hours || (t.type === "full" ? 8 : 4)) * 3600e3);
+    const fmt = d => `${iso(d)}T${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}:00`;
+    try {
+      const r = await mcp.callTool("Google Calendar", "create_event", { summary: `${TRIP_TYPES[t.type]} charter${t.customer ? " · " + t.customer : ""}`, startTime: fmt(start), endTime: fmt(end), location: settings.homePort || "",
+        description: [t.party ? `${t.party} anglers` : "", t.phone ? `Phone: ${t.phone}` : "", t.email ? `Email: ${t.email}` : "", t.fee ? `Fee: ${money(+t.fee)}` : "", t.deposit ? `Deposit: ${money(+t.deposit)}` : "", t.notes].filter(Boolean).join("\n") }, { cache: false });
+      const evId = r.payload?.id || r.payload?.eventId || "added";
+      await db.collection("trips").doc(id).update({ calEventId: evId });
+      mcp.invalidate("Google Calendar").catch(() => {});
+      toast("Added to Google Calendar"); dlg.close();
+    } catch (e) { showErr(e?.code === "tool_error" ? "Google Calendar couldn't add the event." : e?.code ? connMsg("Google Calendar", e.code) : writeErr(e)); if (btn) { btn.disabled = false; btn.textContent = "Add to Google Calendar"; } }
+  }
+
+  // ================= Ask Claude =================
+  function businessSnapshot() {
+    const t = today(); const months = [];
+    for (let i = 11; i >= 0; i--) {
+      const s = new Date(t.getFullYear(), t.getMonth() - i, 1), e = new Date(t.getFullYear(), t.getMonth() - i + 1, 0);
+      const c = compute({ start: s, end: e < t ? e : t });
+      months.push({ month: iso(s).slice(0, 7), income: Math.round(c.income), expenses: Math.round(c.expTotal), profit: Math.round(c.net), halfDayTrips: c.types.half.n, fullDayTrips: c.types.full.n, cancellations: c.canc.length, expensesByCategory: Object.fromEntries(Object.entries(c.byCat).map(([k, v]) => [catName(k), Math.round(v)])) });
+    }
+    const tc = taxCalc(t.getFullYear());
+    return {
+      today: iso(t), business: settings.name, prices: { halfDay: settings.halfPrice, fullDay: settings.fullPrice },
+      last12Months: months,
+      upcomingBookings: trips.filter(x => x.status === "booked" && x.date >= iso(t)).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 20).map(x => ({ date: x.date, type: x.type, customer: x.customer, fee: x.fee })),
+      taxes: { year: tc.year, netProfitYTD: Math.round(tc.net), estimatedTaxYTD: Math.round(tc.total), projectedYearTax: Math.round(tc.projected), paidSoFar: Math.round(tc.paidTotal), quarters: tc.quarters.map(q => ({ q: q.q, due: q.due, suggested: Math.round(q.suggested), paid: Math.round(q.paid), status: q.status })) },
+      maintenance: service.map(s => ({ name: s.name, ...serviceStatus(s) })), renewals: renewals.map(r => ({ name: r.name, due: r.due || null })),
+      engineHours: engineNow(), topCustomers: customerList().slice(0, 10).map(c => ({ name: c.name, trips: c.trips.length, spent: Math.round(c.spent) })),
+      includesExampleData: trips.some(x => x.example) || ledger.some(x => x.example),
+    };
+  }
+  async function ask() {
+    const q = (v("#askQ") || askS.q).trim(); if (!q || !sample) return;
+    askS.q = q; askS.a = ""; askS.err = ""; askS.busy = true; render(true);
+    const prompt = `You are a practical business advisor for a small fishing charter business, talking to the captain. Answer their question using only the data below. Be specific with numbers, keep it short (under 200 words), use plain text with simple dashes for lists, and no markdown headings or tables. If the data can't answer it, say what they'd need to log. For tax questions, give the estimate and remind them to confirm with an accountant.
+
+Business data (JSON):
+${JSON.stringify(businessSnapshot())}
+
+Question: ${q}`;
+    try {
+      const r = await sample(prompt, { onText: ({ text }) => { askS.a = text; const el = $("#askOut"); if (el) el.textContent = text; } });
+      askS.a = r.text;
+    } catch (e) { askS.err = e?.code === "not_granted" ? "Asking Claude isn't allowed in this view." : e?.code === "rate_limited" ? "Too many questions just now. Try again in a minute." : "Couldn't get an answer. Try again."; }
+    askS.busy = false; render(true);
+  }
+
+  // ================= events =================
   document.addEventListener("click", e => {
     const b = e.target.closest("button"); if (!b) return;
-    if (b.dataset.tab) { tab = b.dataset.tab; render(); window.scrollTo(0, 0); }
-    else if (b.dataset.period) { period = b.dataset.period; render(); }
-    else if (b.dataset.tripfilter) { tripFilter = b.dataset.tripfilter; render(); }
-    else if (b.dataset.ledgerfilter) { ledgerFilter = b.dataset.ledgerfilter; render(); }
+    const d = b.dataset;
+    if (d.tab) { tab = d.tab; if (tab !== "inbox") mail.open = null; if (tab !== "customers") custSel = null; render(true); window.scrollTo(0, 0); }
+    else if (d.period) { period = d.period; render(true); }
+    else if (d.tripfilter) { tripFilter = d.tripfilter; render(true); }
+    else if (d.ledgerfilter) { ledgerFilter = d.ledgerfilter; render(true); }
+    else if (d.mailfilter) { mail.filter = d.mailfilter; render(true); }
+    else if (d.taxyear) { taxYear = +d.taxyear; render(true); }
+    else if (d.cal) { calMonth = d.cal === "0" ? new Date(today().getFullYear(), today().getMonth(), 1) : new Date(calMonth.getFullYear(), calMonth.getMonth() + +d.cal, 1); if (d.cal === "0") calSel = iso(today()); render(true); }
+    else if (d.day) { calSel = calSel === d.day ? null : d.day; render(true); }
+    else if (d.newTripOn) openTrip(null, { date: d.newTripOn, status: d.newTripOn > iso(today()) ? "booked" : "completed" });
+    else if (d.cust !== undefined) { custSel = d.cust || null; render(true); window.scrollTo(0, 0); }
+    else if (d.copy) { navigator.clipboard?.writeText(d.copy).then(() => toast("Copied"), () => toast(d.copy)); }
     else if (b.id === "addTripBtn") openTrip();
     else if (b.id === "addExpBtn") openLedger();
-    else if (b.dataset.editTrip && canWrite) openTrip(trips.find(t => t.id === b.dataset.editTrip));
-    else if (b.dataset.editLedger && canWrite) openLedger(ledger.find(x => x.id === b.dataset.editLedger));
-    else if (b.dataset.act === "close") dlg.close();
-    else if (b.dataset.del) del(b.dataset.del);
-    else if (b.dataset.act === "clear-ex") clearExamples(b);
-    else if (b.dataset.act === "export") exportCsv();
+    else if (d.editTrip && canWrite) openTrip(trips.find(t => t.id === d.editTrip));
+    else if (d.editLedger && canWrite) openLedger(ledger.find(x => x.id === d.editLedger));
+    else if (d.editRenewal && canWrite) openRenewal(renewals.find(x => x.id === d.editRenewal));
+    else if (d.editService && canWrite) openService(service.find(x => x.id === d.editService));
+    else if (d.editMiles && canWrite) openMiles(miles.find(x => x.id === d.editMiles));
+    else if (d.serviceDone) serviceDone(d.serviceDone);
+    else if (d.payQ) openTaxPay(+d.payQ);
+    else if (d.openThread) openThread(d.openThread);
+    else if (d.ask) { askS.q = d.ask; const el = $("#askQ"); if (el) el.value = d.ask; ask(); }
+    else if (d.del) delEntry(d.del);
+    else switch (d.act) {
+      case "close": dlg.close(); break;
+      case "clear-ex": clearExamples(b); break;
+      case "export": exportCsv(); break;
+      case "ask": ask(); break;
+      case "add-income": openLedger(null, "income"); break;
+      case "add-maint": openLedger(null, "expense", "maintenance"); break;
+      case "add-renewal": openRenewal(); break;
+      case "add-service": openService(); break;
+      case "add-miles": openMiles(); break;
+      case "engine": openEngine(); break;
+      case "connect-mail": connect("mail"); break;
+      case "connect-cal": connect("cal"); break;
+      case "refresh-mail": mcp?.invalidate("Gmail").catch(() => {}); toast("Checking for new email…"); break;
+      case "close-thread": mail.open = null; render(true); break;
+      case "ai-draft": aiDraft(); break;
+      case "blank-draft": mail.open.draft = { to: replyTarget(), body: "", busy: false, err: "", saved: false }; render(true); break;
+      case "save-draft": saveDraft(); break;
+      case "trip-to-cal": tripToCalendar(); break;
+      case "book-from-mail": { const p = bookingFromOpen(); openTrip(null, { status: "booked", date: p.date || iso(today()), time: p.time || "07:00", type: p.type, fee: p.fee || (p.type === "full" ? settings.fullPrice : settings.halfPrice), hours: p.type === "full" ? 8 : 4, customer: p.customer, email: p.email, phone: p.phone, party: p.party, notes: "From email: " + (mail.open.msgs[0]?.subject || ""), emailThreadId: mail.open.id }); break; }
+    }
   });
-  form.dataset.mode = "";
   document.addEventListener("submit", async e => {
-    if (e.target.id === "dlgForm") { e.preventDefault(); const sv = form.querySelector("[data-save]"); if (sv?.dataset.save === "trip") saveTrip(); else if (sv) saveLedger(); return; }
-    if (e.target.id !== "setForm") return;
     e.preventDefault();
+    if (e.target.id === "dlgForm") return submitForm();
+    if (e.target.id !== "setForm") return;
     const f = new FormData(e.target);
-    const body = { name: String(f.get("name") || "").trim(), halfPrice: +f.get("halfPrice") || 0, fullPrice: +f.get("fullPrice") || 0, taxRate: Math.min(60, Math.max(0, +f.get("taxRate") || 0)) };
+    const body = { ...settings, name: String(f.get("name") || "").trim(), halfPrice: +f.get("halfPrice") || 0, fullPrice: +f.get("fullPrice") || 0, homePort: String(f.get("homePort") || "").trim(),
+      incomeRate: Math.min(40, Math.max(0, +f.get("incomeRate") || 0)), stateRate: Math.min(15, Math.max(0, +f.get("stateRate") || 0)), mileRate: Math.max(0, +f.get("mileRate") || 0) };
     try { await db.doc("settings/main").set(body); toast("Settings saved"); } catch (err) { toast(writeErr(err)); }
   });
+  document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.id === "askQ" && !e.shiftKey) { e.preventDefault(); ask(); } });
 
-  // ---------- boot ----------
-  render();
+  // ================= boot =================
+  render(true);
   (async () => {
     db = await window.claude?.use?.("db") ?? null;
-    if (!db) { note = "Open this page while signed in to claude.ai to save and see entries."; render(); return; }
+    if (!db) { note = "Open this page while signed in to claude.ai to save and see entries."; render(true); return; }
     const user = await window.claude.use("user");
     if (user) { const ok = await user.canEdit(); if (ok === false) canWrite = false; }
     const timer = setTimeout(() => { note = "Your logbook is taking a while to load. Entries may be out of date until the connection comes back."; render(); }, 10000);
     const done = () => { if (loaded.trips && loaded.ledger) { clearTimeout(timer); if (note.startsWith("Your logbook")) note = ""; } };
-    const fail = err => { clearTimeout(timer); note = err?.code === "revoked" ? "Access to this logbook changed." : "Couldn't load the logbook. Reload the page to try again."; loaded.trips = loaded.ledger = true; render(); };
+    const fail = err => { clearTimeout(timer); note = err?.code === "revoked" ? "Access to this logbook changed." : "Couldn't load the logbook. Reload the page to try again."; loaded.trips = loaded.ledger = true; render(true); };
     db.collection("trips").onSnapshot(s => { trips = s.docs.map(d => ({ id: d.id, ...d.data() })); if (!s.metadata.fromCache) loaded.trips = true; done(); render(); }, fail);
     db.collection("ledger").onSnapshot(s => { ledger = s.docs.map(d => ({ id: d.id, ...d.data() })); if (!s.metadata.fromCache) loaded.ledger = true; done(); render(); }, fail);
-    db.doc("settings/main").onSnapshot(s => { if (s.exists) settings = { ...settings, ...s.data() }; if (tab !== "settings") render(); }, () => {});
+    const sub = (coll, set) => db.collection(coll).onSnapshot(s => { set(s.docs.map(d => ({ id: d.id, ...d.data() }))); render(); }, () => {});
+    sub("taxes", x => taxes = x); sub("miles", x => miles = x); sub("service", x => service = x); sub("renewals", x => renewals = x);
+    db.doc("settings/main").onSnapshot(s => { if (s.exists) settings = { ...settings, ...s.data() }; render(); }, () => {});
+    window.claude.use("assets").then(a => { assets = a; }).catch(() => {});
+    window.claude.use("sample").then(s => { sample = s; render(); }).catch(() => {});
+    window.claude.use("mcp").then(m => { mcp = m; if (mcp) startWatches(); render(); }).catch(() => {});
   })();
 })();
 </script>
