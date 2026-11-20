@@ -632,6 +632,7 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
   }
   function viewInbox() {
     if (!mcp) return `<div class="card empty"><h3>Email isn't available here</h3><p>Open this page on claude.ai, signed in, to see your Gmail.</p></div>`;
+    if (mail.compose) return viewCompose();
     if (mail.open) return viewThread();
     const errBox = mail.state === "error" ? `<div class="alert ${needsConsent(mail.code) ? "info" : "bad"}"><span class="a-txt">${esc(connMsg("Gmail", mail.code))}</span>${needsConsent(mail.code) || mail.code === "selection_required" ? `<button class="btn small primary" type="button" data-act="connect-mail">Connect Gmail</button>` : ""}</div>` : "";
     let list = mail.threads;
@@ -640,11 +641,23 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
     const f = [["all", "Inbox"], ["booking", "Booking requests"], ["unread", "Unread"]];
     const added = new Map(trips.filter(t => t.emailThreadId).map(t => [t.emailThreadId, t]));
     const rows = list.map(t => `<button class="row ${t.unread ? "unread" : ""}" type="button" data-open-thread="${esc(t.id)}">${t.date ? dateCell(t.date) : "<span></span>"}<span class="main"><span class="t1">${esc(t.subject)}${t.booking ? (added.has(t.id) ? `<span class="pill ok">on schedule</span>` : `<span class="pill req">booking</span>`) : ""}</span><span class="t2">${esc(t.from)} · ${esc(t.snippet)}</span></span><span class="note">${t.count > 1 ? t.count : ""}</span></button>`).join("");
-    return `<div class="card"><div class="card-head"><h2>Inbox</h2><div class="add-row"><button class="btn small" type="button" data-act="refresh-mail">Refresh</button><a class="btn small" href="https://mail.google.com/" target="_blank" rel="noopener">Open Gmail</a></div></div>
+    return `<div class="card"><div class="card-head"><h2>Inbox</h2><div class="add-row"><button class="btn small primary" type="button" data-act="compose">New email</button><button class="btn small" type="button" data-act="refresh-mail">Refresh</button><a class="btn small" href="https://mail.google.com/" target="_blank" rel="noopener">Open Gmail</a></div></div>
       <div class="periods" style="margin-bottom:8px">${f.map(([k, l]) => `<button class="chip" type="button" data-mailfilter="${k}" aria-pressed="${mail.filter === k}">${l}</button>`).join("")}</div>
       ${errBox}
       ${mail.state === "loading" && !mail.threads.length ? `<p class="note">Loading your email…</p>` : list.length ? `<div class="list">${rows}</div>` : mail.state === "ok" ? `<div class="empty"><h3>${mail.filter === "booking" ? "No booking requests" : "All caught up"}</h3><p>Showing the last 60 days of your inbox.</p></div>` : ""}
-      <p class="note" style="margin-bottom:0">Booking requests from your website get a “booking” tag. Open one to add it to your schedule or draft a reply. Replies are saved to your Gmail drafts so you can check them before sending.</p></div>`;
+      <p class="note" style="margin-bottom:0">Booking requests from your website get a “booking” tag. Open one to add it to your schedule or reply. You can send right from here, or save a draft to finish in Gmail.</p></div>`;
+  }
+  function viewCompose() {
+    const c = mail.compose;
+    return `<div class="card ask"><div class="card-head" style="margin:0"><button class="btn small" type="button" data-act="close-compose">‹ Inbox</button><h2>New email</h2></div>
+      <div class="fgrid">
+        <div class="field full"><label for="n-to">To</label><input id="n-to" type="email" value="${esc(c.to)}" placeholder="name@example.com" list="n-contacts"><datalist id="n-contacts">${customerList().filter(x => x.email).map(x => `<option value="${esc(x.email)}">${esc(x.name)}</option>`).join("")}</datalist></div>
+        <div class="field full"><label for="n-subj">Subject</label><input id="n-subj" value="${esc(c.subject)}"></div>
+        <div class="field full"><label for="n-body">Message</label><textarea id="n-body" style="min-height:14rem">${esc(c.body)}</textarea></div>
+      </div>
+      ${c.err ? `<p class="err">${esc(c.err)}</p>` : ""}${c.saved ? `<p class="note">Saved to your Gmail drafts. <a href="https://mail.google.com/mail/#drafts" target="_blank" rel="noopener">Open drafts</a></p>` : ""}${c.sent ? `<p class="note pos"><b>Sent</b> to ${esc(c.sentTo)}.</p>` : ""}
+      <div class="add-row"><button class="btn ${c.armSend ? "out" : "primary"}" type="button" data-act="send-compose" ${c.busy ? "disabled" : ""}>${c.busy === "send" ? "Sending…" : c.armSend ? "Tap again to send" : "Send"}</button><button class="btn" type="button" data-act="draft-compose" ${c.busy ? "disabled" : ""}>${c.busy === "draft" ? "Saving…" : "Save as draft"}</button></div>
+      <p class="note" style="margin:0">Sends from your connected Gmail account, with your Gmail signature added.</p></div>`;
   }
   function viewThread() {
     const o = mail.open;
@@ -662,11 +675,11 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
     const draftBox = `<div class="card ask"><div class="card-head" style="margin:0"><h2>Reply</h2></div>
       ${draft ? `<div class="fgrid"><div class="field full"><label for="d-to">To</label><input id="d-to" value="${esc(draft.to)}"></div>
         <div class="field full"><label for="d-body">Message</label><textarea id="d-body" style="min-height:12rem">${esc(draft.body)}</textarea></div></div>
-        ${draft.err ? `<p class="err">${esc(draft.err)}</p>` : ""}${draft.saved ? `<p class="note">Saved to your Gmail drafts. <a href="https://mail.google.com/mail/#drafts" target="_blank" rel="noopener">Open drafts</a> to check it and send.</p>` : ""}
-        <div class="add-row"><button class="btn primary" type="button" data-act="save-draft" ${draft.busy ? "disabled" : ""}>${draft.busy ? "Saving…" : "Save to Gmail drafts"}</button>${sample ? `<button class="btn" type="button" data-act="ai-draft" ${o.aiBusy ? "disabled" : ""}>${o.aiBusy ? "Writing…" : "Rewrite with Claude"}</button>` : ""}</div>`
+        ${draft.err ? `<p class="err">${esc(draft.err)}</p>` : ""}${draft.saved ? `<p class="note">Saved to your Gmail drafts. <a href="https://mail.google.com/mail/#drafts" target="_blank" rel="noopener">Open drafts</a> to check it and send.</p>` : ""}${draft.sent ? `<p class="note pos"><b>Sent</b> to ${esc(draft.sentTo)}.</p>` : ""}
+        <div class="add-row"><button class="btn ${draft.armSend ? "out" : "primary"}" type="button" data-act="send-reply" ${draft.busy ? "disabled" : ""}>${draft.busy === "send" ? "Sending…" : draft.armSend ? "Tap again to send" : "Send"}</button><button class="btn" type="button" data-act="save-draft" ${draft.busy ? "disabled" : ""}>${draft.busy === "draft" ? "Saving…" : "Save as draft"}</button>${sample ? `<button class="btn" type="button" data-act="ai-draft" ${o.aiBusy ? "disabled" : ""}>${o.aiBusy ? "Writing…" : "Rewrite with Claude"}</button>` : ""}</div>`
       : `<div class="add-row">${sample ? `<button class="btn primary" type="button" data-act="ai-draft" ${o.aiBusy ? "disabled" : ""}>${o.aiBusy ? "Writing…" : "Draft a reply with Claude"}</button>` : ""}<button class="btn" type="button" data-act="blank-draft">Write my own</button></div>`}
       ${o.aiErr ? `<p class="err">${esc(o.aiErr)}</p>` : ""}
-      <p class="note" style="margin:0">Nothing is sent from here. Your reply goes to Gmail drafts, and you send it from Gmail.</p></div>`;
+      <p class="note" style="margin:0">Tap Send twice to send from your Gmail account. Use Save as draft if you want to look it over in Gmail first.</p></div>`;
     return `<div class="card">${head}<h2 style="margin-bottom:8px">${esc(last.subject || th.subject || "(no subject)")}</h2>${bookingBox}${msgHtml}</div>${draftBox}`;
   }
 
@@ -772,7 +785,7 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
         return `<div class="card"><div class="card-head"><button class="btn small" type="button" data-cust="">‹ All customers</button></div>
           <h2>${esc(c.name)}</h2>
           <div class="insights" style="margin-top:8px">
-            <div class="ins"><span class="k">Email</span><span class="v">${c.email ? `${esc(c.email)} <button class="btn small ghost" type="button" data-copy="${esc(c.email)}">Copy</button>` : "—"}</span></div>
+            <div class="ins"><span class="k">Email</span><span class="v">${c.email ? `${esc(c.email)} ${mcp ? `<button class="btn small" type="button" data-compose-to="${esc(c.email)}" data-compose-name="${esc(c.name)}">Email</button>` : ""}<button class="btn small ghost" type="button" data-copy="${esc(c.email)}">Copy</button>` : "—"}</span></div>
             <div class="ins"><span class="k">Phone</span><span class="v">${c.phone ? `${esc(c.phone)} <button class="btn small ghost" type="button" data-copy="${esc(c.phone)}">Copy</button>` : "—"}</span></div>
             <div class="ins"><span class="k">Trips</span><span class="v">${c.trips.filter(t => t.status === "completed").length} completed${c.next ? ` · next ${fmtDate(c.next)}` : ""}</span></div>
             <div class="ins"><span class="k">Total spent</span><span class="v">${money(c.spent)}</span></div>
@@ -810,7 +823,7 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
         <div class="ins"><span class="k">Gmail</span><span class="v">${mail.state === "ok" ? "Connected" : mail.state === "error" ? esc(connMsg("Gmail", mail.code)) : mcp ? "Connecting…" : "Not available here"}</span></div>
         <div class="ins"><span class="k">Google Calendar</span><span class="v">${gcal.state === "ok" ? "Connected" : gcal.state === "error" ? esc(connMsg("Google Calendar", gcal.code)) : mcp ? "Connecting…" : "Not available here"}</span></div>
       </div>
-      <p class="note" style="margin-bottom:0">The app reads your inbox and calendar through your claude.ai connectors. It never sends email. Replies go to your Gmail drafts.</p></div>
+      <p class="note" style="margin-bottom:0">The app reads your inbox and calendar through your claude.ai connectors. It only sends an email when you tap Send twice.</p></div>
     <div class="card"><div class="card-head"><h2>Export</h2></div>
       <p class="note" style="margin-top:0">Download everything as a spreadsheet (CSV) for your accountant or your own records.</p>
       <div class="add-row"><button class="btn" type="button" data-act="export">Download CSV</button></div></div>
@@ -1074,6 +1087,7 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
   }
   async function openThread(id) {
     tab = "inbox";
+    mail.compose = null;
     mail.open = { id, state: "loading", msgs: [], draft: null };
     render(true); window.scrollTo(0, 0);
     try {
@@ -1127,7 +1141,7 @@ ${thread}`;
     o.draft.to = v("#d-to"); o.draft.body = $("#d-body")?.value || "";
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(o.draft.to)) { o.draft.err = "Enter a valid email address in To."; render(true); return; }
     if (!o.draft.body.trim()) { o.draft.err = "Write a message first."; render(true); return; }
-    o.draft.busy = true; o.draft.err = ""; render(true);
+    o.draft.busy = "draft"; o.draft.err = ""; o.draft.armSend = false; render(true);
     const last = o.msgs[o.msgs.length - 1] || {};
     const subj = last.subject || o.msgs[0]?.subject || "";
     try {
@@ -1135,6 +1149,44 @@ ${thread}`;
       o.draft.saved = true; toast("Saved to Gmail drafts");
     } catch (e) { o.draft.err = e?.code === "tool_error" ? "Gmail couldn't save the draft." : connMsg("Gmail", e?.code); }
     o.draft.busy = false; render(true);
+  }
+  const okEmail = e => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
+  function sendErr(e) {
+    if (e?.code === "tool_error") return "Gmail couldn't send it. Check the address and try again.";
+    if (e?.code === "server_unavailable" || e?.code === "upstream_error" || e?.code === "cancelled") return "Gmail didn't answer, so this may or may not have sent. Check your Sent folder in Gmail before trying again.";
+    return connMsg("Gmail", e?.code);
+  }
+  async function sendReply() {
+    const o = mail.open; if (!o?.draft || o.draft.busy) return;
+    const d = o.draft;
+    d.to = v("#d-to"); d.body = $("#d-body")?.value || ""; d.err = ""; d.saved = false;
+    if (!okEmail(d.to)) { d.err = "Enter a valid email address in To."; d.armSend = false; render(true); return; }
+    if (!d.body.trim()) { d.err = "Write a message first."; d.armSend = false; render(true); return; }
+    if (!d.armSend) { d.armSend = true; render(true); return; }
+    d.armSend = false; d.busy = "send"; render(true);
+    const last = o.msgs[o.msgs.length - 1] || {};
+    const subj = last.subject || o.msgs[0]?.subject || "";
+    try {
+      await mcp.callTool("Gmail", "send_message", { to: [d.to], subject: /^re:/i.test(subj) ? subj : `Re: ${subj}`, body: d.body, replyToMessageId: last.id, includeSignature: true }, { cache: false });
+      d.sent = true; d.sentTo = d.to; toast("Email sent");
+      mcp.invalidate("Gmail").catch(() => {});
+    } catch (e) { d.err = sendErr(e); }
+    d.busy = false; render(true);
+  }
+  function readCompose() { const c = mail.compose; c.to = v("#n-to"); c.subject = v("#n-subj"); c.body = $("#n-body")?.value || ""; c.err = ""; return c; }
+  async function sendCompose(asDraft) {
+    const c = readCompose(); if (c.busy) return;
+    c.saved = false;
+    if (!okEmail(c.to)) { c.err = "Enter a valid email address in To."; c.armSend = false; render(true); return; }
+    if (!c.body.trim()) { c.err = "Write a message first."; c.armSend = false; render(true); return; }
+    if (!asDraft && !c.armSend) { c.armSend = true; render(true); return; }
+    c.armSend = false; c.busy = asDraft ? "draft" : "send"; render(true);
+    try {
+      await mcp.callTool("Gmail", asDraft ? "create_draft" : "send_message", { to: [c.to], subject: c.subject, body: c.body, includeSignature: true }, { cache: false });
+      if (asDraft) { c.saved = true; toast("Saved to Gmail drafts"); }
+      else { c.sent = true; c.sentTo = c.to; toast("Email sent"); mcp.invalidate("Gmail").catch(() => {}); }
+    } catch (e) { c.err = asDraft ? (e?.code === "tool_error" ? "Gmail couldn't save the draft." : connMsg("Gmail", e?.code)) : sendErr(e); }
+    c.busy = false; render(true);
   }
   async function tripToCalendar() {
     const id = form.dataset.id; const t = trips.find(x => x.id === id); if (!t || !mcp) return;
@@ -1191,7 +1243,7 @@ Question: ${q}`;
   document.addEventListener("click", e => {
     const b = e.target.closest("button"); if (!b) return;
     const d = b.dataset;
-    if (d.tab) { tab = d.tab; if (tab !== "inbox") mail.open = null; if (tab !== "customers") custSel = null; render(true); window.scrollTo(0, 0); }
+    if (d.tab) { tab = d.tab; if (tab !== "inbox") { mail.open = null; mail.compose = null; } if (tab !== "customers") custSel = null; render(true); window.scrollTo(0, 0); }
     else if (d.period) { period = d.period; render(true); }
     else if (d.tripfilter) { tripFilter = d.tripfilter; render(true); }
     else if (d.ledgerfilter) { ledgerFilter = d.ledgerfilter; render(true); }
@@ -1201,6 +1253,7 @@ Question: ${q}`;
     else if (d.day) { calSel = calSel === d.day ? null : d.day; render(true); }
     else if (d.newTripOn) openTrip(null, { date: d.newTripOn, status: d.newTripOn > iso(today()) ? "booked" : "completed" });
     else if (d.cust !== undefined) { custSel = d.cust || null; render(true); window.scrollTo(0, 0); }
+    else if (d.composeTo) { tab = "inbox"; mail.open = null; mail.compose = { to: d.composeTo, subject: "", body: `Hi ${(d.composeName || "").split(" ")[0]},\n\n` }; render(true); window.scrollTo(0, 0); }
     else if (d.copy) { navigator.clipboard?.writeText(d.copy).then(() => toast("Copied"), () => toast(d.copy)); }
     else if (b.id === "addTripBtn") openTrip();
     else if (b.id === "addExpBtn") openLedger();
@@ -1232,6 +1285,11 @@ Question: ${q}`;
       case "ai-draft": aiDraft(); break;
       case "blank-draft": mail.open.draft = { to: replyTarget(), body: "", busy: false, err: "", saved: false }; render(true); break;
       case "save-draft": saveDraft(); break;
+      case "send-reply": sendReply(); break;
+      case "compose": mail.open = null; mail.compose = { to: "", subject: "", body: "" }; render(true); window.scrollTo(0, 0); break;
+      case "close-compose": mail.compose = null; render(true); break;
+      case "send-compose": sendCompose(false); break;
+      case "draft-compose": sendCompose(true); break;
       case "trip-to-cal": tripToCalendar(); break;
       case "book-from-mail": { const p = bookingFromOpen(); openTrip(null, { status: "booked", date: p.date || iso(today()), time: p.time || "07:00", type: p.type, fee: p.fee || (p.type === "full" ? settings.fullPrice : settings.halfPrice), hours: p.type === "full" ? 8 : 4, customer: p.customer, email: p.email, phone: p.phone, party: p.party, notes: "From email: " + (mail.open.msgs[0]?.subject || ""), emailThreadId: mail.open.id }); break; }
     }
