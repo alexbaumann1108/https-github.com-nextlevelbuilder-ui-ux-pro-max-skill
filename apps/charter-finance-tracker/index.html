@@ -173,6 +173,8 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
 .file .doc { display: grid; place-items: center; background: var(--surface-2); text-decoration: none; font-family: var(--display); font-weight: 700; font-size: 1.3rem; color: var(--muted); }
 .file .fname { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .file .btn { justify-self: start; padding: 2px 6px; }
+.pill.gift { color: var(--accent); } .pill.free { color: var(--out); }
+.row .amt small { display: block; font-size: .75rem; font-weight: 600; color: var(--muted); }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 #custSearch { font-size: 16px; }
 </style>
@@ -266,7 +268,8 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
   const daysUntil = s => Math.round((pd(s) - today()) / DAY);
   const fmtDate = s => { const d = pd(s); return `${MON[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`; };
   const fmtTime = t => { if (!t) return ""; const [h, m] = t.split(":").map(Number); return `${(h % 12) || 12}${m ? ":" + String(m).padStart(2, "0") : ""}${h < 12 ? "am" : "pm"}`; };
-  const tripIncome = t => t.status === "completed" ? (+t.fee || 0) + (+t.tips || 0) : t.status === "cancelled" ? (+t.deposit || 0) : 0;
+  const tripIncome = t => t.gift === "free" ? (t.status === "completed" ? (+t.tips || 0) : 0) : t.status === "completed" ? (+t.fee || 0) + (+t.tips || 0) : t.status === "cancelled" ? (+t.deposit || 0) : 0;
+  const FREE_REASONS = ["Charity / auction donation", "Friends & family", "Promotion / marketing", "Making up for a bad trip", "Other"];
   function toast(msg) { const el = document.createElement("div"); el.className = "toast"; el.textContent = msg; document.body.appendChild(el); setTimeout(() => el.remove(), 2600); }
   function dateCell(d) { const x = pd(d); return `<span class="date">${MON[x.getMonth()]}<b>${x.getDate()}</b></span>`; }
 
@@ -484,9 +487,10 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
   // ---------- TRIPS ----------
   function tripRow(t) {
     const st = t.status !== "completed" ? `<span class="pill ${t.status}">${t.status}</span>` : "";
-    const sub = [t.time && t.status === "booked" ? fmtTime(t.time) : "", t.customer, t.party ? t.party + " anglers" : "", t.hours ? t.hours + " hrs" : "", t.status !== "booked" ? t.pay : ""].filter(Boolean).map(esc).join(" · ");
-    const amt = t.status === "booked" ? `<span class="amt" style="color:var(--muted)">${money(+t.fee || 0)}</span>` : `<span class="amt in">${money(tripIncome(t))}</span>`;
-    return `<button class="row" type="button" data-edit-trip="${esc(t.id)}">${dateCell(t.date)}<span class="main"><span class="t1">${TRIP_TYPES[t.type] || "Trip"} charter<span class="pill ${t.type}">${t.type === "half" ? "½ day" : t.type === "full" ? "Full" : "Other"}</span>${st}${t.example ? `<span class="pill ex">example</span>` : ""}</span><span class="t2">${sub || "&nbsp;"}</span></span>${amt}</button>`;
+    const sub = [t.time && t.status === "booked" ? fmtTime(t.time) : "", t.customer, t.gift === "bought" && t.giftFrom ? "gift from " + t.giftFrom : "", t.gift === "free" && t.freeTo ? "donated to " + t.freeTo : "", t.party ? t.party + " anglers" : "", t.hours ? t.hours + " hrs" : "", t.status !== "booked" && t.gift !== "free" ? t.pay : ""].filter(Boolean).map(esc).join(" · ");
+    const amt = t.gift === "free" ? `<span class="amt" style="color:var(--muted)">Free<small>${money(+t.fee || 0)} value</small></span>` : t.status === "booked" ? `<span class="amt" style="color:var(--muted)">${money(+t.fee || 0)}</span>` : `<span class="amt in">${money(tripIncome(t))}</span>`;
+    const gp = t.gift === "bought" ? `<span class="pill gift">gift</span>` : t.gift === "free" ? `<span class="pill free">free</span>` : "";
+    return `<button class="row" type="button" data-edit-trip="${esc(t.id)}">${dateCell(t.date)}<span class="main"><span class="t1">${TRIP_TYPES[t.type] || "Trip"} charter<span class="pill ${t.type}">${t.type === "half" ? "½ day" : t.type === "full" ? "Full" : "Other"}</span>${gp}${st}${t.example ? `<span class="pill ex">example</span>` : ""}</span><span class="t2">${sub || "&nbsp;"}</span></span>${amt}</button>`;
   }
   function viewTrips() {
     const first = calMonth, y = first.getFullYear(), mo = first.getMonth();
@@ -556,6 +560,8 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
       ["Average party size", c.party.length ? num(c.party.reduce((a, t) => a + +t.party, 0) / c.party.length) + " anglers" : "—"],
       ["Busiest day", busiest],
       ["Cancellations", `${c.canc.length} (${num(cancRate, 0)}%)`],
+      ["Free trips given", (() => { const f = c.done.filter(t => t.gift === "free"); return f.length ? `${f.length} · ${money(f.reduce((a, t) => a + (+t.fee || 0), 0))} value` : "—"; })()],
+      ["Trips bought as gifts", (() => { const g = c.done.filter(t => t.gift === "bought"); return g.length ? `${g.length} · ${money(g.reduce((a, t) => a + tripIncome(t), 0))}` : "—"; })()],
       ["Best month", best],
     ].map(([k, v]) => `<div class="ins"><span class="k">${k}</span><span class="v">${v}</span></div>`).join("");
 
@@ -780,10 +786,11 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
     const em = normName(cl.email);
     return trips.filter(t => names.has(normName(t.customer)) || (em && normName(t.email) === em));
   }
-  function summarize(name, ts, rec) {
-    const c = { key: rec ? "c:" + rec.id : "t:" + normName(name), rec, name, trips: ts, spent: 0, email: rec?.email || "", phone: rec?.phone || "", last: "", next: "", first: "" };
+  function summarize(name, ts, rec, given = []) {
+    const c = { key: rec ? "c:" + rec.id : "t:" + normName(name), rec, name, trips: ts, given, spent: 0, email: rec?.email || "", phone: rec?.phone || "", last: "", next: "", first: "" };
+    given.forEach(t => { c.spent += tripIncome(t); if (!c.email && t.giftFromEmail) c.email = t.giftFromEmail; if (!c.phone && t.giftFromPhone) c.phone = t.giftFromPhone; });
     ts.forEach(t => {
-      c.spent += tripIncome(t);
+      if (t.gift !== "bought") c.spent += tripIncome(t);
       if (!c.email && t.email) c.email = t.email;
       if (!c.phone && t.phone) c.phone = t.phone;
       if (t.status === "completed" && t.date > c.last) c.last = t.date;
@@ -795,11 +802,14 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
     return c;
   }
   function customerList() {
-    const used = new Set(); const out = [];
-    clients.forEach(cl => { const ts = clientTrips(cl); ts.forEach(t => used.add(t.id)); out.push(summarize(cl.name, ts, cl)); });
+    const used = new Set(), usedGift = new Set(); const out = [];
+    const giftsBy = names => trips.filter(t => t.gift === "bought" && names.has(normName(t.giftFrom)));
+    clients.forEach(cl => { const ts = clientTrips(cl); ts.forEach(t => used.add(t.id)); const g = giftsBy(new Set([cl.name, ...(cl.aliases || [])].map(normName))); g.forEach(t => usedGift.add(t.id)); out.push(summarize(cl.name, ts, cl, g)); });
     const map = new Map();
-    trips.filter(t => !used.has(t.id) && (t.customer || "").trim()).forEach(t => { const k = normName(t.customer); if (!map.has(k)) map.set(k, []); map.get(k).push(t); });
-    map.forEach(ts => out.push(summarize(ts[0].customer.trim(), ts, null)));
+    const slot = n => { const k = normName(n); if (!map.has(k)) map.set(k, { name: n.trim(), ts: [], g: [] }); return map.get(k); };
+    trips.filter(t => !used.has(t.id) && (t.customer || "").trim()).forEach(t => slot(t.customer).ts.push(t));
+    trips.filter(t => t.gift === "bought" && !usedGift.has(t.id) && (t.giftFrom || "").trim()).forEach(t => slot(t.giftFrom).g.push(t));
+    map.forEach(x => out.push(summarize(x.name, x.ts, null, x.g)));
     return out.sort((a, b) => b.spent - a.spent);
   }
   function sortClients(cs) {
@@ -862,7 +872,8 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
       ${info.length ? `<div class="insights" style="margin-top:8px">${info.map(([k, v]) => `<div class="ins"><span class="k">${k}</span><span class="v">${v}</span></div>`).join("")}</div>` : `<p class="note">${c.rec ? "No contact details yet." : "Tap <b>Add details</b> to save their phone, address, birthday, preferences and more."}</p>`}
       ${r.notes ? `<p style="white-space:pre-wrap;margin:10px 0 0">${esc(r.notes)}</p>` : ""}</div>
     <div class="card"><div class="card-head"><h2>Trip history</h2><span class="note">${c.trips.length}</span></div>
-      ${c.trips.length ? `<div class="list">${c.trips.slice().sort((a, b) => b.date.localeCompare(a.date)).map(tripRow).join("")}</div>` : `<p class="note">No trips yet.</p>`}</div>
+      ${c.trips.length ? `<div class="list">${c.trips.slice().sort((a, b) => b.date.localeCompare(a.date)).map(tripRow).join("")}</div>` : `<p class="note">No trips of their own yet.</p>`}</div>
+    ${c.given.length ? `<div class="card"><div class="card-head"><h2>Trips they gave as gifts</h2><span class="note">${c.given.length}</span></div><div class="list">${c.given.slice().sort((a, b) => b.date.localeCompare(a.date)).map(tripRow).join("")}</div></div>` : ""}
     <div class="card"><div class="card-head"><h2>Files</h2>${canWrite && assets ? `<button class="btn small" type="button" data-client-file="${esc(c.key)}">+ Add files</button>` : ""}</div>
       ${files.length ? `<div class="files">${files.map(f => `<div class="file">${isImg(f) ? `<a href="${esc(f.url)}" target="_blank" rel="noopener"><img src="${esc(f.url)}" alt="${esc(f.name)}"></a>` : `<a class="doc" href="${esc(f.url)}" target="_blank" rel="noopener"><span>${esc((f.name.split(".").pop() || "file").toUpperCase().slice(0, 4))}</span></a>`}<span class="fname" title="${esc(f.name)}">${esc(f.name)}</span><span class="note">${f.added ? fmtDate(f.added) : ""}</span>${canWrite ? `<button class="btn small ghost danger" type="button" data-del-file="${esc(c.key)}" data-fid="${esc(f.id)}">Remove</button>` : ""}</div>`).join("")}</div>`
         : `<p class="note">${assets ? "Keep signed waivers, photos, licenses, receipts and anything else for this client here." : "Files can only be added when the app is open on claude.ai."}</p>`}</div>
@@ -1009,12 +1020,28 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
         ${field("f-customer", "Customer", `<input id="f-customer" value="${esc(t.customer)}" placeholder="Name or group" list="f-clients" autocomplete="off"><datalist id="f-clients">${customerList().map(c => `<option value="${esc(c.name)}">`).join("")}</datalist>`, "full")}
         ${field("f-email", "Customer email", `<input id="f-email" type="email" value="${esc(t.email || "")}" placeholder="optional">`)}
         ${field("f-phone", "Customer phone", `<input id="f-phone" type="tel" value="${esc(t.phone || "")}" placeholder="optional">`)}
+        ${field("f-gift", "Gift", `<select id="f-gift"><option value="" ${!t.gift ? "selected" : ""}>Not a gift</option><option value="bought" ${t.gift === "bought" ? "selected" : ""}>Someone else paid for this trip</option><option value="free" ${t.gift === "free" ? "selected" : ""}>Free trip (I'm giving it away)</option></select>`, "full")}
+        <div class="full fgrid" id="g-bought" ${t.gift === "bought" ? "" : "hidden"}>
+          ${field("f-gfrom", "Paid for by", `<input id="f-gfrom" value="${esc(t.giftFrom || "")}" list="f-clients" autocomplete="off" placeholder="Who bought it">`, "full")}
+          ${field("f-gemail", "Their email", `<input id="f-gemail" type="email" value="${esc(t.giftFromEmail || "")}">`)}
+          ${field("f-gphone", "Their phone", `<input id="f-gphone" type="tel" value="${esc(t.giftFromPhone || "")}">`)}
+          ${field("f-gnote", "Occasion / gift message", `<input id="f-gnote" value="${esc(t.giftNote || "")}" placeholder="e.g. Dad's 60th birthday">`, "full")}
+          <p class="note full" style="margin:0">The person fishing goes in Customer above. The money counts toward the buyer's total on the Clients tab.</p>
+        </div>
+        <div class="full fgrid" id="g-free" ${t.gift === "free" ? "" : "hidden"}>
+          ${field("f-freason", "Why", `<select id="f-freason">${FREE_REASONS.map(r => `<option ${t.freeReason === r ? "selected" : ""}>${r}</option>`).join("")}</select>`)}
+          ${field("f-freeto", "Donated to (charity or event)", `<input id="f-freeto" value="${esc(t.freeTo || "")}" placeholder="optional">`)}
+          <p class="note full" style="margin:0">Free trips bring in no income except tips, but the fuel, bait and other costs still count as business expenses. Set the charter fee above to the normal price so you can see the value you gave. The value of a donated trip usually isn't tax-deductible as a charity gift, but your out-of-pocket costs can be. Ask your accountant.</p>
+        </div>
         ${field("f-notes", "Notes", `<textarea id="f-notes" placeholder="Species, spot, conditions…">${esc(t.notes)}</textarea>`, "full")}
       </div>
       ${!isNew && mcp ? `<div class="add-row">${t.calEventId ? `<span class="note">On your Google Calendar.</span>` : `<button class="btn small" type="button" data-act="trip-to-cal">Add to Google Calendar</button>`}</div>` : ""}
       <p class="note" style="margin:0">Completed trips count the fee plus tips. Cancelled trips count only the deposit you kept. Booked trips show on Home and the calendar.</p>
       ${foot(isNew, "trip", isNew ? "Save trip" : "Save changes")}`);
     $("#f-customer").addEventListener("change", () => { const c = customerList().find(x => normName(x.name) === normName(v("#f-customer"))); if (!c) return; if (!v("#f-email") && c.email) $("#f-email").value = c.email; if (!v("#f-phone") && c.phone) $("#f-phone").value = c.phone; });
+    const syncGift = () => { const g = v("#f-gift"); $("#g-bought").hidden = g !== "bought"; $("#g-free").hidden = g !== "free"; $("#f-fee").closest(".field").querySelector("label").textContent = g === "free" ? "Normal price (value given) ($)" : "Charter fee ($)"; $("#f-deposit").closest(".field").hidden = g === "free"; $("#f-pay").closest(".field").hidden = g === "free"; };
+    $("#f-gift").addEventListener("change", syncGift); syncGift();
+    $("#f-gfrom").addEventListener("change", () => { const c = customerList().find(x => normName(x.name) === normName(v("#f-gfrom"))); if (!c) return; if (!v("#f-gemail") && c.email) $("#f-gemail").value = c.email; if (!v("#f-gphone") && c.phone) $("#f-gphone").value = c.phone; });
     form.dataset.type = t.type; form.dataset.thread = t.emailThreadId || preset?.emailThreadId || "";
     form.querySelectorAll("[data-type]").forEach(b => b.onclick = () => {
       const prev = form.dataset.type; form.dataset.type = b.dataset.type;
@@ -1121,6 +1148,8 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
         const prev = id ? trips.find(t => t.id === id) : null;
         const body = { date, time: v("#f-time"), type: form.dataset.type || "half", status: v("#f-status"), fee: +v("#f-fee") || 0, tips: +v("#f-tips") || 0, deposit: +v("#f-deposit") || 0,
           pay: v("#f-pay"), party: +v("#f-party") || 0, hours: +v("#f-hours") || 0, customer: v("#f-customer"), email: v("#f-email"), phone: v("#f-phone"), notes: v("#f-notes"),
+          gift: v("#f-gift"), giftFrom: v("#f-gift") === "bought" ? v("#f-gfrom") : "", giftFromEmail: v("#f-gift") === "bought" ? v("#f-gemail") : "", giftFromPhone: v("#f-gift") === "bought" ? v("#f-gphone") : "", giftNote: v("#f-gift") === "bought" ? v("#f-gnote") : "",
+          freeReason: v("#f-gift") === "free" ? v("#f-freason") : "", freeTo: v("#f-gift") === "free" ? v("#f-freeto") : "",
           emailThreadId: form.dataset.thread || prev?.emailThreadId || "", calEventId: prev?.calEventId || "", created: prev?.created || Date.now(), example: false };
         await put("trips", id, body); dlg.close(); toast(id ? "Trip updated" : body.status === "booked" ? "Booking added" : "Trip logged");
       } else if (kind === "ledger") {
@@ -1209,7 +1238,7 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
   async function exportCsv() {
     const q = s => `"${String(s ?? "").replace(/"/g, '""')}"`;
     const lines = [["Date", "Kind", "Category / trip type", "Schedule C line", "Status", "Amount", "Tips", "Deposit", "Gallons", "Miles", "Party", "Hours", "Customer / vendor", "Payment", "Receipt", "Notes"].join(",")];
-    trips.slice().sort((a, b) => a.date.localeCompare(b.date)).forEach(t => lines.push([t.date, "Trip", TRIP_TYPES[t.type], "Line 1 · Gross receipts", t.status, t.fee, t.tips, t.deposit, "", "", t.party, t.hours, q(t.customer), q(t.pay), "", q(t.notes)].join(",")));
+    trips.slice().sort((a, b) => a.date.localeCompare(b.date)).forEach(t => lines.push([t.date, t.gift === "free" ? "Free trip" : t.gift === "bought" ? "Gift trip" : "Trip", q(TRIP_TYPES[t.type] + (t.gift === "bought" && t.giftFrom ? " (paid by " + t.giftFrom + ")" : t.gift === "free" ? " (" + (t.freeReason || "free") + (t.freeTo ? ": " + t.freeTo : "") + ")" : "")), t.gift === "free" ? "No income" : "Line 1 · Gross receipts", t.status, t.gift === "free" ? 0 : t.fee, t.tips, t.deposit, "", "", t.party, t.hours, q(t.customer), q(t.pay), "", q(t.notes)].join(",")));
     ledger.slice().sort((a, b) => a.date.localeCompare(b.date)).forEach(e => lines.push([e.date, e.kind === "income" ? "Income" : "Expense", q(catName(e.cat)), q(e.kind === "income" ? "Line 6 · Other income" : SCHED_C[e.cat] ?? "Not deductible"), "", e.amount, "", "", e.gallons || "", "", "", "", q(e.vendor), "", e.receiptId ? "yes" : "", q(e.notes)].join(",")));
     miles.slice().sort((a, b) => a.date.localeCompare(b.date)).forEach(m => lines.push([m.date, "Mileage", "Business miles", q("Line 9 · Car & truck"), "", "", "", "", "", m.miles, "", "", "", "", "", q(m.purpose)].join(",")));
     taxes.slice().sort((a, b) => (a.date || "").localeCompare(b.date || "")).forEach(p => lines.push([p.date, "Tax payment", `${p.year} Q${p.q} estimated`, "", "", p.amount, "", "", "", "", "", "", "", "", "", q(p.note)].join(",")));
