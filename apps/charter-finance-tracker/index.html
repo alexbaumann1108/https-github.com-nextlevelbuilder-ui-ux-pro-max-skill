@@ -167,6 +167,14 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
 
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--surface); padding: 9px 16px; border-radius: 999px; font-weight: 600; font-size: .9rem; z-index: 20; max-width: calc(100vw - 32px); text-align: center; }
 @media (prefers-reduced-motion: no-preference) { .toast { animation: rise .2s ease-out; } @keyframes rise { from { transform: translate(-50%, 8px); opacity: 0 } } }
+.files { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+.file { display: grid; gap: 4px; align-content: start; min-width: 0; font-size: .85rem; }
+.file img, .file .doc { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px; display: block; border: 1px solid var(--line); }
+.file .doc { display: grid; place-items: center; background: var(--surface-2); text-decoration: none; font-family: var(--display); font-weight: 700; font-size: 1.3rem; color: var(--muted); }
+.file .fname { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file .btn { justify-self: start; padding: 2px 6px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+#custSearch { font-size: 16px; }
 </style>
 
 <header class="top">
@@ -188,6 +196,7 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
   </main>
 </div>
 
+<input type="file" id="clientFile" multiple hidden>
 <dialog id="dlg"><form class="dlg-in" id="dlgForm" novalidate></form></dialog>
 
 <script>
@@ -224,7 +233,7 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
   };
   const TRIP_TYPES = { half: "Half day", full: "Full day", other: "Other" };
   const PAY = ["Cash", "Card", "Venmo / Zelle", "Check", "Booking site"];
-  const TABS = [["home", "Home"], ["trips", "Trips"], ["money", "Money"], ["inbox", "Inbox"], ["taxes", "Taxes"], ["boat", "Boat"], ["customers", "Customers"], ["settings", "Settings"]];
+  const TABS = [["home", "Home"], ["trips", "Trips"], ["money", "Money"], ["inbox", "Inbox"], ["taxes", "Taxes"], ["boat", "Boat"], ["customers", "Clients"], ["settings", "Settings"]];
   const catName = id => (EXP_CATS.find(c => c.id === id) || INC_CATS.find(c => c.id === id) || { name: id }).name;
   const DAY = 864e5;
   const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -233,7 +242,8 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
 
   // ================= state =================
   let db = null, mcp = null, sample = null, assets = null, canWrite = true;
-  let trips = [], ledger = [], taxes = [], miles = [], service = [], renewals = [];
+  let trips = [], ledger = [], taxes = [], miles = [], service = [], renewals = [], clients = [];
+  let custQuery = "", custSort = "az", clientMail = null, fileKey = null;
   let settings = { name: "", halfPrice: 600, fullPrice: 1100, incomeRate: 12, stateRate: 0, mileRate: 0.70, homePort: "", engineHours: "", engineHoursDate: "" };
   const loaded = { trips: false, ledger: false };
   let tab = "home", period = "year", ledgerFilter = "all", tripFilter = "all", taxYear = new Date().getFullYear();
@@ -419,6 +429,7 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
     [...prev.quarters.filter(q => q.q === 4), ...tc.quarters].forEach(q => {
       if ((q.status === "soon" || q.status === "overdue") && q.suggested - q.paid > 1) a.push({ lvl: q.status === "overdue" ? "bad" : "warn", txt: `Estimated tax payment ${q.status === "overdue" ? "was due" : "due"} ${fmtDate(q.due)}: about ${money(q.suggested - q.paid)}`, act: `<button class="btn small" type="button" data-tab="taxes">See taxes</button>` });
     });
+    clients.forEach(cl => { if (!cl.birthday) return; const b = pd(cl.birthday); const nx = new Date(today().getFullYear(), b.getMonth(), b.getDate()); if (nx < today()) nx.setFullYear(nx.getFullYear() + 1); const d = Math.round((nx - today()) / DAY); if (d <= 7) a.push({ lvl: "info", txt: `${cl.name}'s birthday is ${d === 0 ? "today" : d === 1 ? "tomorrow" : "in " + d + " days"}`, act: `<button class="btn small" type="button" data-cust="c:${esc(cl.id)}" data-tabto="customers">Open</button>` }); });
     if (engineNow() == null && service.length) a.push({ lvl: "info", txt: "Enter your engine hours so the app can tell you when service is due.", act: `<button class="btn small" type="button" data-act="engine">Set hours</button>` });
     return a;
   }
@@ -762,45 +773,186 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
       ${maint.length ? `<div class="list">${maint.map(ledgerRow).join("")}</div>` : `<p class="note">Repairs you log as Maintenance expenses show up here.</p>`}</div>`;
   }
 
-  // ---------- CUSTOMERS ----------
-  function customerList() {
-    const map = new Map();
-    trips.forEach(t => {
-      const name = (t.customer || "").trim(); if (!name) return;
-      const k = name.toLowerCase();
-      const c = map.get(k) || { key: k, name, trips: [], spent: 0, email: "", phone: "", last: "", next: "" };
-      c.trips.push(t); c.spent += tripIncome(t);
-      if (t.email) c.email = t.email; if (t.phone) c.phone = t.phone;
+  // ---------- CLIENTS ----------
+  const CLIENT_SOURCES = ["Website", "Phone / text", "Repeat customer", "Referral", "Google", "Facebook / Instagram", "Booking site", "Hotel / concierge", "Walk-up", "Other"];
+  const normName = s => String(s || "").trim().toLowerCase();
+  function clientTrips(cl) {
+    const names = new Set([cl.name, ...(cl.aliases || [])].map(normName).filter(Boolean));
+    const em = normName(cl.email);
+    return trips.filter(t => names.has(normName(t.customer)) || (em && normName(t.email) === em));
+  }
+  function summarize(name, ts, rec) {
+    const c = { key: rec ? "c:" + rec.id : "t:" + normName(name), rec, name, trips: ts, spent: 0, email: rec?.email || "", phone: rec?.phone || "", last: "", next: "", first: "" };
+    ts.forEach(t => {
+      c.spent += tripIncome(t);
+      if (!c.email && t.email) c.email = t.email;
+      if (!c.phone && t.phone) c.phone = t.phone;
       if (t.status === "completed" && t.date > c.last) c.last = t.date;
+      if (t.status === "completed" && (!c.first || t.date < c.first)) c.first = t.date;
       if (t.status === "booked" && t.date >= iso(today()) && (!c.next || t.date < c.next)) c.next = t.date;
-      map.set(k, c);
     });
-    return [...map.values()].sort((a, b) => b.spent - a.spent);
+    c.done = ts.filter(t => t.status === "completed").length;
+    c.search = [name, c.email, c.phone, ...(rec?.aliases || []), ...(rec?.tags || [])].join(" ").toLowerCase();
+    return c;
+  }
+  function customerList() {
+    const used = new Set(); const out = [];
+    clients.forEach(cl => { const ts = clientTrips(cl); ts.forEach(t => used.add(t.id)); out.push(summarize(cl.name, ts, cl)); });
+    const map = new Map();
+    trips.filter(t => !used.has(t.id) && (t.customer || "").trim()).forEach(t => { const k = normName(t.customer); if (!map.has(k)) map.set(k, []); map.get(k).push(t); });
+    map.forEach(ts => out.push(summarize(ts[0].customer.trim(), ts, null)));
+    return out.sort((a, b) => b.spent - a.spent);
+  }
+  function sortClients(cs) {
+    const s = cs.slice();
+    if (custSort === "az") s.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
+    else if (custSort === "recent") s.sort((a, b) => ((b.next || b.last || "") > (a.next || a.last || "") ? 1 : -1));
+    return s;
+  }
+  const isImg = f => /^image\//.test(f.type || "") || /\.(png|jpe?g|gif|webp|heic)$/i.test(f.name || "");
+  function clientRow(c) {
+    return `<button class="row nodate" type="button" data-cust="${esc(c.key)}" data-search="${esc(c.search)}"><span class="main"><span class="t1">${esc(c.name)}${c.done > 1 ? `<span class="pill ok">repeat</span>` : ""}${c.next ? `<span class="pill booked">booked</span>` : ""}${(c.rec?.tags || []).slice(0, 2).map(t => `<span class="pill other">${esc(t)}</span>`).join("")}${!c.rec ? `<span class="pill unknown">no details yet</span>` : ""}</span><span class="t2">${c.trips.length} trip${c.trips.length === 1 ? "" : "s"}${c.last ? " · last " + fmtDate(c.last) : ""}${c.phone ? " · " + esc(c.phone) : c.email ? " · " + esc(c.email) : ""}</span></span><span class="amt in">${money(c.spent)}</span></button>`;
   }
   function viewCustomers() {
     const cs = customerList();
     if (custSel) {
       const c = cs.find(x => x.key === custSel);
-      if (c) {
-        return `<div class="card"><div class="card-head"><button class="btn small" type="button" data-cust="">‹ All customers</button></div>
-          <h2>${esc(c.name)}</h2>
-          <div class="insights" style="margin-top:8px">
-            <div class="ins"><span class="k">Email</span><span class="v">${c.email ? `${esc(c.email)} ${mcp ? `<button class="btn small" type="button" data-compose-to="${esc(c.email)}" data-compose-name="${esc(c.name)}">Email</button>` : ""}<button class="btn small ghost" type="button" data-copy="${esc(c.email)}">Copy</button>` : "—"}</span></div>
-            <div class="ins"><span class="k">Phone</span><span class="v">${c.phone ? `${esc(c.phone)} <button class="btn small ghost" type="button" data-copy="${esc(c.phone)}">Copy</button>` : "—"}</span></div>
-            <div class="ins"><span class="k">Trips</span><span class="v">${c.trips.filter(t => t.status === "completed").length} completed${c.next ? ` · next ${fmtDate(c.next)}` : ""}</span></div>
-            <div class="ins"><span class="k">Total spent</span><span class="v">${money(c.spent)}</span></div>
-          </div>
-          <h3 style="margin:14px 0 4px">Trip history</h3>
-          <div class="list">${c.trips.slice().sort((a, b) => b.date.localeCompare(a.date)).map(tripRow).join("")}</div>
-          <p class="note">Contact details come from the trips you log. Edit a trip to add or fix an email or phone number.</p></div>`;
-      }
+      if (c) return viewClient(c);
+      custSel = null;
     }
-    const repeat = cs.filter(c => c.trips.filter(t => t.status === "completed").length > 1).length;
+    const repeat = cs.filter(c => c.done > 1).length;
     const lapsed = cs.filter(c => c.last && !c.next && daysUntil(c.last) < -300);
-    return `<div class="card"><div class="card-head"><h2>Customers</h2><span class="note">${cs.length} total · ${repeat} repeat</span></div>
-      ${cs.length ? `<div class="list">${cs.map(c => `<button class="row" type="button" data-cust="${esc(c.key)}" style="grid-template-columns:1fr auto"><span class="main"><span class="t1">${esc(c.name)}${c.trips.filter(t => t.status === "completed").length > 1 ? `<span class="pill ok">repeat</span>` : ""}${c.next ? `<span class="pill booked">booked</span>` : ""}</span><span class="t2">${c.trips.length} trip${c.trips.length === 1 ? "" : "s"}${c.last ? " · last " + fmtDate(c.last) : ""}${c.phone ? " · " + esc(c.phone) : ""}</span></span><span class="amt in">${money(c.spent)}</span></button>`).join("")}</div>`
-        : `<div class="empty"><h3>No customers yet</h3><p>Customers are built from the names you add to trips.</p></div>`}</div>
-      ${lapsed.length ? `<div class="card"><div class="card-head"><h2>Worth a hello</h2></div><p class="note" style="margin-top:0">These customers fished with you about a year ago and haven't booked again. A quick note before the season can bring them back.</p><div class="list">${lapsed.map(c => `<button class="row" type="button" data-cust="${esc(c.key)}" style="grid-template-columns:1fr auto"><span class="main"><span class="t1">${esc(c.name)}</span><span class="t2">Last trip ${fmtDate(c.last)}</span></span><span class="note">›</span></button>`).join("")}</div></div>` : ""}`;
+    const sorted = sortClients(cs);
+    const q = custQuery.trim().toLowerCase();
+    const sorts = [["az", "A–Z"], ["spent", "Top spenders"], ["recent", "Recent"]];
+    return `<div class="card"><div class="card-head"><h2>Clients</h2><div class="add-row"><span class="note">${cs.length} total · ${repeat} repeat</span>${canWrite ? `<button class="btn small primary" type="button" data-act="add-client">+ Client</button>` : ""}</div></div>
+      <div class="field" style="margin-bottom:10px"><label for="custSearch" class="sr">Search clients</label><input id="custSearch" type="search" placeholder="Search by name, email or phone" value="${esc(custQuery)}" autocomplete="off"></div>
+      <div class="periods" style="margin-bottom:8px">${sorts.map(([k, l]) => `<button class="chip" type="button" data-custsort="${k}" aria-pressed="${custSort === k}">${l}</button>`).join("")}</div>
+      ${cs.length ? `<div class="list" id="clientList">${sorted.map(c => clientRow(c).replace('class="row nodate"', `class="row nodate"${q && !c.search.includes(q) ? " hidden" : ""}`)).join("")}</div><p class="note" id="noMatch" ${q && !cs.some(c => c.search.includes(q)) ? "" : "hidden"}>No clients match “<span id="noMatchQ">${esc(custQuery)}</span>”.</p>`
+        : `<div class="empty"><h3>No clients yet</h3><p>Tap <b>+ Client</b> to add one, or log a trip with a customer name and they'll show up here.</p></div>`}</div>
+    ${lapsed.length ? `<div class="card"><div class="card-head"><h2>Worth a hello</h2></div><p class="note" style="margin-top:0">These clients fished with you about a year ago and haven't booked again. A quick note before the season can bring them back.</p><div class="list">${lapsed.map(c => `<button class="row nodate" type="button" data-cust="${esc(c.key)}"><span class="main"><span class="t1">${esc(c.name)}</span><span class="t2">Last trip ${fmtDate(c.last)}</span></span><span class="note">›</span></button>`).join("")}</div></div>` : ""}`;
+  }
+  function viewClient(c) {
+    const r = c.rec || {};
+    const files = (r.files || []).slice().sort((a, b) => (b.added || "").localeCompare(a.added || ""));
+    const log = (r.log || []).map((n, i) => ({ ...n, i })).sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+    const bday = r.birthday ? (() => { const b = pd(r.birthday); const nx = new Date(today().getFullYear(), b.getMonth(), b.getDate()); if (nx < today()) nx.setFullYear(nx.getFullYear() + 1); const d = Math.round((nx - today()) / DAY); return `${MONTHS[b.getMonth()]} ${b.getDate()}${d <= 30 ? ` (in ${d} day${d === 1 ? "" : "s"})` : ""}`; })() : "";
+    const info = [
+      ["Email", c.email ? `${esc(c.email)} ${mcp ? `<button class="btn small" type="button" data-compose-to="${esc(c.email)}" data-compose-name="${esc(c.name)}">Email</button>` : ""}<button class="btn small ghost" type="button" data-copy="${esc(c.email)}">Copy</button>` : ""],
+      ["Phone", c.phone ? `${esc(c.phone)} <button class="btn small ghost" type="button" data-copy="${esc(c.phone)}">Copy</button>` : ""],
+      ["Address", r.address ? esc(r.address).replace(/\n/g, "<br>") : ""],
+      ["Birthday", esc(bday)],
+      ["Emergency contact", esc([r.emergencyName, r.emergencyPhone].filter(Boolean).join(" · "))],
+      ["Found you through", esc([r.source, r.referredBy ? "referred by " + r.referredBy : ""].filter(Boolean).join(" · "))],
+      ["Fishing preferences", esc(r.preferences || "")],
+      ["Health, allergies & diet", esc(r.health || "")],
+      ["Client since", c.first ? fmtDate(c.first) : ""],
+    ].filter(([, v]) => v);
+    const cm = clientMail && clientMail.key === c.key ? clientMail : null;
+    const mailHtml = cm ? (cm.state === "loading" ? `<p class="note">Searching your email…</p>` : cm.state === "error" ? `<p class="err">${esc(cm.err)}</p>` : cm.threads.length ? `<div class="list">${cm.threads.map(t => `<button class="row" type="button" data-open-thread="${esc(t.id)}">${t.date ? dateCell(t.date) : "<span></span>"}<span class="main"><span class="t1">${esc(t.subject)}</span><span class="t2">${esc(t.snippet)}</span></span><span class="note">›</span></button>`).join("")}</div>` : `<p class="note">No emails with ${esc(c.email)} in your inbox.</p>`) : "";
+    return `<div class="card"><div class="card-head"><button class="btn small" type="button" data-cust="">‹ All clients</button>${canWrite ? (c.rec ? `<button class="btn small" type="button" data-edit-client="${esc(c.key)}">Edit details</button>` : `<button class="btn small primary" type="button" data-edit-client="${esc(c.key)}">Add details</button>`) : ""}</div>
+      <h2>${esc(c.name)} ${(r.tags || []).map(t => `<span class="pill other">${esc(t)}</span>`).join("")}</h2>
+      ${(r.aliases || []).length ? `<p class="note" style="margin:2px 0 0">Also known as ${esc(r.aliases.join(", "))}</p>` : ""}
+      <div class="tiles" style="margin-top:10px">
+        <div class="tile"><div class="label">Trips</div><div class="v num">${c.done}</div></div>
+        <div class="tile"><div class="label">Total spent</div><div class="v num in">${money(c.spent)}</div></div>
+        <div class="tile"><div class="label">Last trip</div><div class="v num">${c.last ? fmtDate(c.last).replace(/, \d{4}$/, "") : "—"}</div></div>
+        <div class="tile"><div class="label">Next trip</div><div class="v num">${c.next ? fmtDate(c.next).replace(/, \d{4}$/, "") : "—"}</div></div>
+      </div>
+      ${canWrite ? `<div class="add-row" style="margin-top:12px"><button class="btn small primary" type="button" data-book-client="${esc(c.key)}">Book a trip</button><button class="btn small" type="button" data-client-note="${esc(c.key)}">+ Note</button>${assets ? `<button class="btn small" type="button" data-client-file="${esc(c.key)}">+ File</button>` : ""}</div>` : ""}
+      ${info.length ? `<div class="insights" style="margin-top:8px">${info.map(([k, v]) => `<div class="ins"><span class="k">${k}</span><span class="v">${v}</span></div>`).join("")}</div>` : `<p class="note">${c.rec ? "No contact details yet." : "Tap <b>Add details</b> to save their phone, address, birthday, preferences and more."}</p>`}
+      ${r.notes ? `<p style="white-space:pre-wrap;margin:10px 0 0">${esc(r.notes)}</p>` : ""}</div>
+    <div class="card"><div class="card-head"><h2>Trip history</h2><span class="note">${c.trips.length}</span></div>
+      ${c.trips.length ? `<div class="list">${c.trips.slice().sort((a, b) => b.date.localeCompare(a.date)).map(tripRow).join("")}</div>` : `<p class="note">No trips yet.</p>`}</div>
+    <div class="card"><div class="card-head"><h2>Files</h2>${canWrite && assets ? `<button class="btn small" type="button" data-client-file="${esc(c.key)}">+ Add files</button>` : ""}</div>
+      ${files.length ? `<div class="files">${files.map(f => `<div class="file">${isImg(f) ? `<a href="${esc(f.url)}" target="_blank" rel="noopener"><img src="${esc(f.url)}" alt="${esc(f.name)}"></a>` : `<a class="doc" href="${esc(f.url)}" target="_blank" rel="noopener"><span>${esc((f.name.split(".").pop() || "file").toUpperCase().slice(0, 4))}</span></a>`}<span class="fname" title="${esc(f.name)}">${esc(f.name)}</span><span class="note">${f.added ? fmtDate(f.added) : ""}</span>${canWrite ? `<button class="btn small ghost danger" type="button" data-del-file="${esc(c.key)}" data-fid="${esc(f.id)}">Remove</button>` : ""}</div>`).join("")}</div>`
+        : `<p class="note">${assets ? "Keep signed waivers, photos, licenses, receipts and anything else for this client here." : "Files can only be added when the app is open on claude.ai."}</p>`}</div>
+    <div class="card"><div class="card-head"><h2>Notes</h2>${canWrite ? `<button class="btn small" type="button" data-client-note="${esc(c.key)}">+ Note</button>` : ""}</div>
+      ${log.length ? `<div class="list">${log.map(n => `<div class="row">${dateCell(n.date)}<span class="main" style="white-space:pre-wrap">${esc(n.text)}</span>${canWrite ? `<button class="btn small ghost" type="button" data-del-note="${esc(c.key)}" data-ni="${n.i}">Delete</button>` : "<span></span>"}</div>`).join("")}</div>` : `<p class="note">Log calls, texts, what they liked, what to remember next time.</p>`}</div>
+    ${mcp && c.email ? `<div class="card"><div class="card-head"><h2>Emails</h2><button class="btn small" type="button" data-client-mail="${esc(c.key)}">${cm ? "Refresh" : "Show emails"}</button></div>${mailHtml || `<p class="note" style="margin:0">See your recent emails with ${esc(c.email)}.</p>`}</div>` : ""}`;
+  }
+  const findClient = key => customerList().find(x => x.key === key);
+  async function ensureRec(c) {
+    if (c.rec) return c.rec.id;
+    const ref = db.collection("clients").doc();
+    await ref.set({ name: c.name, email: c.email || "", phone: c.phone || "", aliases: [], tags: [], files: [], log: [], created: Date.now() });
+    custSel = "c:" + ref.id;
+    return ref.id;
+  }
+  function openClient(c) {
+    const r = c?.rec || {};
+    const isNew = !c;
+    openForm("client", c?.rec ? c.rec.id : "", `${headH(isNew ? "Add a client" : c.rec ? "Edit " + esc(c.name) : "Add details for " + esc(c.name))}
+      <div class="fgrid">
+        ${field("k-name", "Name", `<input id="k-name" value="${esc(c?.name || "")}" placeholder="First and last name">`, "full")}
+        ${field("k-email", "Email", `<input id="k-email" type="email" value="${esc(c?.email || "")}">`)}
+        ${field("k-phone", "Phone", `<input id="k-phone" type="tel" value="${esc(c?.phone || "")}">`)}
+        ${field("k-address", "Address", `<textarea id="k-address" style="min-height:3.2rem">${esc(r.address || "")}</textarea>`, "full")}
+        ${field("k-bday", "Birthday", `<input id="k-bday" type="date" value="${esc(r.birthday || "")}">`)}
+        ${field("k-source", "How they found you", `<select id="k-source"><option value="">—</option>${CLIENT_SOURCES.map(s => `<option ${r.source === s ? "selected" : ""}>${s}</option>`).join("")}</select>`)}
+        ${field("k-ref", "Referred by", `<input id="k-ref" value="${esc(r.referredBy || "")}">`)}
+        ${field("k-tags", "Tags (comma separated)", `<input id="k-tags" value="${esc((r.tags || []).join(", "))}" placeholder="VIP, family, fly fishing">`)}
+        ${field("k-ename", "Emergency contact", `<input id="k-ename" value="${esc(r.emergencyName || "")}" placeholder="Name">`)}
+        ${field("k-ephone", "Emergency phone", `<input id="k-ephone" type="tel" value="${esc(r.emergencyPhone || "")}">`)}
+        ${field("k-pref", "Fishing preferences", `<input id="k-pref" value="${esc(r.preferences || "")}" placeholder="Snook on artificials, likes early starts">`, "full")}
+        ${field("k-health", "Health, allergies & diet", `<input id="k-health" value="${esc(r.health || "")}" placeholder="Seasick-prone, peanut allergy">`, "full")}
+        ${field("k-notes", "Notes", `<textarea id="k-notes">${esc(r.notes || "")}</textarea>`, "full")}
+      </div>
+      ${c?.rec ? `<p class="note" style="margin:0">Deleting a client removes their details, notes and files. Their trips stay in your logbook.</p>` : ""}
+      ${foot(!c?.rec, "client", "Save")}`);
+    form.dataset.oldName = c?.name || "";
+  }
+  function openClientNote(c) {
+    openForm("clientnote", c.key, `${headH("Note for " + esc(c.name))}
+      <div class="fgrid">
+        ${field("q-date", "Date", `<input id="q-date" type="date" value="${iso(today())}">`)}
+        ${field("q-text", "Note", `<textarea id="q-text" style="min-height:7rem" placeholder="Called about a June trip. Wants to bring his son."></textarea>`, "full")}
+      </div>${foot(true, "", "Save note")}`);
+  }
+  async function uploadClientFiles(key, files) {
+    const c = findClient(key); if (!c || !assets || !files.length) return;
+    toast(`Uploading ${files.length} file${files.length === 1 ? "" : "s"}…`);
+    try {
+      const id = await ensureRec(c);
+      const added = [];
+      for (const f of files) {
+        if (f.size > 20 * 1024 * 1024) { toast(`${f.name} is over 20 MB and was skipped`); continue; }
+        const up = await assets.upload(f);
+        added.push({ id: up.id, url: up.url, name: f.name || "file", type: f.type || "", size: f.size, added: iso(today()) });
+      }
+      const cur = clients.find(x => x.id === id)?.files || [];
+      await db.collection("clients").doc(id).update({ files: [...cur, ...added] });
+      toast(`${added.length} file${added.length === 1 ? "" : "s"} added`);
+    } catch (e) { toast(e?.code === "quota_exceeded" ? "Storage is full. Remove some files first." : "A file didn't upload. Try again."); }
+  }
+  async function removeClientFile(btn) {
+    if (btn.dataset.armed !== "1") { btn.dataset.armed = "1"; btn.textContent = "Tap again"; return; }
+    const c = findClient(btn.dataset.delFile); if (!c?.rec) return;
+    const f = (c.rec.files || []).find(x => x.id === btn.dataset.fid);
+    try {
+      await db.collection("clients").doc(c.rec.id).update({ files: (c.rec.files || []).filter(x => x.id !== btn.dataset.fid) });
+      if (f && assets) assets.delete(f.id).catch(() => {});
+      toast("File removed");
+    } catch (e) { toast(writeErr(e)); }
+  }
+  async function removeClientNote(btn) {
+    if (btn.dataset.armed !== "1") { btn.dataset.armed = "1"; btn.textContent = "Tap again"; return; }
+    const c = findClient(btn.dataset.delNote); if (!c?.rec) return;
+    try { await db.collection("clients").doc(c.rec.id).update({ log: (c.rec.log || []).filter((n, i) => i !== +btn.dataset.ni) }); toast("Note deleted"); } catch (e) { toast(writeErr(e)); }
+  }
+  async function loadClientMail(c) {
+    clientMail = { key: c.key, state: "loading", threads: [] }; render(true);
+    try {
+      const r = await mcp.callTool("Gmail", "search_threads", { query: `from:${c.email} OR to:${c.email}`, pageSize: 10, view: "THREAD_VIEW_SUMMARY" }, { cache: { refresh: true, staleTime: 60000, gcTime: 600000 } });
+      if (clientMail?.key !== c.key) return;
+      clientMail.threads = (r.payload?.threads || []).map(normThread); clientMail.state = "ok";
+    } catch (e) { if (clientMail?.key !== c.key) return; clientMail.state = "error"; clientMail.err = connMsg("Gmail", e?.code); }
+    render(true);
+  }
+  function filterClients(q) {
+    custQuery = q; const s = q.trim().toLowerCase(); let any = false;
+    document.querySelectorAll("#clientList [data-search]").forEach(el => { const hit = !s || el.dataset.search.includes(s); el.hidden = !hit; any ||= hit; });
+    const nm = $("#noMatch"); if (nm) { nm.hidden = any; const qq = $("#noMatchQ"); if (qq) qq.textContent = q; }
   }
 
   // ---------- SETTINGS ----------
@@ -855,7 +1007,7 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
         ${field("f-pay", "Paid by", `<select id="f-pay">${PAY.map(p => `<option ${t.pay === p ? "selected" : ""}>${p}</option>`).join("")}</select>`)}
         ${field("f-party", "Party size", `<input id="f-party" type="number" step="1" min="0" inputmode="numeric" value="${esc(t.party)}" placeholder="e.g. 4">`)}
         ${field("f-hours", "Hours on the water", `<input id="f-hours" type="number" step="0.5" min="0" inputmode="decimal" value="${esc(t.hours)}">`)}
-        ${field("f-customer", "Customer", `<input id="f-customer" value="${esc(t.customer)}" placeholder="Name or group">`, "full")}
+        ${field("f-customer", "Customer", `<input id="f-customer" value="${esc(t.customer)}" placeholder="Name or group" list="f-clients" autocomplete="off"><datalist id="f-clients">${customerList().map(c => `<option value="${esc(c.name)}">`).join("")}</datalist>`, "full")}
         ${field("f-email", "Customer email", `<input id="f-email" type="email" value="${esc(t.email || "")}" placeholder="optional">`)}
         ${field("f-phone", "Customer phone", `<input id="f-phone" type="tel" value="${esc(t.phone || "")}" placeholder="optional">`)}
         ${field("f-notes", "Notes", `<textarea id="f-notes" placeholder="Species, spot, conditions…">${esc(t.notes)}</textarea>`, "full")}
@@ -863,6 +1015,7 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
       ${!isNew && mcp ? `<div class="add-row">${t.calEventId ? `<span class="note">On your Google Calendar.</span>` : `<button class="btn small" type="button" data-act="trip-to-cal">Add to Google Calendar</button>`}</div>` : ""}
       <p class="note" style="margin:0">Completed trips count the fee plus tips. Cancelled trips count only the deposit you kept. Booked trips show on Home and the calendar.</p>
       ${foot(isNew, "trip", isNew ? "Save trip" : "Save changes")}`);
+    $("#f-customer").addEventListener("change", () => { const c = customerList().find(x => normName(x.name) === normName(v("#f-customer"))); if (!c) return; if (!v("#f-email") && c.email) $("#f-email").value = c.email; if (!v("#f-phone") && c.phone) $("#f-phone").value = c.phone; });
     form.dataset.type = t.type; form.dataset.thread = t.emailThreadId || preset?.emailThreadId || "";
     form.querySelectorAll("[data-type]").forEach(b => b.onclick = () => {
       const prev = form.dataset.type; form.dataset.type = b.dataset.type;
@@ -998,6 +1151,26 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
       } else if (kind === "taxpay") {
         const amount = +v("#t-amt"); if (!(amount > 0)) throw { msg: "Enter the amount you paid." };
         await put("taxes", id, { year: +form.dataset.year, q: +form.dataset.q, amount, date: v("#t-date"), note: v("#t-note") }); dlg.close(); toast("Payment recorded");
+      } else if (kind === "client") {
+        const name = v("#k-name"); if (!name) throw { msg: "Enter the client's name." };
+        const prev = id ? clients.find(x => x.id === id) : null;
+        const dup = clients.find(x => x.id !== id && normName(x.name) === normName(name));
+        if (dup) throw { msg: `You already have a client named ${dup.name}. Search for them instead.` };
+        const aliases = new Set(prev?.aliases || []);
+        const old = form.dataset.oldName; if (old && normName(old) !== normName(name)) aliases.add(old);
+        aliases.forEach(a => { if (normName(a) === normName(name)) aliases.delete(a); });
+        const body = { name, email: v("#k-email"), phone: v("#k-phone"), address: $("#k-address").value.trim(), birthday: v("#k-bday"), source: v("#k-source"), referredBy: v("#k-ref"),
+          tags: v("#k-tags").split(",").map(x => x.trim()).filter(Boolean), emergencyName: v("#k-ename"), emergencyPhone: v("#k-ephone"), preferences: v("#k-pref"), health: v("#k-health"), notes: $("#k-notes").value.trim(),
+          aliases: [...aliases], files: prev?.files || [], log: prev?.log || [], created: prev?.created || Date.now() };
+        const newId = await put("clients", id, body); custSel = "c:" + newId; tab = "customers";
+        dlg.close(); toast(id ? "Client updated" : "Client saved"); render(true);
+      } else if (kind === "clientnote") {
+        const text = $("#q-text").value.trim(); if (!text) throw { msg: "Write a note first." };
+        const c = findClient(id); if (!c) throw { msg: "Couldn't find that client." };
+        const rid = await ensureRec(c);
+        const cur = clients.find(x => x.id === rid)?.log || [];
+        await db.collection("clients").doc(rid).update({ log: [...cur, { date: v("#q-date") || iso(today()), text }] });
+        dlg.close(); toast("Note saved");
       } else if (kind === "miles") {
         const mi = +v("#m-mi"); if (!(mi > 0)) throw { msg: "Enter the miles driven." };
         if (!okDate(v("#m-date"))) throw { msg: "Pick a date." };
@@ -1010,7 +1183,8 @@ dialog::backdrop { background: rgb(5 15 20 / .55); }
   async function delEntry(kind) {
     const btn = form.querySelector("[data-del]");
     if (btn.dataset.armed !== "1") { btn.dataset.armed = "1"; btn.textContent = "Tap again to delete"; return; }
-    const coll = { trip: "trips", ledger: "ledger", renewal: "renewals", service: "service", taxpay: "taxes", miles: "miles" }[kind];
+    const coll = { trip: "trips", ledger: "ledger", renewal: "renewals", service: "service", taxpay: "taxes", miles: "miles", client: "clients" }[kind];
+    if (kind === "client") custSel = null;
     try { await db.collection(coll).doc(form.dataset.id).delete(); dlg.close(); toast("Deleted"); } catch (e) { showErr(writeErr(e)); }
   }
 
@@ -1252,7 +1426,15 @@ Question: ${q}`;
     else if (d.cal) { calMonth = d.cal === "0" ? new Date(today().getFullYear(), today().getMonth(), 1) : new Date(calMonth.getFullYear(), calMonth.getMonth() + +d.cal, 1); if (d.cal === "0") calSel = iso(today()); render(true); }
     else if (d.day) { calSel = calSel === d.day ? null : d.day; render(true); }
     else if (d.newTripOn) openTrip(null, { date: d.newTripOn, status: d.newTripOn > iso(today()) ? "booked" : "completed" });
-    else if (d.cust !== undefined) { custSel = d.cust || null; render(true); window.scrollTo(0, 0); }
+    else if (d.cust !== undefined) { if (d.tabto) tab = d.tabto; custSel = d.cust || null; clientMail = null; render(true); window.scrollTo(0, 0); }
+    else if (d.custsort) { custSort = d.custsort; render(true); }
+    else if (d.editClient) openClient(findClient(d.editClient));
+    else if (d.bookClient) { const c = findClient(d.bookClient); openTrip(null, { status: "booked", customer: c?.name || "", email: c?.email || "", phone: c?.phone || "" }); }
+    else if (d.clientNote) { const c = findClient(d.clientNote); if (c) openClientNote(c); }
+    else if (d.clientFile) { fileKey = d.clientFile; const inp = $("#clientFile"); inp.value = ""; inp.click(); }
+    else if (d.delFile) removeClientFile(b);
+    else if (d.delNote) removeClientNote(b);
+    else if (d.clientMail) { const c = findClient(d.clientMail); if (c) loadClientMail(c); }
     else if (d.composeTo) { tab = "inbox"; mail.open = null; mail.compose = { to: d.composeTo, subject: "", body: `Hi ${(d.composeName || "").split(" ")[0]},\n\n` }; render(true); window.scrollTo(0, 0); }
     else if (d.copy) { navigator.clipboard?.writeText(d.copy).then(() => toast("Copied"), () => toast(d.copy)); }
     else if (b.id === "addTripBtn") openTrip();
@@ -1277,6 +1459,7 @@ Question: ${q}`;
       case "add-renewal": openRenewal(); break;
       case "add-service": openService(); break;
       case "add-miles": openMiles(); break;
+      case "add-client": openClient(null); break;
       case "engine": openEngine(); break;
       case "connect-mail": connect("mail"); break;
       case "connect-cal": connect("cal"); break;
@@ -1303,6 +1486,8 @@ Question: ${q}`;
       incomeRate: Math.min(40, Math.max(0, +f.get("incomeRate") || 0)), stateRate: Math.min(15, Math.max(0, +f.get("stateRate") || 0)), mileRate: Math.max(0, +f.get("mileRate") || 0) };
     try { await db.doc("settings/main").set(body); toast("Settings saved"); } catch (err) { toast(writeErr(err)); }
   });
+  document.addEventListener("input", e => { if (e.target.id === "custSearch") filterClients(e.target.value); });
+  $("#clientFile").addEventListener("change", e => { const files = [...e.target.files]; if (fileKey && files.length) uploadClientFiles(fileKey, files); });
   document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.id === "askQ" && !e.shiftKey) { e.preventDefault(); ask(); } });
 
   // ================= boot =================
@@ -1318,7 +1503,7 @@ Question: ${q}`;
     db.collection("trips").onSnapshot(s => { trips = s.docs.map(d => ({ id: d.id, ...d.data() })); if (!s.metadata.fromCache) loaded.trips = true; done(); render(); }, fail);
     db.collection("ledger").onSnapshot(s => { ledger = s.docs.map(d => ({ id: d.id, ...d.data() })); if (!s.metadata.fromCache) loaded.ledger = true; done(); render(); }, fail);
     const sub = (coll, set) => db.collection(coll).onSnapshot(s => { set(s.docs.map(d => ({ id: d.id, ...d.data() }))); render(); }, () => {});
-    sub("taxes", x => taxes = x); sub("miles", x => miles = x); sub("service", x => service = x); sub("renewals", x => renewals = x);
+    sub("taxes", x => taxes = x); sub("miles", x => miles = x); sub("service", x => service = x); sub("renewals", x => renewals = x); sub("clients", x => clients = x);
     db.doc("settings/main").onSnapshot(s => { if (s.exists) settings = { ...settings, ...s.data() }; render(); }, () => {});
     window.claude.use("assets").then(a => { assets = a; }).catch(() => {});
     window.claude.use("sample").then(s => { sample = s; render(); }).catch(() => {});
